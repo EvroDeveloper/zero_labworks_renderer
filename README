@@ -1,5 +1,5 @@
 
-Modified Lab Renderer --- Updated for Unity 2017.1.0b4
+Modified Lab Renderer --- Updated for Unity 5.6 / 2017.1 
 
 
 Added new methods of light transport to help add to realism.
@@ -8,14 +8,18 @@ Some new features:
 
 -Fluorescence (Also including UV light from light Alpha)
 -Retroreflective (Great for reflectors)
--Anisotropic (G chanel in MetallicTex controls second term)
 -Proper edge falloff Scaler (cubemap scaler is hacky)
+-Light Hardness (Lambert wrap)
+-Light Cookie Support
+-PCSS shadow support (wip)
+-Transparent falloff (looks good in VR)
+-Transparency Shadows
 
 
-5/10/2017 changes
 
-- Added and tweaked transparency shadow and shadow toggle (originally  made by Simon Windmill)
-- Fixed adaptive rendering causing render output to be black
+
+Anisotropic currently disabled
+// -Anisotropic (G chanel in MetallicTex controls second term)
 -------
 OG Text
 
