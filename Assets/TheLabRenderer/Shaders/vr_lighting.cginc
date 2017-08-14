@@ -34,6 +34,12 @@ CBUFFER_START( ValveVrLighting )
 	float4 g_vShadowUniTerms;
 
 	float4x4 g_matWorldToLightCookie[ MAX_LIGHTS ];
+
+	float4x4 g_matWorldToPoint[ MAX_LIGHTS ];
+
+
+
+
 CBUFFER_END
 
 // Override lightmap
@@ -83,7 +89,8 @@ void RoughnessEllipseToScaleAndExp( float2 vRoughness, out float2 o_vDiffuseExpo
 
 //	o_vDiffuseExponentOut.xy = ( ( 1.0 - ( vRoughness.x + vRoughness.y ) * 0.5 ) * 0.8 ) + 0.6; // Outputs 0.6-1.4
 //	o_vSpecularExponentOut.xy = exp2( pow( 1.0 - vRoughness.xy, 1.5 ) * 14.0 ); // Outputs 1-16384
-//	o_vSpecularScaleOut.xy = 1.0 - saturate( vRoughness.xy * 0.5 ); // This is a pseudo energy conserving scalar for the roughness exponent
+//	o_vSpecularScaleOut.xy = 1.0 - saturate( vRoughness.xy * 0.5 ); // This is a pseudo energy conserving scalar for the roughness exponent
+
 	
 	
 	o_vDiffuseExponentOut.xy = ( ( 1.0 - vRoughness.xy ) * 0.8 ) + 0.6; // 0.8 and 0.6 are magic numbers
@@ -240,8 +247,8 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 	//	flSpecularTerm *= BlinnPhongModifiedNormalizationFactor( vSpecularExponent.x * 0.5 + vSpecularExponent.y * 0.5 );
 
 		float flLDotH = ClampToPositive( dot( vPositionToLightDirWs.xyz, vHalfAngleDirWs.xyz ) );
-		float3 vMaxReflectance = vReflectance.rgb / ( Luminance( vReflectance.rgb ) + 0.0001 );
-		//float3 vFresnel = lerp( vReflectance.rgb, vMaxReflectance.rgb, pow( 1.0 - flLDotH, flFresnelExponent ) );
+		float3 vMaVReflectance = vReflectance.rgb / ( Luminance( vReflectance.rgb ) + 0.0001 );
+		//float3 vFresnel = lerp( vReflectance.rgb, vMaVReflectance.rgb, pow( 1.0 - flLDotH, flFresnelExponent ) );
 
 		float3 vFresnel = FresnelTerm( vReflectance , flLDotH);
 
@@ -460,10 +467,13 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 
 				#if ( D_VALVE_SHADOWING_POINT_LIGHTS )
 				{
-					if ( g_vLightShadowIndex_vLightParams[ i ].y == 2.0 ) // If light is a point light's fake spotlight
+					if ( g_vLightShadowIndex_vLightParams[ i ].x == 2.0 ) // If light is a point light's fake spotlight
 					{
 						// Cull pixels outside the 90 degree frustum
-						float4 vPositionTextureSpace = mul( float4( vPositionWs.xyz, 1.0 ), g_matWorldToLightCookie[ i ] );
+					//	float4 vPositionTextureSpace = mul( float4( vPositionWs.xyz, 1.0 ), g_matWorldToLightCookie[ i ] );
+					float4 vPositionTextureSpace = mul( float4( vPositionWs.xyz, 1.0 ), g_matWorldToPoint[ i ] );
+
+
 						if ( ( vPositionTextureSpace.x < 0.0f ) || ( vPositionTextureSpace.y < 0.0f ) || ( vPositionTextureSpace.x > vPositionTextureSpace.w ) || ( vPositionTextureSpace.y > vPositionTextureSpace.w ) )
 							continue;
 					}
@@ -712,8 +722,8 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 
 	// Apply fresnel to indirect specular
 	float flVDotN = saturate( dot( vPositionToCameraDirWs.xyz, vNormalWs.xyz ) );
-	float3 vMaxReflectance = ( ( vReflectance.rgb + 0.001 ) / Luminance( vReflectance.rgb + 0.001 ) ) * g_flReflectanceMax;
-	float3 vFresnel = lerp( vReflectance.rgb, vMaxReflectance.rgb * g_flFresnelFalloff, pow( 1.0 - flVDotN, flFresnelExponent ) );
+	float3 vMaVReflectance = ( ( vReflectance.rgb + 0.001 ) / Luminance( vReflectance.rgb + 0.001 ) ) * g_flReflectanceMax;
+	float3 vFresnel = lerp( vReflectance.rgb, vMaVReflectance.rgb * g_flFresnelFalloff, pow( 1.0 - flVDotN, flFresnelExponent ) );
 
 	o.vIndirectSpecular.rgb *= vFresnel.rgb;
 	o.vIndirectSpecular.rgb *= g_flCubeMapScalar; // !!! FIXME: This also contains lightmap spec

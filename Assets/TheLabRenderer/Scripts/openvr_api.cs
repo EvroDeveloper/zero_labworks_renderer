@@ -3361,7 +3361,7 @@ public enum ECameraVideoStreamFormat
 	public float flSecondsFingerDown;
 	public float fValueXFirst;
 	public float fValueYFirst;
-	public float fValueXRaw;
+	public float fValueVRaw;
 	public float fValueYRaw;
 }
 [StructLayout(LayoutKind.Sequential)] public struct VREvent_Notification_t

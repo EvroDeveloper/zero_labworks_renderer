@@ -13,6 +13,7 @@ public class ValveRealtimeLight : MonoBehaviour
 	[NonSerialized] [HideInInspector] public Light m_cachedLight    ;
 	[NonSerialized] [HideInInspector] public Matrix4x4[] m_shadowTransform = { Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity };
 	[NonSerialized] [HideInInspector] public Matrix4x4[] m_lightCookieTransform = { Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity };
+    [NonSerialized] [HideInInspector] public Matrix4x4[] m_lightPointTransform = { Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity, Matrix4x4.identity };
 	[NonSerialized] [HideInInspector] public int[] m_shadowX = { 0, 0, 0, 0, 0, 0 };
 	[NonSerialized] [HideInInspector] public int[] m_shadowY = { 0, 0, 0, 0, 0, 0 };
 	[NonSerialized] [HideInInspector] public bool m_bRenderShadowsThisFrame = false;

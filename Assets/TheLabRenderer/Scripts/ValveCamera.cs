@@ -43,7 +43,7 @@ public class ValveCamera : MonoBehaviour
     [Range(0.0f, 3.0f)]
     public float PenumbraSize = 1.5f;
     [Range(0.0f, 1.0f)]
-    public float ShadowBias = 0.0f;
+    public float ShadowBias = 0.0001f;
     [Range(1, 25)]
     public int ShadowSamples = 25;
 
@@ -68,9 +68,9 @@ public class ValveCamera : MonoBehaviour
 
 	[Range( 0.0f, 8.0f )] public int m_MSAALevel = 4;
 	public float m_minRenderTargetScale = 0.8f;
-	public float m_maxRenderTargetScale = 1.4f;
+	public float m_maVRenderTargetScale = 1.4f;
 	[NonSerialized] private int m_nFillRatePercentStep = 15;
-	public int m_maxRenderTargetDimension = 4096;
+	public int m_maVRenderTargetDimension = 4096;
 
 	[NonSerialized] private static bool s_bUsingStaticSettings = false;
 	[NonSerialized] private static bool s_bAdaptiveQualityVRDebug = false;
@@ -573,14 +573,14 @@ public class ValveCamera : MonoBehaviour
 	{
 		// Get command line overrides
 		float flMinRenderTargetScale = GetCommandLineArgValue( "-aqminscale", m_minRenderTargetScale );
-		float flMaxRenderTargetScale = GetCommandLineArgValue( "-aqmaxscale", m_maxRenderTargetScale );
+		float flMaVRenderTargetScale = GetCommandLineArgValue( "-aqmaxscale", m_maVRenderTargetScale );
 		int nFillRatePercentStep = GetCommandLineArgValue( "-aqfillratestep", m_nFillRatePercentStep );
 
-		int nMaxRenderTargetDimension = m_maxRenderTargetDimension;
-		if ( HasCommandLineArg( "-aqmaxres" ) )
+		int nMaVRenderTargetDimension = m_maVRenderTargetDimension;
+		if ( HasCommandLineArg( "-aqmaVRes" ) )
 		{
-			nMaxRenderTargetDimension = GetCommandLineArgValue( "-aqmaxres", nMaxRenderTargetDimension );
-			flMaxRenderTargetScale = Mathf.Min( ( float )nMaxRenderTargetDimension / ( float )VRSettings.eyeTextureWidth, ( float )nMaxRenderTargetDimension / ( float )VRSettings.eyeTextureHeight );
+			nMaVRenderTargetDimension = GetCommandLineArgValue( "-aqmaVRes", nMaVRenderTargetDimension );
+			flMaVRenderTargetScale = Mathf.Min( ( float )nMaVRenderTargetDimension / ( float )UnityEngine.VR.VRSettings.eyeTextureWidth, ( float )nMaVRenderTargetDimension / ( float )UnityEngine.VR.VRSettings.eyeTextureHeight );
 		}
 
 		// Clear array
@@ -591,12 +591,12 @@ public class ValveCamera : MonoBehaviour
 
 		// Add all entries
 		float flCurrentScale = flMinRenderTargetScale;
-		while ( flCurrentScale <= flMaxRenderTargetScale )
+		while ( flCurrentScale <= flMaVRenderTargetScale )
 		{
 			m_adaptiveQualityRenderScaleArray.Add( flCurrentScale );
 			flCurrentScale = Mathf.Sqrt( ( ( float )( nFillRatePercentStep + 100 ) / 100.0f ) * flCurrentScale * flCurrentScale );
 
-			if ( ( ( flCurrentScale * VRSettings.eyeTextureWidth ) > nMaxRenderTargetDimension ) || ( ( flCurrentScale * VRSettings.eyeTextureHeight ) > nMaxRenderTargetDimension ) )
+			if ( ( ( flCurrentScale * UnityEngine.VR.VRSettings.eyeTextureWidth ) > nMaVRenderTargetDimension ) || ( ( flCurrentScale * UnityEngine.VR.VRSettings.eyeTextureHeight ) > nMaVRenderTargetDimension ) )
 			{
 				// Too large
 				break;
@@ -624,7 +624,7 @@ public class ValveCamera : MonoBehaviour
 			for ( int i = 1; i < m_adaptiveQualityRenderScaleArray.Count; i++ )
 			{
 				outputString += i + ". ";
-				outputString += " " + ( int )( VRSettings.eyeTextureWidth * m_adaptiveQualityRenderScaleArray[ i ] ) + "x" + ( int )( VRSettings.eyeTextureHeight * m_adaptiveQualityRenderScaleArray[ i ] );
+				outputString += " " + ( int )( UnityEngine.VR.VRSettings.eyeTextureWidth * m_adaptiveQualityRenderScaleArray[ i ] ) + "x" + ( int )( UnityEngine.VR.VRSettings.eyeTextureHeight * m_adaptiveQualityRenderScaleArray[ i ] );
 				outputString += " " + m_adaptiveQualityRenderScaleArray[ i ];
 
 				if ( i == m_adaptiveQualityDefaultLevel )
@@ -646,13 +646,13 @@ public class ValveCamera : MonoBehaviour
 	{
 		if ( !m_adaptiveQualityEnabled )
 		{
-			if ( VRSettings.enabled )
+			if ( UnityEngine.VR.VRSettings.enabled )
 			{
-				if ( VRSettings.renderScale != 1.0f )
-					VRSettings.renderScale = 1.0f;
+				//if ( UnityEngine.VR.VRSettings.eyeTextureResolutionScale != 1.0f )
+				//	UnityEngine.VR.VRSettings.eyeTextureResolutionScale = 1.0f;
 
-				if ( VRSettings.renderViewportScale != 1.0f )
-					VRSettings.renderViewportScale = 1.0f;
+				if ( UnityEngine.VR.VRSettings.renderViewportScale != 1.0f )
+					UnityEngine.VR.VRSettings.renderViewportScale = 1.0f;
 			}
 
 			return;
@@ -667,10 +667,10 @@ public class ValveCamera : MonoBehaviour
 		// Add latest timing to ring buffer
 		int nRingBufferSize = m_adaptiveQualityRingBuffer.GetLength( 0 );
 		m_nAdaptiveQualityRingBufferPos = ( m_nAdaptiveQualityRingBufferPos + 1 ) % nRingBufferSize;
-		m_adaptiveQualityRingBuffer[ m_nAdaptiveQualityRingBufferPos ] = VRStats.gpuTimeLastFrame;
+		m_adaptiveQualityRingBuffer[ m_nAdaptiveQualityRingBufferPos ] = UnityEngine.VR.VRStats.gpuTimeLastFrame;
 
 		int nOldQualityLevel = m_nAdaptiveQualityLevel;
-		float flSingleFrameMs = ( VRDevice.refreshRate > 0.0f ) ? ( 1000.0f / VRDevice.refreshRate ) : ( 1000.0f / 90.0f ); // Assume 90 fps
+		float flSingleFrameMs = ( UnityEngine.VR.VRDevice.refreshRate > 0.0f ) ? ( 1000.0f / UnityEngine.VR.VRDevice.refreshRate ) : ( 1000.0f / 90.0f ); // Assume 90 fps
 
 		// Render low res means adaptive quality needs to scale back target to free up gpu cycles
 		bool bRenderLowRes = false;
@@ -823,20 +823,20 @@ public class ValveCamera : MonoBehaviour
 			}
 		}
 
-		if ( VRSettings.enabled )
+		if ( UnityEngine.VR.VRSettings.enabled )
 		{
             //Unity 2017 fix
-            VRSettings.renderScale = (m_adaptiveQualityRenderScaleArray[nAdaptiveQualityLevel] / flRenderTargetScale) * flAdditionalViewportScale;
+           //  VRSettings.renderScale = (m_adaptiveQualityRenderScaleArray[nAdaptiveQualityLevel] / flRenderTargetScale) * flAdditionalViewportScale;
 
-			//VRSettings.renderScale = flRenderTargetScale;
-			//VRSettings.renderViewportScale = ( m_adaptiveQualityRenderScaleArray[ nAdaptiveQualityLevel ] / flRenderTargetScale ) * flAdditionalViewportScale;
-			//Debug.Log( "VRSettings.renderScale " + VRSettings.renderScale + " VRSettings.renderViewportScale " + VRSettings.renderViewportScale + "\n\n" );
-		}
+            //UnityEngine.VR.VRSettings.eyeTextureResolutionScale = flRenderTargetScale;
+            UnityEngine.VR.VRSettings.renderViewportScale = (m_adaptiveQualityRenderScaleArray[nAdaptiveQualityLevel] / flRenderTargetScale) * flAdditionalViewportScale;
+            //Debug.Log( "VRSettings.renderScale " + VRSettings.renderScale + " VRSettings.renderViewportScale " + VRSettings.renderViewportScale + "\n\n" );
+        }
 
 		Shader.SetGlobalInt( "g_nNumBins", m_adaptiveQualityNumLevels );
 		Shader.SetGlobalInt( "g_nDefaultBin", m_adaptiveQualityDefaultLevel );
 		Shader.SetGlobalInt( "g_nCurrentBin", nAdaptiveQualityLevel );
-		Shader.SetGlobalInt( "g_nLastFrameInBudget", m_bInterleavedReprojectionEnabled || ( VRStats.gpuTimeLastFrame > flSingleFrameMs ) ? 0 : 1 );
+		Shader.SetGlobalInt( "g_nLastFrameInBudget", m_bInterleavedReprojectionEnabled || ( UnityEngine.VR.VRStats.gpuTimeLastFrame > flSingleFrameMs ) ? 0 : 1 );
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1231,9 +1231,10 @@ public class ValveCamera : MonoBehaviour
 			matTile.m11 = ( float )( vl.m_shadowResolution ) / ( float )m_shadowDepthTexture.height;
 			matTile.m03 = ( float )vl.m_shadowX[ nNumPointLightShadowFacesAdded ] / ( float )m_shadowDepthTexture.width;
 			matTile.m13 = ( float )vl.m_shadowY[ nNumPointLightShadowFacesAdded ] / ( float )m_shadowDepthTexture.height;
-
+            
 			vl.m_shadowTransform[ nNumPointLightShadowFacesAdded ] = matTile * matScaleBias * m_shadowCamera.projectionMatrix * m_shadowCamera.worldToCameraMatrix;
-		
+            vl.m_lightPointTransform[nNumPointLightShadowFacesAdded] = matScaleBias * m_shadowCamera.projectionMatrix * m_shadowCamera.worldToCameraMatrix;
+
 
             //tie in Unity Light bias
             //if (l.type == LightType.Directional)
@@ -1248,7 +1249,7 @@ public class ValveCamera : MonoBehaviour
 
 			// Set shader constants
 			Shader.SetGlobalVector( "g_vLightDirWs", new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z ) );
-
+           
 			// Render
 			m_shadowCamera.RenderWithShader( m_shaderCastShadows, "RenderType" );
 
@@ -1286,6 +1287,8 @@ public class ValveCamera : MonoBehaviour
 	[NonSerialized] private Vector4[] g_vShadowMinMaxUv = new Vector4[ MAX_LIGHTS ];
 	[NonSerialized] private Matrix4x4[] g_matWorldToShadow = new Matrix4x4[ MAX_LIGHTS ];
 	[NonSerialized] private Matrix4x4[] g_matWorldToLightCookie = new Matrix4x4[ MAX_LIGHTS ];
+    [NonSerialized] private Matrix4x4[] g_matWorldToPoint = new Matrix4x4[ MAX_LIGHTS ];
+
 	void UpdateLightConstants()
 	{
 		int g_nNumLights = 0;
@@ -1359,10 +1362,10 @@ public class ValveCamera : MonoBehaviour
 
 					// Replace some values above to create the 6 fake spotlights
 					g_vLightDirection[ g_nNumLights ] = new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z );
-					g_vLightShadowIndex_vLightParams[ g_nNumLights ].x = 1; // Enable shadows
-					g_vLightShadowIndex_vLightParams[ g_nNumLights ].y = 2; // Enable per-pixel culling
+					g_vLightShadowIndex_vLightParams[ g_nNumLights ].x = 2; // Enable point shadows
+					//g_vLightShadowIndex_vLightParams[ g_nNumLights ].y = 2; // Enable per-pixel culling
 					g_matWorldToShadow[ g_nNumLights ] = vl.m_shadowTransform[ nNumPointLightShadowFacesAdded ].transpose;
-					g_matWorldToLightCookie[ g_nNumLights ] = vl.m_lightCookieTransform[ nNumPointLightShadowFacesAdded ].transpose;
+                    g_matWorldToPoint[g_nNumLights] = vl.m_lightPointTransform[nNumPointLightShadowFacesAdded].transpose;
 					g_vSpotLightInnerOuterConeCosines[ g_nNumLights ] = new Vector4( 0.0f, 0.574f, 9999999.0f );
 
 					g_vShadowMinMaxUv[ g_nNumLights ] = new Vector4(
@@ -1425,7 +1428,9 @@ public class ValveCamera : MonoBehaviour
 				{
 					g_vLightShadowIndex_vLightParams[ g_nNumLights ].x = 1; // Enable shadows
 					g_matWorldToShadow[ g_nNumLights ] = vl.m_shadowTransform[ nNumPointLightShadowFacesAdded ].transpose;
+                //    g_matWorldToLightCookie[g_nNumLights] = vl.m_lightCookieTransform[nNumPointLightShadowFacesAdded].transpose;
 					g_vShadowMinMaxUv[ g_nNumLights ] = new Vector4( 0.0f, 0.0f, 1.0f, 1.0f );
+
 				}
 
 
@@ -1489,6 +1494,9 @@ public class ValveCamera : MonoBehaviour
 		Shader.SetGlobalVectorArray( "g_vShadowMinMaxUv", g_vShadowMinMaxUv );
 		Shader.SetGlobalMatrixArray( "g_matWorldToShadow", g_matWorldToShadow );
 		Shader.SetGlobalMatrixArray( "g_matWorldToLightCookie", g_matWorldToLightCookie );
+
+        Shader.SetGlobalMatrixArray("g_matWorldToPoint", g_matWorldToPoint);
+
         Shader.SetGlobalTexture("g_tVrLightCookieTexture", g_tVrLightCookieTexture);
 
 		if ( bFoundShadowingPointLight )
