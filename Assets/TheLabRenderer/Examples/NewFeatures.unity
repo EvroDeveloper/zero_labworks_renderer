@@ -3327,7 +3327,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 618463947}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &618463950
 Transform:
   m_ObjectHideFlags: 0
@@ -3336,7 +3336,7 @@ Transform:
   m_GameObject: {fileID: 618463947}
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 3.024, y: 2.024, z: -4.547}
-  m_LocalScale: {x: 0.069361515, y: 0.5946325, z: 0.069361515}
+  m_LocalScale: {x: 0.069361515, y: 0.5138245, z: 0.069361515}
   m_Children:
   - {fileID: 1557676156}
   m_Father: {fileID: 0}
@@ -5201,7 +5201,7 @@ ReflectionProbe:
   m_Mode: 0
   m_RefreshMode: 0
   m_TimeSlicingMode: 0
-  m_Resolution: 128
+  m_Resolution: 64
   m_UpdateFrequency: 0
   m_BoxSize: {x: 10.019754, y: 4.050309, z: 10.016998}
   m_BoxOffset: {x: -0.0008611679, y: 0.008826733, z: -0.0011672974}
@@ -8585,6 +8585,7 @@ MonoBehaviour:
   PenumbraSize: 1.5
   ShadowBias: 0.0001
   ShadowSamples: 25
+  m_aoEnabled: 1
   m_indirectLightmapsOnly: 0
   m_adaptiveQualityEnabled: 1
   m_adaptiveQualityDebugVis: 1

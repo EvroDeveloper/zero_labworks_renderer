@@ -37,7 +37,8 @@ CBUFFER_START( ValveVrLighting )
 
 	float4x4 g_matWorldToPoint[ MAX_LIGHTS ];
 
-
+	float4 g_slzSphereAOPosition[ MAX_LIGHTS ]; // w = raius
+	float4 g_slzPointAOPosition[ MAX_LIGHTS ];	// w = raius
 
 
 CBUFFER_END

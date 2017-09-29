@@ -39,6 +39,7 @@ internal class ValveShaderGUI : ShaderGUI
 
 		public static string emptyTootip = "";
 		public static GUIContent albedoText = new GUIContent("Albedo", "Albedo (RGB) and Transparency (A)");
+        public static GUIContent colorMaskText = new GUIContent("Color Mask", "Multiplys albedo per color channel");
 		public static GUIContent alphaCutoffText = new GUIContent("Alpha Cutoff", "Threshold for alpha cutoff");
         public static GUIContent FluorescenceText = new GUIContent("Fluorescence", "Fluorescence (RGB), takes MAX color value of this and albedo");
 		public static GUIContent specularMapText = new GUIContent("Specular", "Reflectance (RGB) and Gloss (A)");
@@ -57,6 +58,7 @@ internal class ValveShaderGUI : ShaderGUI
 		public static GUIContent occlusionStrengthIndirectDiffuseText = new GUIContent( "Occlusion Indirect Diffuse", "" );
 		public static GUIContent occlusionStrengthIndirectSpecularText = new GUIContent( "Occlusion Indirect Specular", "" );
 		public static GUIContent emissionText = new GUIContent( "Emission", "Emission (RGB)" );
+        public static GUIContent emissionFalloffText = new GUIContent("Emission Falloff", "Emission Falloff");
 		public static GUIContent detailMaskText = new GUIContent("Detail Mask", "Mask for Secondary Maps (A)");
 		public static GUIContent detailAlbedoText = new GUIContent("Detail Albedo", "Detail Albedo (RGB) multiplied by 2");
 		public static GUIContent detailNormalMapText = new GUIContent("Detail Normal", "Detail Normal Map");
@@ -84,7 +86,11 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty blendMode = null;
 	MaterialProperty specularMode = null;
 	MaterialProperty albedoMap = null;
+    MaterialProperty colorMask = null;
 	MaterialProperty albedoColor = null;
+    MaterialProperty colorShift1 = null;
+    MaterialProperty colorShift2 = null;
+    MaterialProperty colorShift3 = null;
 	MaterialProperty alphaCutoff = null;
 	MaterialProperty specularMap = null;
 	MaterialProperty specularColor = null;
@@ -108,6 +114,7 @@ internal class ValveShaderGUI : ShaderGUI
 	//MaterialProperty heightMap = null;
 	MaterialProperty emissionColorForRendering = null;
 	MaterialProperty emissionMap = null;
+    MaterialProperty emissionFalloff = null;
     MaterialProperty fluorescenceMap = null;
     MaterialProperty fluorescenceColor = null;
 	MaterialProperty detailMask = null;
@@ -135,7 +142,11 @@ internal class ValveShaderGUI : ShaderGUI
 		blendMode = FindProperty( "_Mode", props );
 		specularMode = FindProperty( "_SpecularMode", props );
 		albedoMap = FindProperty( "_MainTex", props );
+        colorMask = FindProperty("_ColorMask", props);
 		albedoColor = FindProperty ("_Color", props);
+        colorShift1 = FindProperty("_ColorShift1", props);
+        colorShift2 = FindProperty("_ColorShift2", props);
+        colorShift3 = FindProperty("_ColorShift3", props);
 		alphaCutoff = FindProperty ("_Cutoff", props);
 		specularMap = FindProperty ("_SpecGlossMap", props, false);
 		specularColor = FindProperty ("_SpecColor", props, false);
@@ -159,6 +170,7 @@ internal class ValveShaderGUI : ShaderGUI
 		occlusionMap = FindProperty ("_OcclusionMap", props);
 		emissionColorForRendering = FindProperty ("_EmissionColor", props);
 		emissionMap = FindProperty ("_EmissionMap", props);
+        emissionFalloff = FindProperty("_EmissionFalloff", props);
         fluorescenceMap = FindProperty ("_FluorescenceMap", props);
         fluorescenceColor = FindProperty ("_FluorescenceColor", props);
 		detailMask = FindProperty ("_DetailMask", props);
@@ -232,6 +244,9 @@ internal class ValveShaderGUI : ShaderGUI
 
 			//GUILayout.Label( Styles.primaryMapsText, EditorStyles.boldLabel );
 			DoAlbedoArea( material );
+
+            DoColorShiftArea(material);
+            
 			if ( !bUnlit )
 			{
                 DoFluorescenceArea(material);
@@ -250,9 +265,7 @@ internal class ValveShaderGUI : ShaderGUI
 				m_MaterialEditor.ShaderProperty( cubeMapScalar, Styles.cubeMapScalarText.text, 0 );
 			}
 
-
-
-			//m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
+          			//m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
 			DoEmissionArea( material );
 			m_MaterialEditor.TexturePropertySingleLine( Styles.detailMaskText, detailMask );
 			if ( !bUnlit )
@@ -382,12 +395,26 @@ internal class ValveShaderGUI : ShaderGUI
 		}
 	}
 
-
-
     void DoFluorescenceArea(Material material)
     {
         m_MaterialEditor.TexturePropertySingleLine(Styles.FluorescenceText, fluorescenceMap, fluorescenceColor);
     }
+
+
+    void DoColorShiftArea(Material material)
+    {
+
+        m_MaterialEditor.TexturePropertySingleLine(Styles.colorMaskText, colorMask);
+       
+        // If texture was assigned and color was black set color to white
+        if (colorMask.textureValue != null)
+        {
+            m_MaterialEditor.ColorProperty(colorShift1, Styles.emptyTootip);
+            m_MaterialEditor.ColorProperty(colorShift2, Styles.emptyTootip);
+            m_MaterialEditor.ColorProperty(colorShift3, Styles.emptyTootip);
+        }
+    }
+
 
 
 	void DoEmissionArea(Material material)
@@ -411,7 +438,10 @@ internal class ValveShaderGUI : ShaderGUI
 			bool shouldEmissionBeEnabled = ShouldEmissionBeEnabled(emissionColorForRendering.colorValue);
 			using ( new EditorGUI.DisabledScope( !shouldEmissionBeEnabled ) )
 			{
+                m_MaterialEditor.ShaderProperty(emissionFalloff, Styles.emissionFalloffText.text, 2);
+
 				m_MaterialEditor.LightmapEmissionProperty( MaterialEditor.kMiniTextureFieldLabelIndentLevel + 1 );
+
 			}
 		}
 
@@ -578,11 +608,17 @@ internal class ValveShaderGUI : ShaderGUI
 		SetKeyword( material, "S_WORLD_ALIGNED_TEXTURE", material.GetInt( "g_bWorldAlignedTexture" ) == 1 );
         //SetKeyword( material, "_FLUORESCENCEMAP", material.GetTexture("_FluorescenceMap"));
 
+        if ((material.GetTexture("_ColorMask")) != null)
+        {
+            SetKeyword(material, "_COLORSHIFT", true);
+        }  else  {
+            SetKeyword(material, "_COLORSHIFT", false);
+        }
+
 			if ((material.GetColor ("_FluorescenceColor")).maxColorComponent < (0.1f / 255.0f) ) {
 				SetKeyword (material, "_FLUORESCENCEMAP", false);
 			} else {
 				SetKeyword (material, "_FLUORESCENCEMAP", true);
-
 			}
 
 

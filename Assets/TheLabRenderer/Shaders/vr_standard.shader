@@ -10,7 +10,11 @@ Shader "Valve/vr_standard"
 
 		_Color( "Color", Color ) = ( 1, 1, 1, 1 )
 		_MainTex( "Albedo", 2D ) = "white" {}
-		
+		_ColorMask( "Color Mask", 2D ) = "white" {}
+		_ColorShift1( "Color Shift 1", Color ) = ( 1, 1, 1 )
+		_ColorShift2( "Color Shift 2", Color ) = ( 1, 1, 1 )
+		_ColorShift3( "Color Shift 3", Color ) = ( 1, 1, 1 )
+
 		_Cutoff( "Alpha Cutoff", Range( 0.0, 1.0 ) ) = 0.5
 
 		_Glossiness("Smoothness", Range(0.0, 1.0)) = 0.5
@@ -44,6 +48,7 @@ Shader "Valve/vr_standard"
 
 		_EmissionColor( "Color", Color ) = ( 0, 0, 0 )
 		_EmissionMap( "Emission", 2D ) = "white" {}
+		_EmissionFalloff("Emission Falloff" , Range( 0.0, 10.0 ) ) = 0.0
 
 		_FluorescenceMap( "Fluorescence", 2D ) = "white" {}
 		_FluorescenceColor("Fluorescence Color" , Color ) = (0,0,0)
@@ -98,6 +103,7 @@ Shader "Valve/vr_standard"
 			Blend [_SrcBlend] [_DstBlend]
 			ZWrite [_ZWrite]
 			Cull [_Cull]
+			//AlphaToMask On
 
 			CGPROGRAM
 				#pragma target 5.0
@@ -112,9 +118,9 @@ Shader "Valve/vr_standard"
 				#pragma shader_feature _EMISSION
 				#pragma shader_feature _DETAIL_MULX2
 				//#pragma shader_feature _PARALLAXMAP
-				#pragma shader_feature _FLUORESCENCEMAP
-				
-				
+				#pragma shader_feature _FLUORESCENCEMAP				
+				#pragma shader_feature _COLORSHIFT
+
 				#pragma shader_feature S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
 				#pragma shader_feature S_UNLIT
 				#pragma shader_feature S_OVERRIDE_LIGHTMAP
@@ -164,8 +170,13 @@ Shader "Valve/vr_standard"
 				#include "vr_fog.cginc"
 
 				sampler2D	_FluorescenceMap;
+				sampler2D	_ColorMask;
 				float4		_FluorescenceColor;
 				float		_Glossiness2;
+				float3		_ColorShift1;
+				float3		_ColorShift2;
+				float3		_ColorShift3;
+				float		_EmissionFalloff;
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
@@ -341,6 +352,11 @@ Shader "Valve/vr_standard"
 				#define g_flDetailNormalScale _DetailNormalMapScale
 				#define g_tFluorescenceMap _FluorescenceMap
 				#define g_vColorFluorescence _FluorescenceColor
+				#define g_vColorShift1 _ColorShift1
+				#define g_vColorShift2 _ColorShift2
+				#define g_vColorShift3 _ColorShift3
+				#define g_fEmissionFalloff _EmissionFalloff
+
 
 				float g_flReflectanceScale = 1.0;
 				float g_flReflectanceBias = 0.0;
@@ -364,6 +380,8 @@ Shader "Valve/vr_standard"
 					)
 				{
 					PS_OUTPUT o = ( PS_OUTPUT )0;
+
+
 
 					//-----------------------------------------------------------//
 					// Negate the world normal if we are rendering the back face //
@@ -459,13 +477,15 @@ Shader "Valve/vr_standard"
 						vNormalWs.xyz = Vec3TsToWsNormalized( vNormalTs.xyz, vGeometricNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz );
 					}
 					#endif
-										
+
+									
 					//--------------//
 					// Translucency //
 					//--------------//
 					#if ( _ALPHATEST_ON )
 					{
 						clip( vAlbedoTexel.a - _Cutoff );
+
 					}
 					#endif
 
@@ -479,7 +499,7 @@ Shader "Valve/vr_standard"
 					{
 						#if ( !S_UNLIT )
 						{
-						float normalBlend = 1 - saturate( dot( vNormalWs.xyz , CalculatePositionToCameraDirWs( i.vPositionWs.xyz ) ));
+						float normalBlend = 1 - saturate( Dotfresnel );
 						o.vColor.a = (vAlbedoTexel.a + lerp(0 , 1 * _Cutoff , normalBlend ));
 						}
 
@@ -564,7 +584,7 @@ Shader "Valve/vr_standard"
 
 					#elif ( S_RETROREFLECTIVE )
 					{
-						float normalBlend = saturate( dot( ( vNormalWs.xyz   ) , CalculatePositionToCameraDirWs( i.vPositionWs.xyz )));
+						float normalBlend = saturate( Dotfresnel );
 						normalBlend = pow (normalBlend , 0.25);
 
 						float2 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
@@ -640,6 +660,15 @@ Shader "Valve/vr_standard"
 					o.vColor.rgb = ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb ) * vAlbedo.rgb;
 
 
+					//Color Shifting
+					#if ( _COLORSHIFT )
+					{
+						float3 ColorMaskTex = 1 - tex2D(_ColorMask, i.vTextureCoords.xy ).rgb ;
+						float3 ColorShifter = max(g_vColorShift1.rgb, ColorMaskTex.rrr) * max(g_vColorShift2.rgb, ColorMaskTex.ggg) * max(g_vColorShift3.rgb, ColorMaskTex.bbb);
+						o.vColor.rgb *= ColorShifter;
+					}
+					#endif
+
 					// Fluorescence
 					#if ( _FLUORESCENCEMAP )
 			
@@ -661,11 +690,10 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 					o.vColor.rgb += lightingTerms.vIndirectSpecular.rgb; // Indirect specular applies its own fresnel in the forward lighting header file
-						
 					// Emission - Unity just adds the emissive term at the end instead of adding it to the diffuse lighting term. Artists may want both options.
 					
 
-					float3 vEmission = Emission( i.vTextureCoords.xy );
+					float3 vEmission = Emission( i.vTextureCoords.xy ) * ( pow(Dotfresnel , g_fEmissionFalloff * 2));
 					o.vColor.rgb += vEmission.rgb;
 
 					// Fog
@@ -717,7 +745,7 @@ Shader "Valve/vr_standard"
 		{
 			Name "META" 
 			Tags { "LightMode"="Meta" }
-		
+			//AlphaToMask On
 			Cull Off
 		
 			CGPROGRAM

@@ -23,6 +23,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ColorMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -73,6 +77,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EmissionFalloff: 1.6
     - _FogMultiplier: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -104,8 +109,11 @@ Material:
     - g_flReflectanceMin: 0
     - g_flReflectanceScale: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 1, g: 0.029411793, b: 0.029411793, a: 1}
+    - _Color: {r: 0.1397059, g: 0.1397059, b: 0.1397059, a: 1}
+    - _ColorShift1: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorShift2: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorShift3: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 4.374002, g: 0.3936602, b: 0, a: 1}
     - _FluorescenceColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - g_vWorldAlignedNormalTangentU: {r: -1, g: 0, b: 0, a: 0}

@@ -38,14 +38,17 @@ public class ValveCamera : MonoBehaviour
     private Texture g_tVrLightCookieTexture = null;
 
     public enum Shadows { Simple, PCF, PCSS }
-    public Shadows ShadowType = Shadows.PCSS;
+    public Shadows ShadowType = Shadows.PCF;
 
     [Range(0.0f, 3.0f)]
     public float PenumbraSize = 1.5f;
     [Range(0.0f, 1.0f)]
-    public float ShadowBias = 0.0001f;
+    public float ShadowBias = 0.001f;
     [Range(1, 25)]
     public int ShadowSamples = 25;
+    [Header("AO")]
+    [Tooltip("AO enabled")]
+    public bool m_aoEnabled = true;
 
 	[NonSerialized] private Camera m_shadowCamera = null;
 	[NonSerialized] public RenderTexture m_shadowDepthTexture = null;
@@ -67,8 +70,8 @@ public class ValveCamera : MonoBehaviour
 	public bool m_adaptiveQualityDebugVis = false;
 
 	[Range( 0.0f, 8.0f )] public int m_MSAALevel = 4;
-	public float m_minRenderTargetScale = 0.8f;
-	public float m_maVRenderTargetScale = 1.4f;
+	public float m_minRenderTargetScale = 0.65f;
+	public float m_maVRenderTargetScale = 2.0f;
 	[NonSerialized] private int m_nFillRatePercentStep = 15;
 	public int m_maVRenderTargetDimension = 4096;
 
@@ -77,6 +80,9 @@ public class ValveCamera : MonoBehaviour
 	[NonSerialized] private static bool s_bAdaptiveQualityVROverride = false;
 	[NonSerialized] private static int s_nAdaptiveQualityVROverride = 0;
 	[NonSerialized] private static bool m_bAllowFlush = true;
+
+    [NonSerialized] private static bool s_bAllowLightCulling = true;
+
 
 	[NonSerialized] private GameObject m_adaptiveQualityDebugQuad;
 
@@ -96,7 +102,7 @@ public class ValveCamera : MonoBehaviour
 				return true;
 			}
 		}
-
+      
 		return false;
 	}
 
@@ -186,6 +192,12 @@ public class ValveCamera : MonoBehaviour
 			s_nAdaptiveQualityVROverride = GetCommandLineArgValue( "-aqoverride", 0 );
 		}
 
+        if (HasCommandLineArg("-nolightcull"))
+        {
+            s_bAllowLightCulling = false;
+        }
+
+
 		if ( !s_bUsingStaticSettings )
 		{
 			s_bUsingStaticSettings = true;
@@ -200,6 +212,8 @@ public class ValveCamera : MonoBehaviour
 				s_bAdaptiveQualityVRDebug = true;
 			}
 		}
+
+
 
 		if ( Application.isPlaying )
 		{
@@ -461,8 +475,9 @@ public class ValveCamera : MonoBehaviour
             ValveShadowBufferRender();
         }
 
-        UpdateAdaptiveQuality();
-
+#if UNITY_5_5
+         UpdateAdaptiveQuality();
+#endif
 
 		// Adaptive quality debug quad
 		if ( Application.isPlaying )
@@ -535,8 +550,11 @@ public class ValveCamera : MonoBehaviour
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
 	void OnPreCull()
-	{
-		//UpdateAdaptiveQuality();
+    {
+
+#if !UNITY_5_5
+         UpdateAdaptiveQuality();
+#endif
 		if ( !m_renderShadowsInLateUpdate )
 		{
 			ValveShadowBufferRender();
@@ -551,9 +569,10 @@ public class ValveCamera : MonoBehaviour
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
 	void ValveShadowBufferRender()
 	{
-		CullLightsAgainstCameraFrustum();
+        if (s_bAllowLightCulling == true) CullLightsAgainstCameraFrustum();
 		RenderShadowBuffer();
 		UpdateLightConstants();
+        if (m_aoEnabled == true) UpdateAOConstants();
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1289,6 +1308,26 @@ public class ValveCamera : MonoBehaviour
 	[NonSerialized] private Matrix4x4[] g_matWorldToLightCookie = new Matrix4x4[ MAX_LIGHTS ];
     [NonSerialized] private Matrix4x4[] g_matWorldToPoint = new Matrix4x4[ MAX_LIGHTS ];
 
+    [NonSerialized] private Vector4[] g_zAOSphere = new Vector4[ MAX_LIGHTS ];
+
+    void UpdateAOConstants()
+    {
+
+     //   int g_nNumAOsphere = 0;
+
+
+        for (int nAO = 0; nAO < slzAO.s_allAOSpheres.Count; nAO++)
+        {
+
+            slzAO zAO = slzAO.s_allAOSpheres[nAO];
+
+        }
+        //Shader.SetGlobalVectorArray("g_zAOSphere", g_zAOSphere);
+        Shader.SetGlobalVectorArray("g_zAOSphere", g_zAOSphere);
+    }
+
+
+
 	void UpdateLightConstants()
 	{
 		int g_nNumLights = 0;
@@ -1498,6 +1537,7 @@ public class ValveCamera : MonoBehaviour
         Shader.SetGlobalMatrixArray("g_matWorldToPoint", g_matWorldToPoint);
 
         Shader.SetGlobalTexture("g_tVrLightCookieTexture", g_tVrLightCookieTexture);
+
 
 		if ( bFoundShadowingPointLight )
 		{

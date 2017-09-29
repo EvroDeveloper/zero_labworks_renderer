@@ -12,6 +12,7 @@ Material:
     _NORMALMAP
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
   stringTagMap:
     OriginalShader: Standard
@@ -22,6 +23,10 @@ Material:
     m_TexEnvs:
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: 76fe0e4ce3c96e24d992b86d85cb314d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ColorMask:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -74,6 +79,7 @@ Material:
     - _Cutoff: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
+    - _EmissionFalloff: 0
     - _FogMultiplier: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.385
@@ -105,7 +111,10 @@ Material:
     - g_flReflectanceMin: 0
     - g_flReflectanceScale: 1
     m_Colors:
-    - _Color: {r: 0, g: 0.3793089, b: 1, a: 1}
+    - _Color: {r: 0, g: 0.37930882, b: 1, a: 0.316}
+    - _ColorShift1: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorShift2: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorShift3: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FluorescenceColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.41522488, g: 0.58823526, b: 0.45221326, a: 1}
