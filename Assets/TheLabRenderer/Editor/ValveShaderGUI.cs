@@ -511,17 +511,20 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword("_ALPHABLEND_ON");
 				material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
 				material.renderQueue = -1;
+                material.SetInt("_Test", 0);
 				break;
 			case BlendMode.AlphaTest:
 				material.SetOverrideTag("RenderType", "TransparentCutout");
 				material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
 				material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-				material.SetInt("_ZWrite", 1);
+				material.SetInt("_ZWrite", 1); 
 				material.SetFloat( "_FogMultiplier", 1.0f );
 				material.EnableKeyword("_ALPHATEST_ON");
 				material.DisableKeyword("_ALPHABLEND_ON");
 				material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
 				material.renderQueue = 2450;
+                material.SetInt("_Test", 1);
+
 				break;
 			case BlendMode.AlphaBlend:
 				material.SetOverrideTag("RenderType", "Transparent");
@@ -533,6 +536,8 @@ internal class ValveShaderGUI : ShaderGUI
 				material.EnableKeyword("_ALPHABLEND_ON");
 				material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
 				material.renderQueue = 3000;
+                material.SetInt("_Test", 0);
+
 				break;
 			case BlendMode.Glass:
 				material.SetOverrideTag("RenderType", "Transparent");
@@ -544,6 +549,7 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword("_ALPHABLEND_ON");
 				material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
 				material.renderQueue = 3000;
+                material.SetInt("_Test", 0);
 				break;
 			case BlendMode.Additive:
 				material.SetOverrideTag( "RenderType", "Transparent" );
@@ -555,6 +561,7 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword( "_ALPHABLEND_ON" );
 				material.DisableKeyword( "_ALPHAPREMULTIPLY_ON" );
 				material.renderQueue = 3000;
+                material.SetInt("_Test", 0);
 				break;
 		}
 	}

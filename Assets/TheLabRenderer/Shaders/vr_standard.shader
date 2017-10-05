@@ -85,6 +85,7 @@ Shader "Valve/vr_standard"
 		[HideInInspector] _DstBlend ( "__dst", Float ) = 0.0
 		[HideInInspector] _ZWrite ( "__zw", Float ) = 1.0
 		[HideInInspector] _FogMultiplier ( "__fogmult", Float ) = 1.0
+		[HideInInspector] _Test ("__test", Int) = 0
 	}
 
 	SubShader
@@ -103,15 +104,17 @@ Shader "Valve/vr_standard"
 			Blend [_SrcBlend] [_DstBlend]
 			ZWrite [_ZWrite]
 			Cull [_Cull]
-			//AlphaToMask On
+
+			AlphaToMask [_Test]
+
 
 			CGPROGRAM
 				#pragma target 5.0
-				#pragma only_renderers d3d11
+			//	#pragma only_renderers d3d11
 				#pragma exclude_renderers gles
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
-				#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
+				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
 				#pragma shader_feature _NORMALMAP
 				#pragma shader_feature _METALLICGLOSSMAP
 				#pragma shader_feature _SPECGLOSSMAP
@@ -177,6 +180,7 @@ Shader "Valve/vr_standard"
 				float3		_ColorShift2;
 				float3		_ColorShift3;
 				float		_EmissionFalloff;
+
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
@@ -386,9 +390,9 @@ Shader "Valve/vr_standard"
 					//-----------------------------------------------------------//
 					// Negate the world normal if we are rendering the back face //
 					//-----------------------------------------------------------//
-					#if ( S_RENDER_BACKFACES )
+					#if ( S_RENDER_BACKFACES && !S_UNLIT )
 					{
-					//	i.vNormalWs.xyz *= ( bIsFrontFace ? 1.0 : -1.0 );
+						i.vNormalWs.xyz *= ( bIsFrontFace ? 1.0 : -1.0 );
 					}
 					#endif
 
@@ -478,16 +482,20 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
+					#if ( !S_UNLIT )
+					float Dotfresnel = saturate(dot( vNormalWs.xyz , CalculatePositionToCameraDirWs( i.vPositionWs.xyz ) ));	
+					#endif
 									
 					//--------------//
 					// Translucency //
 					//--------------//
-					#if ( _ALPHATEST_ON )
-					{
-						clip( vAlbedoTexel.a - _Cutoff );
-
-					}
-					#endif
+					//#if ( _ALPHATEST_ON )
+					//{
+					//	//clip( vAlbedoTexel.a - _Cutoff );
+					//	o.vColor.a = vAlbedoTexel.a;
+					//	//o.vColor.a = (o.vColor.a - _Cutoff) / max(fwidth(o.vColor.a), 0.0001) + 0.5;
+					//}
+					//#endif
 
 					#if ( _ALPHAPREMULTIPLY_ON )
 					{
@@ -495,19 +503,25 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
-					#if ( _ALPHABLEND_ON || _ALPHAPREMULTIPLY_ON )
+					#if ( _ALPHABLEND_ON || _ALPHAPREMULTIPLY_ON || _ALPHATEST_ON)
 					{
-						#if ( !S_UNLIT )
-						{
+						
+						#if ( !S_UNLIT && !_ALPHATEST_ON)
+						
 						float normalBlend = 1 - saturate( Dotfresnel );
-						o.vColor.a = (vAlbedoTexel.a + lerp(0 , 1 * _Cutoff , normalBlend ));
-						}
+						o.vColor.a = saturate(vAlbedoTexel.a + lerp(0 , 1 * _Cutoff , normalBlend ));
 
 						#else
-						{
+
 						o.vColor.a = vAlbedoTexel.a;
-						}
+
 						#endif
+						#if ( _ALPHATEST_ON )
+
+						o.vColor.a = (o.vColor.a - _Cutoff) / max(fwidth(o.vColor.a), 0.0001) + 0.5;
+
+						#endif
+
 					}
 					#else
 					{
@@ -693,7 +707,11 @@ Shader "Valve/vr_standard"
 					// Emission - Unity just adds the emissive term at the end instead of adding it to the diffuse lighting term. Artists may want both options.
 					
 
-					float3 vEmission = Emission( i.vTextureCoords.xy ) * ( pow(Dotfresnel , g_fEmissionFalloff * 2));
+					float3 vEmission = Emission( i.vTextureCoords.xy );
+					#if (!S_UNLIT)					
+					vEmission *= saturate( pow(Dotfresnel , g_fEmissionFalloff * 2));	
+					#endif
+
 					o.vColor.rgb += vEmission.rgb;
 
 					// Fog
@@ -745,9 +763,8 @@ Shader "Valve/vr_standard"
 		{
 			Name "META" 
 			Tags { "LightMode"="Meta" }
-			//AlphaToMask On
-			Cull Off
 		
+			Cull Off
 			CGPROGRAM
 				#pragma only_renderers d3d11
 
