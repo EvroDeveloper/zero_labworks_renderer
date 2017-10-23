@@ -17,6 +17,7 @@ Some new features:
 -AlphaToCoverage on cutout materials (Better anti-aliasing on cutout edges)
 -Falloff option for emissive materials
 -Color mask
+-Primitive based AO
 
 
 
