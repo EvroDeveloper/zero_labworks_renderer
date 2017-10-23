@@ -8,18 +8,21 @@ Some new features:
 
 -Fluorescence (Also including UV light from light Alpha)
 -Retroreflective (Great for reflectors)
--Proper edge falloff Scaler (cubemap scaler is hacky)
+-Proper edge highlight falloff Scaler (cubemap scaler is hacky)
 -Light Hardness (Lambert wrap)
 -Light Cookie Support
 -PCSS shadow support (wip)
 -Transparent falloff (looks good in VR)
 -Transparency Shadows
-
+-AlphaToCoverage on cutout materials (Better anti-aliasing on cutout edges)
+-Falloff option for emissive materials
+-Color mask
 
 
 
 Anisotropic currently disabled
-// -Anisotropic (G chanel in MetallicTex controls second term)
+// -Anisotropic
+
 -------
 OG Text
 

@@ -594,7 +594,7 @@ public class TheLabRenderer_Settings : EditorWindow
 				if (!EditorPrefs.HasKey(ignore + buildTarget))
 					EditorUserBuildSettings.SwitchActiveBuildTarget(recommended_BuildTarget);
 				if (!EditorPrefs.HasKey(ignore + showUnitySplashScreen))
-					PlayerSettings.showUnitySplashScreen = recommended_ShowUnitySplashScreen;
+					PlayerSettings.SplashScreen.show = recommended_ShowUnitySplashScreen;
 				if (!EditorPrefs.HasKey(ignore + defaultIsFullScreen))
 					PlayerSettings.defaultIsFullScreen = recommended_DefaultIsFullScreen;
 				if (!EditorPrefs.HasKey(ignore + defaultScreenSize))
@@ -639,7 +639,7 @@ public class TheLabRenderer_Settings : EditorWindow
 					// Only ignore those that do not currently match our recommended settings.
 					if (EditorUserBuildSettings.activeBuildTarget != recommended_BuildTarget)
 						EditorPrefs.SetBool(ignore + buildTarget, true);
-					if (PlayerSettings.showUnitySplashScreen != recommended_ShowUnitySplashScreen)
+					if (PlayerSettings.SplashScreen.show != recommended_ShowUnitySplashScreen)
 						EditorPrefs.SetBool(ignore + showUnitySplashScreen, true);
 					if (PlayerSettings.defaultIsFullScreen != recommended_DefaultIsFullScreen)
 						EditorPrefs.SetBool(ignore + defaultIsFullScreen, true);

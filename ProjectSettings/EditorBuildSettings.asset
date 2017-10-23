@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/TheLabRenderer/Examples/NewFeatures.unity
     guid: 91b58306a0ee3194db552d7a8d8fa15e
+  - enabled: 1
+    path: Assets/TheLabRenderer/Examples/GeoAO.unity
+    guid: 28b2f794d9c00404ea6471ff555acb72

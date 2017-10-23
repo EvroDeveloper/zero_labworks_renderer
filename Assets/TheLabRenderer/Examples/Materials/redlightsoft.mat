@@ -8,7 +8,7 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: redlightsoft
   m_Shader: {fileID: 4800000, guid: 908b379d4818cd64184b95a21123d909, type: 3}
-  m_ShaderKeywords: D_CASTSHADOW S_RECEIVE_SHADOWS S_SPECULAR_METALLIC _EMISSION
+  m_ShaderKeywords: D_CASTSHADOW S_RECEIVE_SHADOWS S_SPECULAR_NONE _EMISSION
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -93,8 +93,9 @@ Material:
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularMode: 2
+    - _SpecularMode: 0
     - _SrcBlend: 1
+    - _Test: 0
     - _UVSec: 0
     - _ZWrite: 1
     - g_bCastShadows: 1
@@ -103,6 +104,7 @@ Material:
     - g_bUnlit: 0
     - g_bWorldAlignedTexture: 0
     - g_flCubeMapScalar: 1
+    - g_flFresnelExponent: 5
     - g_flFresnelFalloff: 1
     - g_flReflectanceBias: 0
     - g_flReflectanceMax: 1

@@ -44,6 +44,7 @@ Shader "Valve/vr_standard"
 		_OcclusionStrengthIndirectSpecular( "StrengthIndirectSpecular", Range( 0.0, 1.0 ) ) = 1.0
 
 		g_flFresnelFalloff ("Fresnel Falloff Scalar" , Range(0.0 , 1.0 ) ) = 1.0
+		g_flFresnelExponent ( "Fresnel Exponent", Range( 0.5, 10.0 ) ) = 5.0
 		g_flCubeMapScalar( "Cube Map Scalar", Range( 0.0, 2.0 ) ) = 1.0
 
 		_EmissionColor( "Color", Color ) = ( 0, 0, 0 )
@@ -123,6 +124,8 @@ Shader "Valve/vr_standard"
 				//#pragma shader_feature _PARALLAXMAP
 				#pragma shader_feature _FLUORESCENCEMAP				
 				#pragma shader_feature _COLORSHIFT
+				
+
 
 				#pragma shader_feature S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
 				#pragma shader_feature S_UNLIT
@@ -140,6 +143,7 @@ Shader "Valve/vr_standard"
 				#pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
 				#pragma multi_compile _ D_VALVE_FOG
 				#pragma multi_compile _ D_VALVE_SHADOWING_POINT_LIGHTS
+				#pragma multi_compile _ Z_SHAPEAO
 
 				#pragma skip_variants SHADOWS_SOFT
 
@@ -171,6 +175,7 @@ Shader "Valve/vr_standard"
 				#include "vr_lighting.cginc"
 				#include "vr_matrix_palette_skinning.cginc"
 				#include "vr_fog.cginc"
+				#include "vr_zAO.cginc"
 
 				sampler2D	_FluorescenceMap;
 				sampler2D	_ColorMask;
@@ -180,7 +185,7 @@ Shader "Valve/vr_standard"
 				float3		_ColorShift2;
 				float3		_ColorShift3;
 				float		_EmissionFalloff;
-
+				float		g_flFresnelExponent;
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
@@ -372,6 +377,7 @@ Shader "Valve/vr_standard"
 
 				float _FogMultiplier = 1.0;
 
+
 				struct PS_OUTPUT
 				{
 					float4 vColor : SV_Target0;
@@ -518,8 +524,8 @@ Shader "Valve/vr_standard"
 						#endif
 						#if ( _ALPHATEST_ON )
 
+						//Magic AlphaToCoverage sharpening. Thanks Ben Golus! https://medium.com/@bgolus/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f
 						o.vColor.a = (o.vColor.a - _Cutoff) / max(fwidth(o.vColor.a), 0.0001) + 0.5;
-
 						#endif
 
 					}
@@ -543,7 +549,7 @@ Shader "Valve/vr_standard"
 
 					// Reflectance and gloss
 					float3 vReflectance = float3( 0.0, 0.0, 0.0 );
-					float2 flGloss = 0.0;
+					float2 flGloss = float2(0.0 , 0.0);
 					#if ( S_SPECULAR_METALLIC )
 					{
 						float2 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
@@ -638,7 +644,7 @@ Shader "Valve/vr_standard"
 					lightingTerms.vIndirectSpecular.rgb = float3( 0.0, 0.0, 0.0 );
 					lightingTerms.vTransmissiveSunlight.rgb = float3( 0.0, 0.0, 0.0 );
 
-					float flFresnelExponent = 5.0;
+					//float flFresnelExponent = 5.0;
 					float flMetalness = 0.0f;
 
 					#if ( !S_UNLIT )
@@ -656,7 +662,7 @@ Shader "Valve/vr_standard"
 						#endif
 
 						// Compute lighting
-						lightingTerms = ComputeLighting( i.vPositionWs.xyz, vNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz, vRoughness.xy, vReflectance.rgb, flFresnelExponent, vLightmapUV.xyzw );
+						lightingTerms = ComputeLighting( i.vPositionWs.xyz, vNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz, vRoughness.xy, vReflectance.rgb, g_flFresnelExponent, vLightmapUV.xyzw );
 
 						#if ( S_OCCLUSION )
 						{
@@ -710,6 +716,18 @@ Shader "Valve/vr_standard"
 					float3 vEmission = Emission( i.vTextureCoords.xy );
 					#if (!S_UNLIT)					
 					vEmission *= saturate( pow(Dotfresnel , g_fEmissionFalloff * 2));	
+
+
+					//Shape Occlusion
+					#if (Z_SHAPEAO)
+					{
+					float vAO = CalculateSphericalAO( i.vPositionWs.xyz, vNormalWs.xyz);
+					vAO *= CalculatePointAO( i.vPositionWs.xyz, vNormalWs.xyz );
+
+					o.vColor.rgb *= vAO;
+					}
+					#endif
+
 					#endif
 
 					o.vColor.rgb += vEmission.rgb;

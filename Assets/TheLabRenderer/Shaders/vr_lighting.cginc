@@ -8,6 +8,7 @@
 #include "UnityStandardBRDF.cginc"
 #include "vr_PCSS.cginc"
 
+
 #define Tex2DLevel( name, uv, flLevel ) name.SampleLevel( sampler##name, ( uv ).xy, flLevel )
 //#define Tex3DLevel( name, uv, flLevel ) name.SampleLevel( sampler3D##name, ( uv ).xyz, flLevel )
 #define Tex2DLevelFromSampler( texturename, samplername, uv, flLevel ) texturename.SampleLevel( sampler##samplername, ( uv ).xy, flLevel )
@@ -37,9 +38,6 @@ CBUFFER_START( ValveVrLighting )
 
 	float4x4 g_matWorldToPoint[ MAX_LIGHTS ];
 
-	float4 g_slzSphereAOPosition[ MAX_LIGHTS ]; // w = raius
-	float4 g_slzPointAOPosition[ MAX_LIGHTS ];	// w = raius
-
 
 CBUFFER_END
 
@@ -65,6 +63,7 @@ struct LightingTerms_t
 	float3 vIndirectSpecular;
 	float3 vTransmissiveSunlight;
 };
+
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 float CalculateGeometricRoughnessFactor( float3 vGeometricNormalWs )
@@ -163,7 +162,7 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		if (zHardness < 1){
 
 		float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
-		flDiffuseTerm = ClampToPositive(pow( flNDotL * zHardness + 1 - zHardness, flDiffuseExponent ) * ( ( flDiffuseExponent + 1.0 ) * 0.5 ));
+		flDiffuseTerm = ClampToPositive( pow(  (flNDotL * zHardness) + 1 - zHardness  ,  flDiffuseExponent  )   *  ( ( flDiffuseExponent + 1 ) * 0.5 )   );	
 		}
 		else{
 		float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
@@ -171,14 +170,12 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		}
 
 	}
-
-
 	// Specular
 	float3 vSpecularTerm = float3( 0.0, 0.0, 0.0 );
 	[branch] if ( bSpecular )
 	{
 		float3 vHalfAngleDirWs = normalize( vPositionToLightDirWs.xyz + vPositionToCameraDirWs.xyz );
-		flNDotL = ClampToPositive(flNDotL);
+		flNDotL = ClampToPositive(flNDotL );
 
 		float flSpecularTerm = 0.0;
 		#if ( S_ANISOTROPIC_GLOSS ) // Adds 34 asm instructions compared to isotropic spec in #else below
@@ -208,7 +205,7 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 				float flNDotL = normalize( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) );
 				float flNDotV =  dot( vNormalWs.xyz, vPositionToCameraDirWs.xyz ) ;
 
-			    float visTerm = SmithJointGGXVisibilityTerm( flNDotL, flVDotL, vSpecularExponent.xy);
+			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), flVDotL, vSpecularExponent.xy);
                 float normTerm = GGXTerm(flVDotL, vSpecularExponent.xy);
                 flSpecularTerm = (visTerm * normTerm * UNITY_PI  * pow (flNDotV, 2));
 
@@ -226,12 +223,12 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 				//GGX approximation
 
 				float flNDotH = saturate(( dot( vNormalWs.xyz, vHalfAngleDirWs.xyz ) ));
-				float flNDotL = normalize( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) );
+				float flNDotL = normalize( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) + 0.0001 );
 				float flNDotV = saturate( dot( vNormalWs.xyz, vPositionToCameraDirWs.xyz ) );
 
-			    float visTerm = SmithJointGGXVisibilityTerm( flNDotL, flNDotV , vSpecularExponent.xy);
-                float normTerm = GGXTerm(flNDotH, vSpecularExponent.xy / (zHardness * zHardness + 0.0001 ));
-                flSpecularTerm = (visTerm * normTerm * UNITY_PI * .8);
+			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), flNDotV , vSpecularExponent.xy);
+                float normTerm = GGXTerm(flNDotH, vSpecularExponent.xy / saturate(zHardness * zHardness + 0.0001 ));
+                flSpecularTerm = (visTerm * normTerm * UNITY_PI * 0.8);
 
 				//vSpecularTerm.rgb = flSpecularTerm;
 				//vSpecularExponent.xy
@@ -253,7 +250,7 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 
 		float3 vFresnel = FresnelTerm( vReflectance , flLDotH);
 
-		vSpecularTerm.rgb = flSpecularTerm * vFresnel.rgb * pow(flNDotL, .5);
+		vSpecularTerm.rgb = flSpecularTerm * vFresnel.rgb * pow(flNDotL, 0.5);
 		 
 		
 	}
@@ -493,10 +490,11 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 																vPositionToLightDirWs.xyz, vPositionToCameraDirWs.xyz,
 																vDiffuseExponent.xy, vSpecularExponent.xy, vSpecularScale.xy, vReflectance.rgb, flFresnelExponent , g_vLightFalloffParams[ i ].w);
 
+
 		float4 vLightColor = g_vLightColor[ i ].rgba;
 		float4 vLightMask = vLightColor.rgba * flShadowScalar * flLightFalloff * vSpotAtten.rgba;
-		o.vDiffuse.rgba += vLightingTerms.xxxx * vLightMask.rgba;
-		o.vSpecular.rgb += vLightingTerms.yzw * vLightMask.rgb;
+		o.vDiffuse.rgba += vLightingTerms.xxxx * vLightMask.rgba ;
+		o.vSpecular.rgb += vLightingTerms.yzw * vLightMask.rgb ;
 	}
 
 	/* // Visualize number of lights for the first 7 as RGBCMYW
@@ -522,7 +520,8 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	//*/
 
 	// Apply specular reflectance to diffuse term (specular term already accounts for this in the fresnel equation)
-	o.vDiffuse.rgba *= ( float4( 1.0, 1.0, 1.0 , 1.0) - vReflectance.rgbb);
+		o.vDiffuse.rgba *= ( float4( 1.0, 1.0, 1.0 , 1.0) - vReflectance.rgbb) ;
+	//o.vDiffuse.rgba = vNormalWs.xyzz;
 
 	//------------------//
 	// Indirect diffuse //
@@ -727,7 +726,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	float3 vFresnel = lerp( vReflectance.rgb, vMaVReflectance.rgb * g_flFresnelFalloff, pow( 1.0 - flVDotN, flFresnelExponent ) );
 
 	o.vIndirectSpecular.rgb *= vFresnel.rgb;
-	o.vIndirectSpecular.rgb *= g_flCubeMapScalar; // !!! FIXME: This also contains lightmap spec
+	o.vIndirectSpecular.rgb *= g_flCubeMapScalar;
 
 	// Since we have indirect specular, apply reflectance to indirect diffuse
 	o.vIndirectDiffuse.rgb *= ( float3( 1.0, 1.0, 1.0 ) - vReflectance.rgb );

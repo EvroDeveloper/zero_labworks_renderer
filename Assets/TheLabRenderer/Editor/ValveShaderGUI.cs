@@ -51,6 +51,7 @@ internal class ValveShaderGUI : ShaderGUI
 		public static GUIContent normalMapText = new GUIContent("Normal", "Normal Map");
 		//public static GUIContent heightMapText = new GUIContent("Height Map", "Height Map (G)");
         public static GUIContent fresnelfallofftext = new GUIContent("Fresnel Falloff Scalar", "");
+        public static GUIContent fresnelExponentText = new GUIContent("Fresnel Exponent", "");
 		public static GUIContent cubeMapScalarText = new GUIContent( "Cube Map Scalar", "" );
 		public static GUIContent occlusionText = new GUIContent("Occlusion", "Occlusion (G)");
 		public static GUIContent occlusionStrengthDirectDiffuseText = new GUIContent( "Occlusion Direct Diffuse", "" );
@@ -103,6 +104,7 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty bumpScale = null;
 	MaterialProperty bumpMap = null;
     MaterialProperty FresnelFalloffScalar = null;
+    MaterialProperty FresnelExponent = null;
 	MaterialProperty cubeMapScalar = null;
 	MaterialProperty occlusionStrength = null;
 	MaterialProperty occlusionMap = null;
@@ -161,6 +163,7 @@ internal class ValveShaderGUI : ShaderGUI
 		//heigtMapScale = FindProperty ("_Parallax", props);
 		//heightMap = FindProperty("_ParallaxMap", props);
         FresnelFalloffScalar = FindProperty("g_flFresnelFalloff", props);
+        FresnelExponent = FindProperty("g_flFresnelExponent", props);
 		cubeMapScalar = FindProperty( "g_flCubeMapScalar", props );
 		occlusionStrength = FindProperty ("_OcclusionStrength", props);
 		occlusionStrengthDirectDiffuse = FindProperty( "_OcclusionStrengthDirectDiffuse", props );
@@ -262,6 +265,7 @@ internal class ValveShaderGUI : ShaderGUI
 					m_MaterialEditor.ShaderProperty( occlusionStrengthIndirectSpecular, Styles.occlusionStrengthIndirectSpecularText.text, 2 );
 				}
                 m_MaterialEditor.ShaderProperty(FresnelFalloffScalar, Styles.fresnelfallofftext.text, 0);
+                m_MaterialEditor.ShaderProperty(FresnelExponent, Styles.fresnelExponentText.text, 0);
 				m_MaterialEditor.ShaderProperty( cubeMapScalar, Styles.cubeMapScalarText.text, 0 );
 			}
 

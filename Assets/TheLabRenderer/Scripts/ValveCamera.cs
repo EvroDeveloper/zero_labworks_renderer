@@ -28,7 +28,8 @@ public class ValveCamera : MonoBehaviour
 {
 	[NonSerialized] const float DIRECTIONAL_LIGHT_PULLBACK_DISTANCE = 10000.0f; // Directional lights become spotlights at a far distance. This is the distance we pull back to set the spotlight origin.
 
-	[NonSerialized] const int MAX_LIGHTS = 18;
+	[NonSerialized] const int MAX_LIGHTS = 128;	
+    [NonSerialized] const int MAX_AO = 128;
 	[Header( "Lights & Shadows" )]
 	[Range( 1024.0f, 1024.0f * 8.0f )] public int m_valveShadowTextureWidth = 1024 * 4;
 	[Range( 1024.0f, 1024.0f * 8.0f )] public int m_valveShadowTextureHeight = 1024 * 4;
@@ -46,7 +47,7 @@ public class ValveCamera : MonoBehaviour
     public float ShadowBias = 0.001f;
     [Range(1, 25)]
     public int ShadowSamples = 25;
-    [Header("AO")]
+    [Header("Ambient Occlusion")]
     [Tooltip("AO enabled")]
     public bool m_aoEnabled = true;
 
@@ -525,7 +526,10 @@ public class ValveCamera : MonoBehaviour
 				{
 					0, 1, 2, 0, 2, 3
 				};
-				;
+
+#if UNITY_EDITOR
+				MeshUtility.Optimize(mesh);
+#endif
 				mesh.UploadMeshData( false );
 
 				m_adaptiveQualityDebugQuad = new GameObject( "AdaptiveQualityDebugQuad" );
@@ -572,7 +576,15 @@ public class ValveCamera : MonoBehaviour
         if (s_bAllowLightCulling == true) CullLightsAgainstCameraFrustum();
 		RenderShadowBuffer();
 		UpdateLightConstants();
-        if (m_aoEnabled == true) UpdateAOConstants();
+        if (m_aoEnabled == true) { 
+            UpdateAOConstants();
+            //Currently clobbering. Dont do every frame
+            Shader.EnableKeyword("Z_SHAPEAO");
+        }
+        else
+        {
+            Shader.DisableKeyword("Z_SHAPEAO");
+        }
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -599,7 +611,7 @@ public class ValveCamera : MonoBehaviour
 		if ( HasCommandLineArg( "-aqmaVRes" ) )
 		{
 			nMaVRenderTargetDimension = GetCommandLineArgValue( "-aqmaVRes", nMaVRenderTargetDimension );
-			flMaVRenderTargetScale = Mathf.Min( ( float )nMaVRenderTargetDimension / ( float )UnityEngine.VR.VRSettings.eyeTextureWidth, ( float )nMaVRenderTargetDimension / ( float )UnityEngine.VR.VRSettings.eyeTextureHeight );
+			flMaVRenderTargetScale = Mathf.Min( ( float )nMaVRenderTargetDimension / ( float )UnityEngine.XR.XRSettings.eyeTextureWidth, ( float )nMaVRenderTargetDimension / ( float )UnityEngine.XR.XRSettings.eyeTextureHeight );
 		}
 
 		// Clear array
@@ -615,7 +627,7 @@ public class ValveCamera : MonoBehaviour
 			m_adaptiveQualityRenderScaleArray.Add( flCurrentScale );
 			flCurrentScale = Mathf.Sqrt( ( ( float )( nFillRatePercentStep + 100 ) / 100.0f ) * flCurrentScale * flCurrentScale );
 
-			if ( ( ( flCurrentScale * UnityEngine.VR.VRSettings.eyeTextureWidth ) > nMaVRenderTargetDimension ) || ( ( flCurrentScale * UnityEngine.VR.VRSettings.eyeTextureHeight ) > nMaVRenderTargetDimension ) )
+			if ( ( ( flCurrentScale * UnityEngine.XR.XRSettings.eyeTextureWidth ) > nMaVRenderTargetDimension ) || ( ( flCurrentScale * UnityEngine.XR.XRSettings.eyeTextureHeight ) > nMaVRenderTargetDimension ) )
 			{
 				// Too large
 				break;
@@ -643,7 +655,7 @@ public class ValveCamera : MonoBehaviour
 			for ( int i = 1; i < m_adaptiveQualityRenderScaleArray.Count; i++ )
 			{
 				outputString += i + ". ";
-				outputString += " " + ( int )( UnityEngine.VR.VRSettings.eyeTextureWidth * m_adaptiveQualityRenderScaleArray[ i ] ) + "x" + ( int )( UnityEngine.VR.VRSettings.eyeTextureHeight * m_adaptiveQualityRenderScaleArray[ i ] );
+				outputString += " " + ( int )( UnityEngine.XR.XRSettings.eyeTextureWidth * m_adaptiveQualityRenderScaleArray[ i ] ) + "x" + ( int )( UnityEngine.XR.XRSettings.eyeTextureHeight * m_adaptiveQualityRenderScaleArray[ i ] );
 				outputString += " " + m_adaptiveQualityRenderScaleArray[ i ];
 
 				if ( i == m_adaptiveQualityDefaultLevel )
@@ -665,13 +677,13 @@ public class ValveCamera : MonoBehaviour
 	{
 		if ( !m_adaptiveQualityEnabled )
 		{
-			if ( UnityEngine.VR.VRSettings.enabled )
+			if ( UnityEngine.XR.XRSettings.enabled )
 			{
 				//if ( UnityEngine.VR.VRSettings.eyeTextureResolutionScale != 1.0f )
 				//	UnityEngine.VR.VRSettings.eyeTextureResolutionScale = 1.0f;
 
-				if ( UnityEngine.VR.VRSettings.renderViewportScale != 1.0f )
-					UnityEngine.VR.VRSettings.renderViewportScale = 1.0f;
+				if ( UnityEngine.XR.XRSettings.renderViewportScale != 1.0f )
+					UnityEngine.XR.XRSettings.renderViewportScale = 1.0f;
 			}
 
 			return;
@@ -686,10 +698,15 @@ public class ValveCamera : MonoBehaviour
 		// Add latest timing to ring buffer
 		int nRingBufferSize = m_adaptiveQualityRingBuffer.GetLength( 0 );
 		m_nAdaptiveQualityRingBufferPos = ( m_nAdaptiveQualityRingBufferPos + 1 ) % nRingBufferSize;
-		m_adaptiveQualityRingBuffer[ m_nAdaptiveQualityRingBufferPos ] = UnityEngine.VR.VRStats.gpuTimeLastFrame;
-
+#if UNITY_5
+        m_adaptiveQualityRingBuffer[m_nAdaptiveQualityRingBufferPos] = UnityEngine.VR.VRStats.gpuTimeLastFrame;
+#else
+        float gputime;
+        UnityEngine.XR.XRStats.TryGetGPUTimeLastFrame(out gputime);
+        m_adaptiveQualityRingBuffer[m_nAdaptiveQualityRingBufferPos] = gputime;
+#endif
 		int nOldQualityLevel = m_nAdaptiveQualityLevel;
-		float flSingleFrameMs = ( UnityEngine.VR.VRDevice.refreshRate > 0.0f ) ? ( 1000.0f / UnityEngine.VR.VRDevice.refreshRate ) : ( 1000.0f / 90.0f ); // Assume 90 fps
+		float flSingleFrameMs = ( UnityEngine.XR.XRDevice.refreshRate > 0.0f ) ? ( 1000.0f / UnityEngine.XR.XRDevice.refreshRate ) : ( 1000.0f / 90.0f ); // Assume 90 fps
 
 		// Render low res means adaptive quality needs to scale back target to free up gpu cycles
 		bool bRenderLowRes = false;
@@ -842,21 +859,27 @@ public class ValveCamera : MonoBehaviour
 			}
 		}
 
-		if ( UnityEngine.VR.VRSettings.enabled )
+		if ( UnityEngine.XR.XRSettings.enabled )
 		{
             //Unity 2017 fix
            //  VRSettings.renderScale = (m_adaptiveQualityRenderScaleArray[nAdaptiveQualityLevel] / flRenderTargetScale) * flAdditionalViewportScale;
 
             //UnityEngine.VR.VRSettings.eyeTextureResolutionScale = flRenderTargetScale;
-            UnityEngine.VR.VRSettings.renderViewportScale = (m_adaptiveQualityRenderScaleArray[nAdaptiveQualityLevel] / flRenderTargetScale) * flAdditionalViewportScale;
+            UnityEngine.XR.XRSettings.renderViewportScale = (m_adaptiveQualityRenderScaleArray[nAdaptiveQualityLevel] / flRenderTargetScale) * flAdditionalViewportScale;
             //Debug.Log( "VRSettings.renderScale " + VRSettings.renderScale + " VRSettings.renderViewportScale " + VRSettings.renderViewportScale + "\n\n" );
         }
-
+        
 		Shader.SetGlobalInt( "g_nNumBins", m_adaptiveQualityNumLevels );
 		Shader.SetGlobalInt( "g_nDefaultBin", m_adaptiveQualityDefaultLevel );
 		Shader.SetGlobalInt( "g_nCurrentBin", nAdaptiveQualityLevel );
+#if UNITY_5
 		Shader.SetGlobalInt( "g_nLastFrameInBudget", m_bInterleavedReprojectionEnabled || ( UnityEngine.VR.VRStats.gpuTimeLastFrame > flSingleFrameMs ) ? 0 : 1 );
-	}
+#else
+
+        Shader.SetGlobalInt("g_nLastFrameInBudget", m_bInterleavedReprojectionEnabled || (gputime > flSingleFrameMs) ? 0 : 1);
+#endif	
+
+    }
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
 	[NonSerialized] private bool m_bFailedToPackLastTime = false;
@@ -1308,22 +1331,31 @@ public class ValveCamera : MonoBehaviour
 	[NonSerialized] private Matrix4x4[] g_matWorldToLightCookie = new Matrix4x4[ MAX_LIGHTS ];
     [NonSerialized] private Matrix4x4[] g_matWorldToPoint = new Matrix4x4[ MAX_LIGHTS ];
 
-    [NonSerialized] private Vector4[] g_zAOSphere = new Vector4[ MAX_LIGHTS ];
+    [NonSerialized] private Vector4[] g_zAOSphere = new Vector4[MAX_AO];
+    [NonSerialized] private Vector4[] g_zAOPoint = new Vector4[MAX_AO];
+
 
     void UpdateAOConstants()
-    {
-
-     //   int g_nNumAOsphere = 0;
-
-
-        for (int nAO = 0; nAO < slzAO.s_allAOSpheres.Count; nAO++)
+    {    
+        for (int nAO = 0; nAO < ZRealtimeAO.s_allAOSpheres.Count; nAO++)
         {
-
-            slzAO zAO = slzAO.s_allAOSpheres[nAO];
-
+            ZRealtimeAO zAO = ZRealtimeAO.s_allAOSpheres[nAO];
+            g_zAOSphere[nAO] = new Vector4(zAO.transform.position.x, zAO.transform.position.y, zAO.transform.position.z, zAO.SphereRadius);
         }
-        //Shader.SetGlobalVectorArray("g_zAOSphere", g_zAOSphere);
+
+
+        for (int nAO = 0; nAO < ZRealtimeAO.s_allAOPoints.Count; nAO++)
+        {
+            ZRealtimeAO zAO = ZRealtimeAO.s_allAOPoints[nAO];
+            g_zAOPoint[nAO] = new Vector4(zAO.transform.position.x, zAO.transform.position.y, zAO.transform.position.z, zAO.SphereRadius);
+        }
+
         Shader.SetGlobalVectorArray("g_zAOSphere", g_zAOSphere);
+        Shader.SetGlobalInt("g_nNumAOSpheres", ZRealtimeAO.s_allAOSpheres.Count);
+
+
+        Shader.SetGlobalVectorArray("g_zAOPoint", g_zAOPoint);
+        Shader.SetGlobalInt("g_nNumAOPoints", ZRealtimeAO.s_allAOPoints.Count);
     }
 
 

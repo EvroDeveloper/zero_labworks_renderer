@@ -3,7 +3,7 @@
 // Copyright (c) Valve Corporation, All rights reserved. ======================================================================================================
 // Modified to include  alpha cutout and alpha blended shadows
 // Also replaced the biasing function with Unity's own implementation
-// of Ignacio Castaño's suggestions
+// of Ignacio Castaï¿½o's suggestions
 // Simon Windmill 03/19/2017
 
 Shader  "Valve/Internal/vr_cast_shadows"
@@ -62,10 +62,10 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			float2 GetShadowOffsets( float3 N, float3 L )
 				{
-					// From: Ignacio Castaño http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
+					// From: Ignacio Castaï¿½o http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
 					float cos_alpha = saturate( dot( N, L ) );
-					float offset_scale_N = sqrt( 1 - ( cos_alpha * cos_alpha ) ); // sin( acos( L·N ) )
-					float offset_scale_L = offset_scale_N / cos_alpha; // tan( acos( L·N ) )
+					float offset_scale_N = sqrt( 1 - ( cos_alpha * cos_alpha ) ); // sin( acos( Lï¿½N ) )
+					float offset_scale_L = offset_scale_N / cos_alpha; // tan( acos( Lï¿½N ) )
 					return float2( offset_scale_N, min( 2.0, offset_scale_L ) );
 				}
 
@@ -93,9 +93,9 @@ Shader  "Valve/Internal/vr_cast_shadows"
 					//vPositionWs.xyz -= vShadowOffsets.x * vNormalWs.xyz / 100;
 					vPositionWs.xyz += vShadowOffsets.y * g_vLightDirWs.xyz / 1000;
 					o.vPositionPs.xyzw = UnityObjectToClipPos( float4( mul( unity_WorldToObject, float4( vPositionWs.xyz, 1.0 ) ).xyz, 1.0 ) );
-
-				 o.vPositionPs = UnityClipSpaceShadowCasterPos(i.vPositionOs.xyz, i.vNormalOs);
-				 o.vPositionPs = UnityApplyLinearShadowBias(o.vPositionPs);
+				//Bias
+				// o.vPositionPs = UnityClipSpaceShadowCasterPos(i.vPositionOs.xyz, i.vNormalOs);
+				// o.vPositionPs = UnityApplyLinearShadowBias(o.vPositionPs);
 
 				 return o;
 			}
@@ -160,10 +160,10 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			float2 GetShadowOffsets( float3 N, float3 L )
 				{
-					// From: Ignacio Castaño http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
+					// From: Ignacio Castaï¿½o http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
 					float cos_alpha = saturate( dot( N, L ) );
-					float offset_scale_N = sqrt( 1 - ( cos_alpha * cos_alpha ) ); // sin( acos( L·N ) )
-					float offset_scale_L = offset_scale_N / cos_alpha; // tan( acos( L·N ) )
+					float offset_scale_N = sqrt( 1 - ( cos_alpha * cos_alpha ) ); // sin( acos( Lï¿½N ) )
+					float offset_scale_L = offset_scale_N / cos_alpha; // tan( acos( Lï¿½N ) )
 					return float2( offset_scale_N, min( 2.0, offset_scale_L ) );
 				}
 
@@ -273,10 +273,10 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			float2 GetShadowOffsets( float3 N, float3 L )
 				{
-					// From: Ignacio Castaño http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
+					// From: Ignacio Castaï¿½o http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
 					float cos_alpha = saturate( dot( N, L ) );
-					float offset_scale_N = sqrt( 1 - ( cos_alpha * cos_alpha ) ); // sin( acos( L·N ) )
-					float offset_scale_L = offset_scale_N / cos_alpha; // tan( acos( L·N ) )
+					float offset_scale_N = sqrt( 1 - ( cos_alpha * cos_alpha ) ); // sin( acos( Lï¿½N ) )
+					float offset_scale_L = offset_scale_N / cos_alpha; // tan( acos( Lï¿½N ) )
 					return float2( offset_scale_N, min( 2.0, offset_scale_L ) );
 				}
 
