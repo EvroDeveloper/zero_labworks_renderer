@@ -1658,6 +1658,8 @@ public class ValveCamera : MonoBehaviour
 	}
 }
 
+#region Editor UI
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #if ( UNITY_EDITOR )
 class ValveSceneAutoRendering : EditorWindow
@@ -1712,6 +1714,8 @@ class ValveSceneAutoRendering : EditorWindow
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 #if ( UNITY_EDITOR )
+
+
 [CustomEditor( typeof( ValveCamera ) )]
 public class ValveCameraInspector : Editor
 {
@@ -1854,4 +1858,8 @@ public class ValveCameraInspector : Editor
 		Repaint();
 	}
 }
+
+
+
 #endif
+#endregion

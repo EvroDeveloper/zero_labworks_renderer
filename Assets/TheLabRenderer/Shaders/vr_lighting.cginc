@@ -607,10 +607,29 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		}
 		#endif
 	}
+
 	#elif ( UNITY_SHOULD_SAMPLE_SH )
 	{
-		// Light probe
-		o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );
+		
+		#if (UNITY_LIGHT_PROBE_PROXY_VOLUME)
+		{
+		
+			if (unity_ProbeVolumeParams.x == 1)
+				{
+				o.vIndirectDiffuse.rgb += ShadeSHPerPixel(vNormalWs.xyz, o.vIndirectDiffuse.rgb, vPositionWs.xyz);  // Light probe Proxy Volume 
+				}
+			else
+				{
+				o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );  // Simple Light probe
+				}
+		}
+		#else
+			{
+			// Simple Light probe
+			o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );
+			}
+		#endif
+
 	}
 	#endif
 

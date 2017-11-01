@@ -112,7 +112,7 @@ Material:
     - g_flReflectanceMin: 0
     - g_flReflectanceScale: 1
     m_Colors:
-    - _Color: {r: 0.875, g: 0.7257351, b: 0.50183827, a: 0.528}
+    - _Color: {r: 0.875, g: 0.7257351, b: 0.5018382, a: 0.266}
     - _ColorShift1: {r: 1, g: 1, b: 1, a: 1}
     - _ColorShift2: {r: 1, g: 1, b: 1, a: 1}
     - _ColorShift3: {r: 1, g: 1, b: 1, a: 1}
