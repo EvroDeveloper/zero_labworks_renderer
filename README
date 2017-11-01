@@ -18,7 +18,7 @@ Some new features:
 -Falloff option for emissive materials
 -Color mask
 -Primitive based AO
-
+-Light probe proxy group support
 
 
 Anisotropic currently disabled
