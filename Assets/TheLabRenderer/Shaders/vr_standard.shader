@@ -91,7 +91,7 @@ Shader "Valve/vr_standard"
 
 	SubShader
 	{
-		Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
+		Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False"  "Queue"="Geometry"}
 		LOD 300
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------

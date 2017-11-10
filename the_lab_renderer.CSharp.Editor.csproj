@@ -272,6 +272,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\TheLabRenderer\Editor\RealtimeLightGUI.cs" />
     <Compile Include="Assets\TheLabRenderer\Editor\ValveAutoUpdateSettings.cs" />
     <Compile Include="Assets\TheLabRenderer\Editor\ValveMenuTools.cs" />
     <Compile Include="Assets\TheLabRenderer\Editor\ValveShaderGUI.cs" />

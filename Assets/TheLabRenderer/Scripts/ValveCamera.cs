@@ -34,9 +34,11 @@ public class ValveCamera : MonoBehaviour
 	[Range( 1024.0f, 1024.0f * 8.0f )] public int m_valveShadowTextureWidth = 1024 * 4;
 	[Range( 1024.0f, 1024.0f * 8.0f )] public int m_valveShadowTextureHeight = 1024 * 4;
 
+    [Tooltip("Globally enables light Cookies ")]
+    public bool EnableCookies = true;
+
 	[Tooltip( "Might cause shadow acne on skinned meshes, but can be more efficient in scenes without skinned meshes" )]
-	public bool m_renderShadowsInLateUpdate = true;
-    private Texture g_tVrLightCookieTexture = null;
+	public bool m_renderShadowsInLateUpdate = false;
 
     public enum Shadows { Simple, PCF, PCSS }
     public Shadows ShadowType = Shadows.PCF;
@@ -1387,7 +1389,7 @@ public class ValveCamera : MonoBehaviour
 																			l.transform.position.y - ( l.transform.forward.normalized.y * DIRECTIONAL_LIGHT_PULLBACK_DISTANCE ),
 																			l.transform.position.z - ( l.transform.forward.normalized.z * DIRECTIONAL_LIGHT_PULLBACK_DISTANCE ),
 																			-1.0f );
-				g_vLightDirection[ g_nNumLights ] = new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z );
+                g_vLightDirection[g_nNumLights] = new Vector4(l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z, vl.cookieNumber);
 				g_vLightShadowIndex_vLightParams[ g_nNumLights ] = new Vector4( 0, 0, 1, 1 );
 				g_vLightFalloffParams[ g_nNumLights ] = new Vector4( 0.0f, 0.0f, float.MaxValue , vl.Hardness);
 				g_vSpotLightInnerOuterConeCosines[ g_nNumLights ] = new Vector4( 0.0f, -1.0f, 1.0f );
@@ -1398,6 +1400,38 @@ public class ValveCamera : MonoBehaviour
 					g_matWorldToShadow[ g_nNumLights ] = vl.m_shadowTransform[ nNumPointLightShadowFacesAdded ].transpose;
 					g_vShadowMinMaxUv[ g_nNumLights ] = new Vector4( 0.0f, 0.0f, 1.0f, 1.0f );
 				}
+
+
+                if (vl.cookieEnabled == true && EnableCookies == true)
+                {
+                    g_vLightShadowIndex_vLightParams[g_nNumLights].y = 1; //Enable Coookies
+
+                    Matrix4x4 matScaleBias = Matrix4x4.identity;
+                    matScaleBias.m00 = 0.5f;
+                    matScaleBias.m11 = 0.5f;
+                    matScaleBias.m22 = 0.5f;
+                    matScaleBias.m03 = 0.5f;
+                    matScaleBias.m13 = 0.5f;
+                    matScaleBias.m23 = 0.5f;
+
+                    //Do Ortho projection with size and offset
+
+                    Matrix4x4 CookieMatrix = 
+                        Matrix4x4.Ortho(
+                        vl.DirectionalCookieOffset.x - l.cookieSize,
+                        vl.DirectionalCookieOffset.x + l.cookieSize,
+                        vl.DirectionalCookieOffset.y - l.cookieSize,
+                        vl.DirectionalCookieOffset.y + l.cookieSize, 
+                        0.1f, 500);
+
+                    vl.m_lightCookieTransform[nNumPointLightShadowFacesAdded] = matScaleBias * CookieMatrix * l.transform.worldToLocalMatrix;
+                    g_matWorldToLightCookie[g_nNumLights] = vl.m_lightCookieTransform[nNumPointLightShadowFacesAdded].transpose;
+
+                    //Apply cookie texture :: Need to move this to a packer to support multiple textures
+
+                    //       g_tVrLightCookieTexture = l.cookie;
+
+                }
 
 				g_nNumLights++;
 			}
@@ -1411,10 +1445,32 @@ public class ValveCamera : MonoBehaviour
 				float flIntensity = ( l.intensity <= 1.0f ) ? l.intensity : l.intensity * l.intensity;
 				g_vLightColor[ g_nNumLights ] = new Vector4( l.color.linear.r * flIntensity, l.color.linear.g * flIntensity, l.color.linear.b * flIntensity , (-l.color.linear.a + 1) * flIntensity);
 				g_vLightPosition_flInvRadius[ g_nNumLights ] = new Vector4( l.transform.position.x, l.transform.position.y, l.transform.position.z, 1.0f / l.range );
-				g_vLightDirection[ g_nNumLights ] = new Vector4( 0.0f, 0.0f, 0.0f );
+                g_vLightDirection[g_nNumLights] = new Vector4(0.0f, 0.0f, 0.0f, vl.cookieNumber);
 				g_vLightShadowIndex_vLightParams[ g_nNumLights ] = new Vector4( 0, 0, 1, 1 );
                 g_vLightFalloffParams[g_nNumLights] = new Vector4(1.0f, 0.0f, l.range * l.range, vl.Hardness);
 				g_vSpotLightInnerOuterConeCosines[ g_nNumLights ] = new Vector4( 0.0f, -1.0f, 1.0f );
+
+                if (vl.cookieEnabled == true && EnableCookies == true)
+                {
+                    g_vLightShadowIndex_vLightParams[g_nNumLights].y = 1; //Enable Coookies
+
+                    Matrix4x4 matScaleBias = Matrix4x4.identity;
+                    matScaleBias.m00 = 0.5f;
+                    matScaleBias.m11 = 0.5f;
+                    matScaleBias.m22 = 0.5f;
+                    matScaleBias.m03 = 0.5f;
+                    matScaleBias.m13 = 0.5f;
+                    matScaleBias.m23 = 0.5f;
+
+                    Matrix4x4 CookieMatrix = Matrix4x4.Perspective(145, 1f, vl.m_shadowNearClipPlane, l.range);
+                    vl.m_lightCookieTransform[nNumPointLightShadowFacesAdded] = matScaleBias * CookieMatrix * l.transform.worldToLocalMatrix;
+                    g_matWorldToLightCookie[g_nNumLights] = vl.m_lightCookieTransform[nNumPointLightShadowFacesAdded].transpose;
+
+                    //Apply cookie texture :: Need to move this to a packer to support multiple textures
+
+                    //       g_tVrLightCookieTexture = l.cookie;
+
+                }
 
 				// Point lights require 6 fake spotlights for now
 				if ( ( l.shadows != LightShadows.None ) && ( vl.m_bRenderShadowsThisFrame ) )
@@ -1432,7 +1488,7 @@ public class ValveCamera : MonoBehaviour
 					}
 
 					// Replace some values above to create the 6 fake spotlights
-					g_vLightDirection[ g_nNumLights ] = new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z );
+                    g_vLightDirection[g_nNumLights] = new Vector4(l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z, vl.cookieNumber);
 					g_vLightShadowIndex_vLightParams[ g_nNumLights ].x = 2; // Enable point shadows
 					//g_vLightShadowIndex_vLightParams[ g_nNumLights ].y = 2; // Enable per-pixel culling
 					g_matWorldToShadow[ g_nNumLights ] = vl.m_shadowTransform[ nNumPointLightShadowFacesAdded ].transpose;
@@ -1474,6 +1530,8 @@ public class ValveCamera : MonoBehaviour
 					}
 				}
 
+
+
 				g_nNumLights++;
 			}
 
@@ -1486,7 +1544,7 @@ public class ValveCamera : MonoBehaviour
 				float flIntensity = ( l.intensity <= 1.0f ) ? l.intensity : l.intensity * l.intensity;
                 g_vLightColor[g_nNumLights] = new Vector4(l.color.linear.r * flIntensity, l.color.linear.g * flIntensity, l.color.linear.b * flIntensity, (-l.color.linear.a + 1) * flIntensity);
 				g_vLightPosition_flInvRadius[ g_nNumLights ] = new Vector4( l.transform.position.x, l.transform.position.y, l.transform.position.z, 1.0f / l.range );
-				g_vLightDirection[ g_nNumLights ] = new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z );
+				g_vLightDirection[ g_nNumLights ] = new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z , vl.cookieNumber);
 				g_vLightShadowIndex_vLightParams[ g_nNumLights ] = new Vector4( 0, 0, 1, 1 );
                 g_vLightFalloffParams[g_nNumLights] = new Vector4(1.0f, 0.0f, l.range * l.range, vl.Hardness);
 
@@ -1506,7 +1564,7 @@ public class ValveCamera : MonoBehaviour
 
 
 
-                if (l.cookie != null)
+                if (vl.cookieEnabled == true && EnableCookies == true)
                 {
                     g_vLightShadowIndex_vLightParams[g_nNumLights].y = 1; //Enable Coookies
 
@@ -1524,7 +1582,7 @@ public class ValveCamera : MonoBehaviour
 
                     //Apply cookie texture :: Need to move this to a packer to support multiple textures
 
-                    g_tVrLightCookieTexture = l.cookie;
+             //       g_tVrLightCookieTexture = l.cookie;
 
                 }
 
@@ -1565,10 +1623,9 @@ public class ValveCamera : MonoBehaviour
 		Shader.SetGlobalVectorArray( "g_vShadowMinMaxUv", g_vShadowMinMaxUv );
 		Shader.SetGlobalMatrixArray( "g_matWorldToShadow", g_matWorldToShadow );
 		Shader.SetGlobalMatrixArray( "g_matWorldToLightCookie", g_matWorldToLightCookie );
-
         Shader.SetGlobalMatrixArray("g_matWorldToPoint", g_matWorldToPoint);
 
-        Shader.SetGlobalTexture("g_tVrLightCookieTexture", g_tVrLightCookieTexture);
+     //   Shader.SetGlobalTexture("g_tVrLightCookieTexture", g_tVrLightCookieTexture);
 
 
 		if ( bFoundShadowingPointLight )

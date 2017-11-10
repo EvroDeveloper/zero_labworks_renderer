@@ -284,13 +284,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 97616939}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.1836, z: -0}
+  m_LocalRotation: {x: -0.7726674, y: -0.000000014901163, z: 0.000000044703487, w: 0.6348111}
+  m_LocalPosition: {x: -0.523, y: -0.173, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 197767519}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -101.187996, y: -0.000015258789, z: 0}
 --- !u!114 &97616941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,6 +302,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 1
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 0
   Hardness: 1
   m_shadowResolution: 4096
@@ -309,10 +311,11 @@ MonoBehaviour:
   m_shadowCastLayerMask:
     serializedVersion: 2
     m_Bits: 4294967039
-  m_directionalLightShadowRadius: 100
-  m_directionalLightShadowRange: 100
+  m_directionalLightShadowRadius: 99.19
+  m_directionalLightShadowRange: 100.3
   m_useOcclusionCullingForShadows: 0
   IgnoreCameraFrustum: 0
+  cookieEnabled: 1
 --- !u!108 &97616942
 Light:
   m_ObjectHideFlags: 0
@@ -325,7 +328,7 @@ Light:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 7.4
   m_Range: 11.964367
-  m_SpotAngle: 32.135845
+  m_SpotAngle: 79.95538
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -335,7 +338,7 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
-  m_Cookie: {fileID: 2800000, guid: 2e7937b3391e0bd4da9c952c38d2a65f, type: 3}
+  m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
   m_RenderMode: 0
@@ -457,13 +460,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 108196756}
-  m_Text: '*Four real-time shadowing spotlights
-
-    *Lightmaps are indirect-only because the real-time
-
-    lights'' Bounce Intensity is > 0
-
-    *Valve Camera is set to Indirect Lightmaps Only'
+  m_Text: '*Four real-time spotlights with Light Cookies'
   m_OffsetZ: 0
   m_CharacterSize: 0.05
   m_LineSpacing: 1
@@ -611,7 +608,7 @@ Transform:
   - {fileID: 1503300357}
   - {fileID: 1953980761}
   m_Father: {fileID: 816865888}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 107.823, y: 32.745987, z: 0}
 --- !u!1 &202888559
 GameObject:
@@ -666,7 +663,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 816865888}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &231849240
 GameObject:
@@ -797,7 +794,7 @@ Transform:
   - {fileID: 2011254046}
   - {fileID: 97708829}
   m_Father: {fileID: 816865888}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 95.237, y: -44.75, z: 178.27}
 --- !u!1 &441302523
 GameObject:
@@ -914,7 +911,7 @@ Transform:
   - {fileID: 1146713484}
   - {fileID: 1721749449}
   m_Father: {fileID: 816865888}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
 --- !u!1 &534864488
 GameObject:
@@ -945,7 +942,7 @@ Transform:
   - {fileID: 2004113082}
   - {fileID: 167803714}
   m_Father: {fileID: 816865888}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 59.985004, y: 0, z: 180.00002}
 --- !u!1 &700202111
 GameObject:
@@ -1061,6 +1058,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 1305822833}
   - {fileID: 202888561}
   - {fileID: 868632042}
   - {fileID: 534864489}
@@ -1129,7 +1127,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 816865888}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &952013562
 GameObject:
@@ -1302,13 +1300,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1080879601}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: -0.7071066, y: -0.0005670963, z: -0.0005670965, w: 0.7071066}
   m_LocalPosition: {x: 0, y: 0.1836, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 534864489}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -89.98, y: 0, z: -0.09200001}
 --- !u!114 &1080879603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1320,9 +1318,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_innerSpotPercent: 0
+  cookieNumber: 3
+  DirectionalCookieOffset: {x: 0, y: 0}
+  m_innerSpotPercent: 68.9
   Hardness: 1
-  m_shadowResolution: 4096
+  m_shadowResolution: 2688
   m_shadowNearClipPlane: 3
   m_shadowCastLayerMask:
     serializedVersion: 2
@@ -1331,6 +1331,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 0
   IgnoreCameraFrustum: 0
+  cookieEnabled: 1
 --- !u!108 &1080879604
 Light:
   m_ObjectHideFlags: 0
@@ -1341,9 +1342,9 @@ Light:
   serializedVersion: 8
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 10
   m_Range: 10.5
-  m_SpotAngle: 80.5
+  m_SpotAngle: 63.553314
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -1461,13 +1462,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1151194739}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.1836, z: -0}
+  m_LocalRotation: {x: -0.6996512, y: -0, z: -0, w: 0.71448463}
+  m_LocalPosition: {x: 0, y: -0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 528680517}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -88.799, y: 0, z: 0}
 --- !u!114 &1151194741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1479,9 +1480,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 2
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 0
   Hardness: 1
-  m_shadowResolution: 4096
+  m_shadowResolution: 720
   m_shadowNearClipPlane: 1
   m_shadowCastLayerMask:
     serializedVersion: 2
@@ -1490,6 +1493,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 0
   IgnoreCameraFrustum: 0
+  cookieEnabled: 1
 --- !u!108 &1151194742
 Light:
   m_ObjectHideFlags: 0
@@ -1500,9 +1504,9 @@ Light:
   serializedVersion: 8
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4.23
+  m_Intensity: 5
   m_Range: 8.772697
-  m_SpotAngle: 90
+  m_SpotAngle: 61
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -1512,7 +1516,7 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
-  m_Cookie: {fileID: 2800000, guid: 2e7937b3391e0bd4da9c952c38d2a65f, type: 3}
+  m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
   m_RenderMode: 0
@@ -1556,6 +1560,52 @@ Transform:
   m_Father: {fileID: 1641804891}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1305822832
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1305822833}
+  - component: {fileID: 1305822834}
+  m_Layer: 0
+  m_Name: Light Cookie Controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1305822833
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1305822832}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.988245, y: 0.011238337, z: -11.840488}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 816865888}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1305822834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1305822832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406768b32132dbb4f899db0663c5ddd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CookieList:
+  - {fileID: 2800000, guid: 4170ea16eb7882f4ebba57830509f653, type: 3}
+  - {fileID: 2800000, guid: 2e7937b3391e0bd4da9c952c38d2a65f, type: 3}
+  - {fileID: 2800000, guid: 9abd4e3401bd3384ebeb5e6fc23cd83e, type: 3}
+  - {fileID: 2800000, guid: 9a08c99d981b0b2439bd58abe37e6fa7, type: 3}
+  MasterCookieResolution: 1024
 --- !u!1001 &1427297159
 Prefab:
   m_ObjectHideFlags: 0
@@ -1885,6 +1935,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_valveShadowTextureWidth: 8192
   m_valveShadowTextureHeight: 8192
+  EnableCookies: 1
   m_renderShadowsInLateUpdate: 1
   ShadowType: 1
   PenumbraSize: 1.5
@@ -2093,6 +2144,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 0
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 100
   Hardness: 1
   m_shadowResolution: 4096
@@ -2104,6 +2157,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 0
   IgnoreCameraFrustum: 0
+  cookieEnabled: 1
 --- !u!108 &1708805803
 Light:
   m_ObjectHideFlags: 0
@@ -2114,9 +2168,9 @@ Light:
   serializedVersion: 8
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 5.43
+  m_Intensity: 5
   m_Range: 16
-  m_SpotAngle: 20.5
+  m_SpotAngle: 41.710083
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -2126,7 +2180,7 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
-  m_Cookie: {fileID: 2800000, guid: 4170ea16eb7882f4ebba57830509f653, type: 3}
+  m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
   m_RenderMode: 0

@@ -105,6 +105,7 @@ Material:
     - g_bUnlit: 1
     - g_bWorldAlignedTexture: 0
     - g_flCubeMapScalar: 1
+    - g_flFresnelExponent: 5
     - g_flFresnelFalloff: 1
     - g_flReflectanceBias: 0
     - g_flReflectanceMax: 1

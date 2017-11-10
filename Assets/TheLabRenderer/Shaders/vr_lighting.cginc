@@ -21,7 +21,7 @@ CBUFFER_START( ValveVrLighting )
 
 	float4 g_vLightColor[ MAX_LIGHTS ];
 	float4 g_vLightPosition_flInvRadius[ MAX_LIGHTS ];
-	float4 g_vLightDirection[ MAX_LIGHTS ];
+	float4 g_vLightDirection[ MAX_LIGHTS ]; //Direction with, w = cookie Number
 	float4 g_vLightShadowIndex_vLightParams[ MAX_LIGHTS ]; // x = Shadow index, y = Light cookie index, z = Diffuse enabled, w = Specular enabled
 	float4 g_vLightFalloffParams[ MAX_LIGHTS ]; // x = Linear falloff, y = Quadratic falloff, z = Radius squared for culling  , w = lambert wrap
 	float4 g_vSpotLightInnerOuterConeCosines[ MAX_LIGHTS ];
@@ -44,7 +44,7 @@ CBUFFER_END
 // Override lightmap
 sampler2D g_tOverrideLightmap;
 //sampler3D g_tVrLightCookieTexture;
-sampler2D g_tVrLightCookieTexture;
+uniform UNITY_DECLARE_TEX2DARRAY( g_tVrLightCookieTexture);
 uniform float3 g_vOverrideLightmapScale;
 
 float g_flCubeMapScalar  = 1.0;
@@ -449,7 +449,10 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		//	vSpotAtten.rgb = Tex3DLevel( g_tVrLightCookieTexture, vPositionTextureSpace.xyz, 0.0 ).rgb;
 
 			
-				vSpotAtten.rgb = tex2D (g_tVrLightCookieTexture ,  vPositionTextureSpace.xy ) ;
+			//	vSpotAtten.rgb = tex2D (g_tVrLightCookieTexture ,  vPositionTextureSpace.xy ) ;
+
+			vSpotAtten.rgb = UNITY_SAMPLE_TEX2DARRAY(g_tVrLightCookieTexture, float3(vPositionTextureSpace.xy, g_vLightDirection[ i ].w )).rgb ;
+
 
 		}
 

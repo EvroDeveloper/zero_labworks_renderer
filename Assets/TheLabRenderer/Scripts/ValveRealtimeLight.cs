@@ -19,7 +19,8 @@ public class ValveRealtimeLight : MonoBehaviour
 	[NonSerialized] [HideInInspector] public bool m_bRenderShadowsThisFrame = false;
 	[NonSerialized] [HideInInspector] public bool m_bInCameraFrustum = false;
 
-	//[Tooltip( "Health value between 0 and 100." )]
+    [HideInInspector] public int cookieNumber;
+    [HideInInspector] public Vector2 DirectionalCookieOffset;
 
 	//[Header( "Spotlight Settings" )]
 	[Range( 0.0f, 100.0f )] public float m_innerSpotPercent = 50.0f;
@@ -30,18 +31,27 @@ public class ValveRealtimeLight : MonoBehaviour
 
 	//[Header( "Shadow Settings" )]
 	[Range( 16.0f, 1024.0f * 8.0f )] public int m_shadowResolution = 1024;
-
-   
+       
 	public float m_shadowNearClipPlane = 1.0f;
 	public LayerMask m_shadowCastLayerMask = ~0;
 
+
 	// !!! I need to hide these values for non-directional lights
+    [HideInInspector] 
 	public float m_directionalLightShadowRadius = 100.0f;
+    [HideInInspector] 
 	public float m_directionalLightShadowRange = 100.0f;
 
+
 	public bool m_useOcclusionCullingForShadows = true;
+
+
+
+
     [Tooltip ("Don't turn off light when out of view. Leave off unless needed.")]
     public bool IgnoreCameraFrustum = false;
+      
+    public bool cookieEnabled;
 
 	void OnValidate()
 	{
