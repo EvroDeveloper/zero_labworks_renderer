@@ -10,6 +10,9 @@ Shader "Valve/vr_standard"
 
 		_Color( "Color", Color ) = ( 1, 1, 1, 1 )
 		_MainTex( "Albedo", 2D ) = "white" {}
+
+		g_tBRDFMap("BRDF Map", 2D) = "grey" {} 
+
 		_ColorMask( "Color Mask", 2D ) = "white" {}
 		_ColorShift1( "Color Shift 1", Color ) = ( 1, 1, 1 )
 		_ColorShift2( "Color Shift 2", Color ) = ( 1, 1, 1 )
@@ -124,7 +127,7 @@ Shader "Valve/vr_standard"
 				//#pragma shader_feature _PARALLAXMAP
 				#pragma shader_feature _FLUORESCENCEMAP				
 				#pragma shader_feature _COLORSHIFT
-				
+				#pragma shader_feature _BRDFMAP
 
 
 				#pragma shader_feature S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
@@ -175,7 +178,10 @@ Shader "Valve/vr_standard"
 				#include "vr_lighting.cginc"
 				#include "vr_matrix_palette_skinning.cginc"
 				#include "vr_fog.cginc"
+
 				#include "vr_zAO.cginc"
+
+
 
 				sampler2D	_FluorescenceMap;
 				sampler2D	_ColorMask;
@@ -186,6 +192,7 @@ Shader "Valve/vr_standard"
 				float3		_ColorShift3;
 				float		_EmissionFalloff;
 				float		g_flFresnelExponent;
+				
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
@@ -365,6 +372,7 @@ Shader "Valve/vr_standard"
 				#define g_vColorShift2 _ColorShift2
 				#define g_vColorShift3 _ColorShift3
 				#define g_fEmissionFalloff _EmissionFalloff
+				//#define g_tBRDFMap _BRDFTex;
 
 
 				float g_flReflectanceScale = 1.0;
@@ -676,8 +684,20 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
+					////BRDF remapping
+					//#if ( _BRDFMAP )
+					//{
+					//float3 brdfmap = tex2D( g_tBRDFMap, i.vTextureCoords.xy ).rgb;
+				//	o.vColor.rgb = BRDFRemapping( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb , g_tBRDFMap) * vAlbedo.rgb;
+					//o.vColor.rgb = ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb );
+
+					//}
+				//	#else
+					//{
 					// Diffuse
 					o.vColor.rgb = ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb ) * vAlbedo.rgb;
+				//	}
+				//	#endif
 
 
 					//Color Shifting

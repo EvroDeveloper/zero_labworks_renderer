@@ -243,6 +243,9 @@
     <Reference Include="UnityEditor.Graphs">
       <HintPath>Library\UnityAssemblies\UnityEditor.Graphs.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.Android.Extensions">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Android.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.WindowsStandalone.Extensions">
       <HintPath>Library\UnityAssemblies\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
@@ -291,7 +294,6 @@
     <None Include="Assets\TheLabRenderer\Shaders\vr_standard.shader" />
     <None Include="Assets\TheLabRenderer\Shaders\vr_utils.cginc" />
     <None Include="Assets\TheLabRenderer\Shaders\vr_zAO.cginc" />
-    <None Include="Assets\TheLabRenderer\Shaders\vr_zSSS.cginc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2013\UnityVS.CSharp.targets" />
 </Project>

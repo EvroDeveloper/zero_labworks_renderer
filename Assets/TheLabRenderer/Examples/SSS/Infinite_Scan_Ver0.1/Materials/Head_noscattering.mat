@@ -6,11 +6,11 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: valves_base
+  m_Name: Head_noscattering
   m_Shader: {fileID: 4800000, guid: 908b379d4818cd64184b95a21123d909, type: 3}
-  m_ShaderKeywords: S_OCCLUSION S_RECEIVE_SHADOWS S_SPECULAR_METALLIC _DETAIL_MULX2
-    _METALLICGLOSSMAP _NORMALMAP
-  m_LightmapFlags: 5
+  m_ShaderKeywords: D_CASTSHADOW S_OCCLUSION S_RECEIVE_SHADOWS S_SPECULAR_METALLIC
+    _NORMALMAP
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -20,8 +20,12 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BRDFTex:
+        m_Texture: {fileID: 2800000, guid: c97205fc75c6e754e86ef725a11c1030, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: a914d0c2fddab8941815cb8d68c7e09b, type: 3}
+        m_Texture: {fileID: 2800000, guid: 41ea576733eb0b44e8740f98beddedf9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ColorMask:
@@ -29,15 +33,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
-        m_Texture: {fileID: 2800000, guid: 6ac1de3b305f48f41b8b5501fb417ff8, type: 3}
-        m_Scale: {x: 5, y: 5}
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailMask:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 2800000, guid: b4188c8cc5d7781489632a6a11b6ef5d, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -49,15 +53,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: d76bdcade22cea3479aab1b214db53a3, type: 3}
+        m_Texture: {fileID: 2800000, guid: bb79f3f7bea014a4e93d5f1db78eb259, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 2800000, guid: 992406c45269b634c9a6ca4acb40a7e5, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
-        m_Texture: {fileID: 2800000, guid: 12fcfbf791fe50241a5e5b077cbfe1fa, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4edf7b2777d1547489375d8166b2ec8c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
@@ -65,6 +69,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - g_tBRDFMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -76,21 +84,21 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DetailNormalMapScale: 0.25
+    - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EmissionFalloff: 0
     - _FogMultiplier: 1
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.479
     - _Glossiness2: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _OcclusionStrengthDirectDiffuse: 0.4
-    - _OcclusionStrengthDirectSpecular: 0.4
-    - _OcclusionStrengthIndirectDiffuse: 0.5
-    - _OcclusionStrengthIndirectSpecular: 0.9
+    - _OcclusionStrengthDirectDiffuse: 1
+    - _OcclusionStrengthDirectSpecular: 1
+    - _OcclusionStrengthIndirectDiffuse: 1
+    - _OcclusionStrengthIndirectSpecular: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

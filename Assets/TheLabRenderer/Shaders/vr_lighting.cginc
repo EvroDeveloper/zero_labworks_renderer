@@ -9,6 +9,7 @@
 #include "vr_PCSS.cginc"
 
 
+
 #define Tex2DLevel( name, uv, flLevel ) name.SampleLevel( sampler##name, ( uv ).xy, flLevel )
 //#define Tex3DLevel( name, uv, flLevel ) name.SampleLevel( sampler3D##name, ( uv ).xyz, flLevel )
 #define Tex2DLevelFromSampler( texturename, samplername, uv, flLevel ) texturename.SampleLevel( sampler##samplername, ( uv ).xy, flLevel )
@@ -43,7 +44,7 @@ CBUFFER_END
 
 // Override lightmap
 sampler2D g_tOverrideLightmap;
-//sampler3D g_tVrLightCookieTexture;
+sampler2D g_tBRDFMap;
 uniform UNITY_DECLARE_TEX2DARRAY( g_tVrLightCookieTexture);
 uniform float3 g_vOverrideLightmapScale;
 
@@ -158,16 +159,30 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		flDiffuseTerm *= ( ( vDiffuseExponent.x * 0.5 + vDiffuseExponent.y * 0.5 ) + 1.0 ) * 0.5;
 		flDiffuseTerm *= flNDotL;
 		*/
-
-		if (zHardness < 1){
-
-		float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
-		flDiffuseTerm = ClampToPositive( pow(  (flNDotL * zHardness) + 1 - zHardness  ,  flDiffuseExponent  )   *  ( ( flDiffuseExponent + 1 ) * 0.5 )   );	
+		#if ( !_BRDFMAP )
+		{
+			if (zHardness < 1){
+			float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
+			flDiffuseTerm = ClampToPositive( pow(  (flNDotL * zHardness) + 1 - zHardness  ,  flDiffuseExponent  )   *  ( ( flDiffuseExponent + 1 ) * 0.5 )   );	
+			}
+			else{
+			float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
+			flDiffuseTerm = pow( flNDotL, flDiffuseExponent ) * ( ( flDiffuseExponent + 1.0 ) * 0.5 );
+			}
 		}
-		else{
-		float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
-		flDiffuseTerm = pow( flNDotL, flDiffuseExponent ) * ( ( flDiffuseExponent + 1.0 ) * 0.5 );
+		#else
+		{
+			if (zHardness < 1){
+			
+			//flDiffuseTerm = ClampToPositive( pow(  (flNDotL * zHardness) + 1 - zHardness  ,  flDiffuseExponent  )  * 0.5 )   );	
+			}
+			else{			
+			flDiffuseTerm = saturate((flNDotL + 1) * 0.5);
+			}
 		}
+		#endif
+
+
 
 	}
 	// Specular
@@ -418,6 +433,8 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			continue;
 		}
 
+		#if ( !_BRDFMAP )			
+			
 		if ( g_vLightFalloffParams[i].w > .99) { 	// Check if lambert wrap is less than 1
 				if ( dot( vNormalWs.xyz, vPositionToLightRayWs.xyz ) <= 0.0 )
 				{
@@ -425,6 +442,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 				continue;
 				}
 		}
+		#endif
 
 		float3 vPositionToLightDirWs = normalize( vPositionToLightRayWs.xyz );
 		float flOuterConeCos = g_vSpotLightInnerOuterConeCosines[ i ].y;
@@ -451,7 +469,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			
 			//	vSpotAtten.rgb = tex2D (g_tVrLightCookieTexture ,  vPositionTextureSpace.xy ) ;
 
-			vSpotAtten.rgb = UNITY_SAMPLE_TEX2DARRAY(g_tVrLightCookieTexture, float3(vPositionTextureSpace.xy, g_vLightDirection[ i ].w )).rgb ;
+			vSpotAtten.rgb = UNITY_SAMPLE_TEX2DARRAY(  g_tVrLightCookieTexture, float3(vPositionTextureSpace.xy, g_vLightDirection[ i ].w )  ).rgb ;
 
 
 		}
@@ -496,7 +514,19 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 
 		float4 vLightColor = g_vLightColor[ i ].rgba;
 		float4 vLightMask = vLightColor.rgba * flShadowScalar * flLightFalloff * vSpotAtten.rgba;
+
+		#if ( _BRDFMAP)
+		{
+		float3 remapped = tex2D(g_tBRDFMap, float2(vLightingTerms.x, 0.5 ) );
+		o.vDiffuse.rgba += remapped.rgbb * vLightMask.rgba ;
+
+		}
+		#else
+		{
 		o.vDiffuse.rgba += vLightingTerms.xxxx * vLightMask.rgba ;
+		}
+		#endif
+
 		o.vSpecular.rgb += vLightingTerms.yzw * vLightMask.rgb ;
 	}
 

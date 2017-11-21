@@ -39,6 +39,7 @@ internal class ValveShaderGUI : ShaderGUI
 
 		public static string emptyTootip = "";
 		public static GUIContent albedoText = new GUIContent("Albedo", "Albedo (RGB) and Transparency (A)");
+        public static GUIContent BRDFMapText = new GUIContent("BRDF Map", "Remaps shading to color ramp");
         public static GUIContent colorMaskText = new GUIContent("Color Mask", "Multiplys albedo per color channel");
 		public static GUIContent alphaCutoffText = new GUIContent("Alpha Cutoff", "Threshold for alpha cutoff");
         public static GUIContent FluorescenceText = new GUIContent("Fluorescence", "Fluorescence (RGB), takes MAX color value of this and albedo");
@@ -87,6 +88,7 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty blendMode = null;
 	MaterialProperty specularMode = null;
 	MaterialProperty albedoMap = null;
+    MaterialProperty BRDFMap = null;
     MaterialProperty colorMask = null;
 	MaterialProperty albedoColor = null;
     MaterialProperty colorShift1 = null;
@@ -144,6 +146,7 @@ internal class ValveShaderGUI : ShaderGUI
 		blendMode = FindProperty( "_Mode", props );
 		specularMode = FindProperty( "_SpecularMode", props );
 		albedoMap = FindProperty( "_MainTex", props );
+        BRDFMap = FindProperty("g_tBRDFMap", props);
         colorMask = FindProperty("_ColorMask", props);
 		albedoColor = FindProperty ("_Color", props);
         colorShift1 = FindProperty("_ColorShift1", props);
@@ -247,6 +250,8 @@ internal class ValveShaderGUI : ShaderGUI
 
 			//GUILayout.Label( Styles.primaryMapsText, EditorStyles.boldLabel );
 			DoAlbedoArea( material );
+
+            DoBRDFArea(material);
 
             DoColorShiftArea(material);
             
@@ -398,6 +403,11 @@ internal class ValveShaderGUI : ShaderGUI
 			m_MaterialEditor.ShaderProperty(alphaCutoff, Styles.alphaCutoffText.text, MaterialEditor.kMiniTextureFieldLabelIndentLevel+1);
 		}
 	}
+
+    void DoBRDFArea(Material material)
+    {
+        m_MaterialEditor.TexturePropertySingleLine(Styles.BRDFMapText, BRDFMap);
+    }
 
     void DoFluorescenceArea(Material material)
     {
@@ -618,6 +628,18 @@ internal class ValveShaderGUI : ShaderGUI
 		SetKeyword( material, "S_RECEIVE_SHADOWS", material.GetInt( "g_bReceiveShadows" ) == 1 );
 		SetKeyword( material, "S_WORLD_ALIGNED_TEXTURE", material.GetInt( "g_bWorldAlignedTexture" ) == 1 );
         //SetKeyword( material, "_FLUORESCENCEMAP", material.GetTexture("_FluorescenceMap"));
+
+
+        if ((material.GetTexture("g_tBRDFMap")) != null)
+        {
+            SetKeyword(material, "_BRDFMAP", true);
+        }
+        else
+        {
+            SetKeyword(material, "_BRDFMAP", false);
+        }
+
+
 
         if ((material.GetTexture("_ColorMask")) != null)
         {

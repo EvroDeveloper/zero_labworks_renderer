@@ -11,8 +11,9 @@ public class LightCookieController : MonoBehaviour {
     
 
     public Texture2D[] CookieList;
+    [Header("All textures will be resized to this resolution")]
     [Range(16,8192)]   
-    public int MasterCookieResolution = 256;
+    public int MasterCookieResolution = 1024;
 
     [SerializeField]
     static public Texture2DArray CookieArray;
@@ -50,7 +51,7 @@ public class LightCookieController : MonoBehaviour {
 
        // Debug.Log("make it");
         
-        //Make Cookie Texture Array
+        //Make Cookie Texture Array :: Is linear for color blending, input textures should keep srgb color enabled
 
         CookieArray = new Texture2DArray(MasterCookieResolution, MasterCookieResolution, CookieList.Length, TextureFormat.ARGB32, true, true);
         Texture2D tempTex = new Texture2D(MasterCookieResolution, MasterCookieResolution, TextureFormat.ARGB32, true);
@@ -80,10 +81,8 @@ public class LightCookieController : MonoBehaviour {
         TempRT.Release();
         TempRT.DiscardContents();
         DestroyImmediate(TempRT);
-        DestroyImmediate (tempTex);
-
-
-
+        DestroyImmediate(tempTex);
+        
         ApplyArray();
 
     }
@@ -113,7 +112,7 @@ public class LightCookieControllerGUI : Editor
 
         LCC = (LightCookieController)target;
 
-        if (GUILayout.Button("Make Array"))
+        if (GUILayout.Button("Manually Update Array"))
         {
             LCC.MakeArray();
 

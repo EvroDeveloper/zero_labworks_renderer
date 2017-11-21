@@ -9,13 +9,14 @@ public class ZRealtimeAO : MonoBehaviour
 
     [NonSerialized] [HideInInspector]  public static List<ZRealtimeAO> s_allAOSpheres = new List<ZRealtimeAO>();
     [NonSerialized] [HideInInspector]  public static List<ZRealtimeAO> s_allAOPoints = new List<ZRealtimeAO>();
-
-
+    [HideInInspector] public float SphereRadius;
     public enum AOShape { Point, Sphere };
 
     public AOShape TypeOfShape = AOShape.Point;
 
-    public float SphereRadius = 1;
+   [SerializeField] private bool AccountForScale = true;
+   [SerializeField] private float TargetRadius = 1;
+
 
 #if UNITY_EDITOR
     public void OnDrawGizmos()
@@ -23,6 +24,10 @@ public class ZRealtimeAO : MonoBehaviour
 
         if (UnityEditor.Selection.Contains(gameObject))
         {
+
+
+            UpdateVars();
+
 
             if (TypeOfShape == AOShape.Point)
             {
@@ -45,6 +50,23 @@ public class ZRealtimeAO : MonoBehaviour
 
     void OnEnable()
     {
+        UpdateVars();
+    }
+
+
+    void UpdateVars()
+    {
+
+        if (AccountForScale == true)
+        {
+            SphereRadius = TargetRadius * transform.localScale.x;
+        }
+        else
+        {
+            SphereRadius = TargetRadius;
+        }
+
+
         if (!s_allAOSpheres.Contains(this) && TypeOfShape == AOShape.Sphere)
         {
             s_allAOSpheres.Add(this);
@@ -54,8 +76,6 @@ public class ZRealtimeAO : MonoBehaviour
         {
             s_allAOPoints.Add(this);
         }
-
-
 
 
     }
@@ -68,29 +88,4 @@ public class ZRealtimeAO : MonoBehaviour
         s_allAOPoints.Remove(this);
     }
 
-
-    // Update is called once per frame
-    //void Update()
-    //{
-
-    //    if (TypeOfShape == AOShape.Sphere)
-    //    {
-    // //       Shader.SetGlobalVector("_SphereAO", new Vector4(transform.position.x, transform.position.y, transform.position.z, SphereRadius));
-
-
-    //   //     Shader.SetGlobalVector("_PointAO", new Vector4(transform.position.x, transform.position.y, transform.position.z, 0));
-
-    //    }
-
-    //    if (TypeOfShape == AOShape.Point)
-    //    {
-    //  //      Shader.SetGlobalVector("_PointAO", new Vector4(transform.position.x, transform.position.y, transform.position.z, SphereRadius));
-
-
-
-    //  //      Shader.SetGlobalVector("_SphereAO", new Vector4(transform.position.x, transform.position.y, transform.position.z, 0));
-
-    //    }
-
-    //}
 }

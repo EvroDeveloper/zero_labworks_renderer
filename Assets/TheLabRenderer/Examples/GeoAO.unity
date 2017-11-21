@@ -144,8 +144,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &13060544
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -271,8 +273,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &15372619
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -385,8 +389,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &21884441
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -486,8 +492,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &22626879
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -613,8 +621,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &67610464
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -727,8 +737,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &72781198
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -841,8 +853,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &81076423
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1039,8 +1053,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &85171530
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1194,8 +1210,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &112406700
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1308,8 +1326,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &122892799
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1409,8 +1429,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &160156771
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1536,8 +1558,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &178375727
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1650,8 +1674,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &180200311
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1764,8 +1790,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &196709312
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1878,8 +1906,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &219961359
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1976,6 +2006,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 0
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 50
   Hardness: 1
   m_shadowResolution: 2672
@@ -1987,6 +2019,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 1
   IgnoreCameraFrustum: 0
+  cookieEnabled: 0
 --- !u!108 &242009504
 Light:
   m_ObjectHideFlags: 0
@@ -2164,8 +2197,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &306941925
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2278,8 +2313,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &333948205
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2392,8 +2429,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &349597748
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2577,8 +2616,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &399839038
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2704,8 +2745,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &402440615
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2818,8 +2861,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &441305007
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2934,8 +2979,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &441898905
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3340,8 +3387,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &556199445
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3454,8 +3503,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &594798430
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3568,8 +3619,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &597014089
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3682,8 +3735,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &636018561
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3796,8 +3851,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &707203560
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3910,8 +3967,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &726657180
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4042,8 +4101,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &764696385
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4158,8 +4219,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &785991334
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4271,8 +4334,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &786655420
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4387,8 +4452,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &788481032
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4500,8 +4567,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &816446164
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4614,8 +4683,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &839712890
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4728,8 +4799,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &840226463
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4829,8 +4902,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &851767311
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4956,8 +5031,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &858321274
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5041,7 +5118,7 @@ GameObject:
   - component: {fileID: 865222275}
   - component: {fileID: 865222274}
   m_Layer: 0
-  m_Name: Sphere AO (3)
+  m_Name: Sphere Glow 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5058,6 +5135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 0
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 50
   Hardness: 0.532
   m_shadowResolution: 16
@@ -5069,6 +5148,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 1
   IgnoreCameraFrustum: 1
+  cookieEnabled: 0
 --- !u!108 &865222275
 Light:
   m_ObjectHideFlags: 0
@@ -5218,6 +5298,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_valveShadowTextureWidth: 4096
   m_valveShadowTextureHeight: 4096
+  EnableCookies: 1
   m_renderShadowsInLateUpdate: 1
   ShadowType: 1
   PenumbraSize: 3
@@ -5340,8 +5421,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &889666379
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5454,8 +5537,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &950381048
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5601,7 +5686,7 @@ GameObject:
   - component: {fileID: 983135640}
   - component: {fileID: 983135639}
   m_Layer: 0
-  m_Name: Sphere AO (2)
+  m_Name: Sphere Glow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5618,6 +5703,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 0
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 50
   Hardness: 0.572
   m_shadowResolution: 16
@@ -5629,6 +5716,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 1
   IgnoreCameraFrustum: 1
+  cookieEnabled: 0
 --- !u!108 &983135640
 Light:
   m_ObjectHideFlags: 0
@@ -5777,8 +5865,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &999526457
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5854,7 +5944,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 999526455}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.961, y: 5.374, z: -2.085}
+  m_LocalPosition: {x: -1.95, y: 5.452, z: -2.085}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 1112532782}
@@ -5904,8 +5994,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1006869419
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6018,8 +6110,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1020968423
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6132,8 +6226,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1027885545
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6330,8 +6426,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1039081552
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6528,8 +6626,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1066731400
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6642,8 +6742,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1077529594
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6756,8 +6858,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1099162742
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6870,8 +6974,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1103862870
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7174,8 +7280,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1124310219
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7288,8 +7396,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1131748066
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7402,8 +7512,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1131748744
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7600,8 +7712,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1145254995
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7714,8 +7828,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1168843060
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7830,8 +7946,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1172781929
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7943,8 +8061,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1187193981
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8059,8 +8179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1190012431
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8246,8 +8368,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1200265112
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8419,8 +8543,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1252816777
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8533,8 +8659,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1266931745
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8647,8 +8775,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1273575067
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8761,8 +8891,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1289267266
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8875,8 +9007,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1296411336
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8991,8 +9125,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1307577020
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9104,8 +9240,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1318741878
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -9220,8 +9358,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1321602117
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9335,8 +9475,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1323134247
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9448,8 +9590,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1344707845
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -9562,8 +9706,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1353114694
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -9676,8 +9822,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1363574504
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -9790,8 +9938,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1372368074
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -9904,8 +10054,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1373961362
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10018,8 +10170,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1375452005
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10193,8 +10347,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1409528801
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10391,8 +10547,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1414239044
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10589,8 +10747,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1457324725
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10765,8 +10925,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1540465527
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10881,8 +11043,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1547495703
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10994,8 +11158,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1559559649
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11139,8 +11305,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1605577202
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11255,8 +11423,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1633359057
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11368,8 +11538,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1656956477
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11482,8 +11654,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1665532589
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11567,7 +11741,7 @@ GameObject:
   - component: {fileID: 1669496861}
   - component: {fileID: 1669496860}
   m_Layer: 0
-  m_Name: Sphere AO (1)
+  m_Name: Sphere Glow 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11584,6 +11758,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0ce3079cdb6a646a75f65cec8e8714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookieNumber: 0
+  DirectionalCookieOffset: {x: 0, y: 0}
   m_innerSpotPercent: 50
   Hardness: 0.743
   m_shadowResolution: 16
@@ -11595,6 +11771,7 @@ MonoBehaviour:
   m_directionalLightShadowRange: 100
   m_useOcclusionCullingForShadows: 1
   IgnoreCameraFrustum: 1
+  cookieEnabled: 0
 --- !u!108 &1669496861
 Light:
   m_ObjectHideFlags: 0
@@ -11756,8 +11933,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1672712980
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11948,8 +12127,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1696197384
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12062,8 +12243,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1715518761
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12176,8 +12359,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1738856935
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12292,8 +12477,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1755398337
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12423,8 +12610,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1766641996
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12524,8 +12713,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1774468130
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12699,8 +12890,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1785473957
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12813,8 +13006,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1810394059
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12914,8 +13109,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1814871010
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13041,8 +13238,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1821443585
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13239,8 +13438,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1836039941
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13437,8 +13638,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1893241464
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13551,8 +13754,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1904671773
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13667,8 +13872,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &1949604528
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13780,8 +13987,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1973534942
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13894,8 +14103,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1976141390
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14008,8 +14219,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &1999481580
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14163,8 +14376,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &2018948471
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14277,8 +14492,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &2038219421
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14378,8 +14595,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &2038262514
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14507,8 +14726,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &2048499123
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14638,8 +14859,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &2074310275
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14752,8 +14975,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &2087640150
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14950,8 +15175,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TypeOfShape: 1
   SphereRadius: 0.25
+  TypeOfShape: 1
+  AccountForScale: 1
+  TargetRadius: 0.5
 --- !u!54 &2123866097
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -15066,8 +15293,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a9db5658d776d4aaec7c36f614363d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SphereRadius: 0.5
   TypeOfShape: 0
-  SphereRadius: 0.38
+  AccountForScale: 0
+  TargetRadius: 0.5
 --- !u!23 &2143129198
 MeshRenderer:
   m_ObjectHideFlags: 0
