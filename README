@@ -19,7 +19,7 @@ Some new features:
 -Tinting Color mask
 -Primitive based AO
 -Light probe proxy group support
--BDRF Map (faux SSS)
+-BRDF Map (faux SSS)
 
 
 Anisotropic currently disabled
