@@ -275,6 +275,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\GradientMaker\Scripts\Editor\GradientMakerEditor.cs" />
+    <Compile Include="Assets\GradientMaker\Scripts\Editor\GradientMakerInspector.cs" />
+    <Compile Include="Assets\GradientMaker\Scripts\Editor\GradientWrapper.cs" />
+    <Compile Include="Assets\GradientMaker\Scripts\Editor\GUIGradientField.cs" />
     <Compile Include="Assets\TheLabRenderer\Editor\RealtimeLightGUI.cs" />
     <Compile Include="Assets\TheLabRenderer\Editor\ValveAutoUpdateSettings.cs" />
     <Compile Include="Assets\TheLabRenderer\Editor\ValveMenuTools.cs" />

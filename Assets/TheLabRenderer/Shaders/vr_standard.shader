@@ -115,7 +115,7 @@ Shader "Valve/vr_standard"
 			CGPROGRAM
 				#pragma target 5.0
 			//	#pragma only_renderers d3d11
-				#pragma exclude_renderers gles
+			//	#pragma exclude_renderers gles
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
@@ -142,6 +142,7 @@ Shader "Valve/vr_standard"
 				#pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
 				#pragma multi_compile DIRLIGHTMAP_OFF DIRLIGHTMAP_COMBINED DIRLIGHTMAP_SEPARATE
 				#pragma multi_compile DYNAMICLIGHTMAP_OFF DYNAMICLIGHTMAP_ON
+				#pragma multi_compile_instancing
 
 				#pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
 				#pragma multi_compile _ D_VALVE_FOG

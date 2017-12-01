@@ -173,8 +173,9 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		#else
 		{
 			if (zHardness < 1){
-			
-			//flDiffuseTerm = ClampToPositive( pow(  (flNDotL * zHardness) + 1 - zHardness  ,  flDiffuseExponent  )  * 0.5 )   );	
+			float zHardnesshalfed = zHardness * 0.5;
+			flDiffuseTerm = ClampToPositive( (  (flNDotL * zHardnesshalfed) + 1 - zHardnesshalfed    )   );	
+
 			}
 			else{			
 			flDiffuseTerm = saturate((flNDotL + 1) * 0.5);
@@ -242,7 +243,7 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 				float flNDotV = saturate( dot( vNormalWs.xyz, vPositionToCameraDirWs.xyz ) );
 
 			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), flNDotV , vSpecularExponent.xy);
-                float normTerm = GGXTerm(flNDotH, vSpecularExponent.xy / saturate(zHardness * zHardness + 0.0001 ));
+                float normTerm = GGXTerm(flNDotH, vSpecularExponent.xy / max(saturate(zHardness * zHardness * zHardness ) , 0.0001) ) ;
                 flSpecularTerm = (visTerm * normTerm * UNITY_PI * 0.8);
 
 				//vSpecularTerm.rgb = flSpecularTerm;
