@@ -62,7 +62,7 @@ Shader "Valve/vr_standard"
 		_DetailAlbedoMap( "Detail Albedo x2", 2D ) = "grey" {}
 		_DetailNormalMapScale( "Scale", Float ) = 1.0
 		_DetailNormalMap( "Normal Map", 2D ) = "bump" {}
-
+			
 		g_tOverrideLightmap( "Override Lightmap", 2D ) = "white" {}
 
 		[Enum(UV0,0,UV1,1)] _UVSec ( "UV Set for secondary textures", Float ) = 0
@@ -82,6 +82,7 @@ Shader "Valve/vr_standard"
 
 		[HideInInspector] _SpecularMode( "__specularmode", Int ) = 1
 		[HideInInspector] _Cull ( "__cull", Int ) = 2
+		[HideInInspector] _VertexMode("__VetexMode", Int) = 0
 
 		// Blending state
 		[HideInInspector] _Mode ( "__mode", Float ) = 0.0
@@ -118,6 +119,7 @@ Shader "Valve/vr_standard"
 			//	#pragma exclude_renderers gles
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+				#pragma shader_feature	_VERTEXTINT
 				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
 				#pragma shader_feature _NORMALMAP
 				#pragma shader_feature _METALLICGLOSSMAP
@@ -193,12 +195,14 @@ Shader "Valve/vr_standard"
 				float3		_ColorShift3;
 				float		_EmissionFalloff;
 				float		g_flFresnelExponent;
+				float Dotfresnel;
 				
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
 				{
 					float4 vPositionOs : POSITION;
+					float4 vertexColor : COLOR;
 					float3 vNormalOs : NORMAL;
 					float2 vTexCoord0 : TEXCOORD0;
 					#if ( _DETAIL || S_OVERRIDE_LIGHTMAP || LIGHTMAP_ON )
@@ -220,6 +224,8 @@ Shader "Valve/vr_standard"
 				struct PS_INPUT
 				{
 					float4 vPositionPs : SV_Position;
+
+					float4 vertexColor : COLOR;
 
 					#if ( !S_UNLIT )
 						float3 vPositionWs : TEXCOORD0;
@@ -286,6 +292,10 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 					o.vPositionPs.xyzw = UnityObjectToClipPos( i.vPositionOs.xyzw );
+
+					//Vertex Color
+					o.vertexColor = i.vertexColor;
+
 
 					// Normal
 					float3 vNormalWs = UnityObjectToWorldNormal( i.vNormalOs.xyz );
@@ -497,8 +507,8 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
-					#if ( !S_UNLIT )
-					float Dotfresnel = saturate(dot( vNormalWs.xyz , CalculatePositionToCameraDirWs( i.vPositionWs.xyz ) ));	
+					#if ( !S_UNLIT || _ALPHAPREMULTIPLY_ON  )
+					 Dotfresnel = saturate(dot( vNormalWs.xyz , CalculatePositionToCameraDirWs( i.vPositionWs.xyz ) ));	
 					#endif
 									
 					//--------------//
@@ -527,10 +537,13 @@ Shader "Valve/vr_standard"
 						o.vColor.a = saturate(vAlbedoTexel.a + lerp(0 , 1 * _Cutoff , normalBlend ));
 
 						#else
-
 						o.vColor.a = vAlbedoTexel.a;
-
 						#endif
+
+						#if ( _VERTEXTINT )
+						o.vColor.a *= i.vertexColor.w;
+						#endif
+
 						#if ( _ALPHATEST_ON )
 
 						//Magic AlphaToCoverage sharpening. Thanks Ben Golus! https://medium.com/@bgolus/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f
@@ -732,7 +745,7 @@ Shader "Valve/vr_standard"
 					#endif
 					o.vColor.rgb += lightingTerms.vIndirectSpecular.rgb; // Indirect specular applies its own fresnel in the forward lighting header file
 					// Emission - Unity just adds the emissive term at the end instead of adding it to the diffuse lighting term. Artists may want both options.
-					
+
 
 					float3 vEmission = Emission( i.vTextureCoords.xy );
 					#if (!S_UNLIT)					
@@ -753,6 +766,10 @@ Shader "Valve/vr_standard"
 
 					o.vColor.rgb += vEmission.rgb;
 
+					#if ( _VERTEXTINT )
+					o.vColor.rgb *= i.vertexColor.xyz;
+					#endif
+					
 					// Fog
 					#if ( D_VALVE_FOG )
 					{

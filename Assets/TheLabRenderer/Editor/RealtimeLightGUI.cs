@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(ValveRealtimeLight))]
+[CanEditMultipleObjects]
+
 public class RealtimeLightGUI : Editor {
 
     Vector2 scrollPos;
@@ -32,6 +34,8 @@ public class RealtimeLightGUI : Editor {
 
                 if (LCC.CookieList != null)
                 {
+                    //default to first cookie if selection is out of list
+                    if (VRTL.cookieNumber + 1 > LCC.CookieList.Length) VRTL.cookieNumber = 0;
                     DoCookieSpace();
                 }
                 else
@@ -87,6 +91,16 @@ public class RealtimeLightGUI : Editor {
             VRTL.DirectionalCookieOffset = EditorGUILayout.Vector2Field( "Cookie Offset" , VRTL.DirectionalCookieOffset);
          }
 
+         foreach (Object vl in targets)
+         {
+             ((ValveRealtimeLight)vl).m_directionalLightShadowRadius = VRTL.m_directionalLightShadowRadius;
+             ((ValveRealtimeLight)vl).m_cachedLight.cookieSize = VRTL.m_cachedLight.cookieSize;
+             ((ValveRealtimeLight)vl).m_directionalLightShadowRadius = VRTL.m_directionalLightShadowRadius;
+             ((ValveRealtimeLight)vl).DirectionalCookieOffset = VRTL.DirectionalCookieOffset;             
+         }
+
+
+
       //  GUILayout.EndHorizontal();
 
     }
@@ -114,7 +128,11 @@ public class RealtimeLightGUI : Editor {
             {
                 if (GUILayout.Button(LCC.CookieList[i], GUILayout.Width(50), GUILayout.Height(50)))
                 {
-                    VRTL.cookieNumber = i;
+                    foreach (Object vl in targets) 
+                    {
+                        ((ValveRealtimeLight)vl).cookieNumber = i;
+                    };
+                    SceneView.RepaintAll();
                 }
             }
         }
@@ -128,7 +146,11 @@ public class RealtimeLightGUI : Editor {
             {
                 if (GUILayout.Button(LCC.CookieList[i], GUILayout.Width(50), GUILayout.Height(50)))
                 {
-                    VRTL.cookieNumber = i;
+                    foreach (Object vl in targets) 
+                    {
+                        ((ValveRealtimeLight)vl).cookieNumber = i;
+                    };
+                    SceneView.RepaintAll();
                 }
             }
         }

@@ -578,13 +578,14 @@ public class ValveCamera : MonoBehaviour
         if (s_bAllowLightCulling == true) CullLightsAgainstCameraFrustum();
 		RenderShadowBuffer();
 		UpdateLightConstants();
-        if (m_aoEnabled == true) { 
+        if (m_aoEnabled == true && ZRealtimeAO.s_allAOSpheres.Count > 0) { 
             UpdateAOConstants();
             //Currently clobbering. Dont do every frame
             Shader.EnableKeyword("Z_SHAPEAO");
         }
         else
         {
+          //  m_aoEnabled = false;
             Shader.DisableKeyword("Z_SHAPEAO");
         }
 	}
@@ -1339,6 +1340,8 @@ public class ValveCamera : MonoBehaviour
 
     void UpdateAOConstants()
     {    
+
+
         for (int nAO = 0; nAO < ZRealtimeAO.s_allAOSpheres.Count; nAO++)
         {
             ZRealtimeAO zAO = ZRealtimeAO.s_allAOSpheres[nAO];

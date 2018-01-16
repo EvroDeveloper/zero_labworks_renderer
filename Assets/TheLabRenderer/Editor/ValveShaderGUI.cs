@@ -29,6 +29,15 @@ internal class ValveShaderGUI : ShaderGUI
         Retroreflective
 	}
 
+    public enum VertexMode
+    {
+
+        None,
+        Tint
+
+    }
+
+
 	private static class Styles
 	{
 		public static GUIStyle optionsButton = "PaneOptions";
@@ -51,14 +60,14 @@ internal class ValveShaderGUI : ShaderGUI
         public static GUIContent smoothnessText2 = new GUIContent("Gloss2", "");
 		public static GUIContent normalMapText = new GUIContent("Normal", "Normal Map");
 		//public static GUIContent heightMapText = new GUIContent("Height Map", "Height Map (G)");
-        public static GUIContent fresnelfallofftext = new GUIContent("Fresnel Falloff Scalar", "");
+        public static GUIContent fresnelfallofftext = new GUIContent("Fresnel Falloff Scalar", "Added Fresnel falloff contribution");
         public static GUIContent fresnelExponentText = new GUIContent("Fresnel Exponent", "");
-		public static GUIContent cubeMapScalarText = new GUIContent( "Cube Map Scalar", "" );
+		public static GUIContent cubeMapScalarText = new GUIContent( "Cube Map Scalar", "Multiplier for overall reflections" );
 		public static GUIContent occlusionText = new GUIContent("Occlusion", "Occlusion (G)");
-		public static GUIContent occlusionStrengthDirectDiffuseText = new GUIContent( "Occlusion Direct Diffuse", "" );
-		public static GUIContent occlusionStrengthDirectSpecularText = new GUIContent( "Occlusion Direct Specular", "" );
-		public static GUIContent occlusionStrengthIndirectDiffuseText = new GUIContent( "Occlusion Indirect Diffuse", "" );
-		public static GUIContent occlusionStrengthIndirectSpecularText = new GUIContent( "Occlusion Indirect Specular", "" );
+		public static GUIContent occlusionStrengthDirectDiffuseText = new GUIContent( "AO Direct Diffuse", "" );
+		public static GUIContent occlusionStrengthDirectSpecularText = new GUIContent( "AO Direct Specular", "" );
+		public static GUIContent occlusionStrengthIndirectDiffuseText = new GUIContent( "AO Indirect Diffuse", "" );
+		public static GUIContent occlusionStrengthIndirectSpecularText = new GUIContent( "AO Indirect Specular", "" );
 		public static GUIContent emissionText = new GUIContent( "Emission", "Emission (RGB)" );
         public static GUIContent emissionFalloffText = new GUIContent("Emission Falloff", "Emission Falloff");
 		public static GUIContent detailMaskText = new GUIContent("Detail Mask", "Mask for Secondary Maps (A)");
@@ -76,17 +85,22 @@ internal class ValveShaderGUI : ShaderGUI
 		public static string whiteSpaceString = " ";
 		public static string primaryMapsText = "Main Maps";
 		public static string secondaryMapsText = "Secondary Maps";
+        public static string OverridesMapsText = "Override Settings";
 		public static string renderingMode = "Rendering Mode";
 		public static string specularModeText = "Specular Mode";
+        public static string VertexModeText = "Vertex Mode";
 		public static GUIContent emissiveWarning = new GUIContent( "Emissive value is animated but the material has not been configured to support emissive. Please make sure the material itself has some amount of emissive." );
 		public static GUIContent emissiveColorWarning = new GUIContent ("Ensure emissive color is non-black for emission to have effect.");
 		public static readonly string[] blendNames = Enum.GetNames (typeof (BlendMode));
 		public static readonly string[] specularNames = Enum.GetNames( typeof( SpecularMode ) );
+        public static readonly string[] vertexNames = Enum.GetNames(typeof(VertexMode));
+
 	}
 
 	MaterialProperty unlit = null;
 	MaterialProperty blendMode = null;
 	MaterialProperty specularMode = null;
+    MaterialProperty vertexMode = null;
 	MaterialProperty albedoMap = null;
     MaterialProperty BRDFMap = null;
     MaterialProperty colorMask = null;
@@ -145,6 +159,7 @@ internal class ValveShaderGUI : ShaderGUI
 		unlit = FindProperty( "g_bUnlit", props );
 		blendMode = FindProperty( "_Mode", props );
 		specularMode = FindProperty( "_SpecularMode", props );
+        vertexMode = FindProperty("_VertexMode", props);
 		albedoMap = FindProperty( "_MainTex", props );
         BRDFMap = FindProperty("g_tBRDFMap", props);
         colorMask = FindProperty("_ColorMask", props);
@@ -231,6 +246,8 @@ internal class ValveShaderGUI : ShaderGUI
 
 			BlendModePopup();
 
+            VertexModePopup();
+
 			if ( !bUnlit )
 			{
 				SpecularModePopup();
@@ -248,7 +265,7 @@ internal class ValveShaderGUI : ShaderGUI
 
 			EditorGUILayout.Space();
 
-			//GUILayout.Label( Styles.primaryMapsText, EditorStyles.boldLabel );
+			GUILayout.Label( Styles.primaryMapsText, EditorStyles.boldLabel );
 			DoAlbedoArea( material );
 
             DoBRDFArea(material);
@@ -261,6 +278,8 @@ internal class ValveShaderGUI : ShaderGUI
 
 				m_MaterialEditor.TexturePropertySingleLine( Styles.normalMapText, bumpMap, bumpMap.textureValue != null ? bumpScale : null );
 				DoSpecularMetallicArea( material );
+                m_MaterialEditor.ShaderProperty(FresnelFalloffScalar, Styles.fresnelfallofftext.text, 0);
+                m_MaterialEditor.ShaderProperty(FresnelExponent, Styles.fresnelExponentText.text, 0);
 				m_MaterialEditor.TexturePropertySingleLine( Styles.occlusionText, occlusionMap, occlusionMap.textureValue != null ? occlusionStrength : null );
 				if ( occlusionMap.textureValue != null )
 				{
@@ -269,25 +288,34 @@ internal class ValveShaderGUI : ShaderGUI
 					m_MaterialEditor.ShaderProperty( occlusionStrengthIndirectDiffuse, Styles.occlusionStrengthIndirectDiffuseText.text, 2 );
 					m_MaterialEditor.ShaderProperty( occlusionStrengthIndirectSpecular, Styles.occlusionStrengthIndirectSpecularText.text, 2 );
 				}
-                m_MaterialEditor.ShaderProperty(FresnelFalloffScalar, Styles.fresnelfallofftext.text, 0);
-                m_MaterialEditor.ShaderProperty(FresnelExponent, Styles.fresnelExponentText.text, 0);
-				m_MaterialEditor.ShaderProperty( cubeMapScalar, Styles.cubeMapScalarText.text, 0 );
+
+	
 			}
 
           			//m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
 			DoEmissionArea( material );
-			m_MaterialEditor.TexturePropertySingleLine( Styles.detailMaskText, detailMask );
-			if ( !bUnlit )
-			{
-				m_MaterialEditor.TexturePropertySingleLine( Styles.overrideLightmapText, overrideLightmap );
-			}
+		
 
+            
 			EditorGUI.BeginChangeCheck(); // !!! AV - This is from Unity's script. Can these Begin/End calls be nested like this?
+
+            		
 			m_MaterialEditor.TextureScaleOffsetProperty( albedoMap );
 			if ( EditorGUI.EndChangeCheck() )
 			{
 				emissionMap.textureScaleAndOffset = albedoMap.textureScaleAndOffset; // Apply the main texture scale and offset to the emission texture as well, for Enlighten's sake
 			}
+
+
+            //overriding settings
+            GUILayout.Label(Styles.OverridesMapsText, EditorStyles.boldLabel);
+
+            if (!bUnlit)
+            {
+                m_MaterialEditor.TexturePropertySingleLine(Styles.overrideLightmapText, overrideLightmap);
+                m_MaterialEditor.ShaderProperty(cubeMapScalar, Styles.cubeMapScalarText.text, 0);
+            }
+
 
 			if ( worldAlignedTexture != null )
 			{
@@ -307,6 +335,9 @@ internal class ValveShaderGUI : ShaderGUI
 
 			// Secondary properties
 			GUILayout.Label( Styles.secondaryMapsText, EditorStyles.boldLabel );
+            m_MaterialEditor.TexturePropertySingleLine(Styles.detailMaskText, detailMask);
+            EditorGUILayout.Space();
+
 			m_MaterialEditor.TexturePropertySingleLine( Styles.detailAlbedoText, detailAlbedoMap );
 			if ( !bUnlit )
 			{
@@ -326,6 +357,14 @@ internal class ValveShaderGUI : ShaderGUI
 			{
 				MaterialChanged( ( Material )obj );
 			}
+
+
+            foreach ( var obj in vertexMode.targets  )
+            {
+
+                MaterialChanged( ( Material )obj );
+            }
+
 		}
 	}
 
@@ -394,6 +433,23 @@ internal class ValveShaderGUI : ShaderGUI
 
 		EditorGUI.showMixedValue = false;
 	}
+
+
+    void VertexModePopup()
+    {
+        EditorGUI.showMixedValue = vertexMode.hasMixedValue;
+        var mode = (VertexMode)vertexMode.floatValue;
+
+        EditorGUI.BeginChangeCheck();
+        mode = (VertexMode)EditorGUILayout.Popup(Styles.VertexModeText, (int)mode, Styles.vertexNames);
+        if (EditorGUI.EndChangeCheck())
+        {
+            m_MaterialEditor.RegisterPropertyChangeUndo("Vertex Mode");
+            vertexMode.floatValue = (float)mode;
+        }
+
+        EditorGUI.showMixedValue = false;
+    }
 
 	void DoAlbedoArea(Material material)
 	{
@@ -594,6 +650,8 @@ internal class ValveShaderGUI : ShaderGUI
 		SetKeyword (material, "_NORMALMAP", material.GetTexture ("_BumpMap") || material.GetTexture ("_DetailNormalMap"));
 
 		SpecularMode specularMode = ( SpecularMode )material.GetInt( "_SpecularMode" );
+        VertexMode vertexMode = (VertexMode)material.GetInt("_VertexMode");
+
 		if ( specularMode == SpecularMode.BlinnPhong )
 		{
 			SetKeyword( material, "_SPECGLOSSMAP", material.GetTexture( "_SpecGlossMap" ) );
@@ -610,7 +668,7 @@ internal class ValveShaderGUI : ShaderGUI
         {
             SetKeyword(material, "_METALLICGLOSSMAP", material.GetTexture("_MetallicGlossMap"));
         }
-
+      
 
 
 		SetKeyword( material, "S_SPECULAR_NONE", specularMode == SpecularMode.None );
@@ -619,6 +677,7 @@ internal class ValveShaderGUI : ShaderGUI
         SetKeyword( material, "S_ANISOTROPIC_GLOSS", specularMode == SpecularMode.Anisotropic);
         SetKeyword( material, "S_RETROREFLECTIVE", specularMode == SpecularMode.Retroreflective);
 		SetKeyword( material, "S_OCCLUSION", material.GetTexture("_OcclusionMap") );
+        SetKeyword( material, "_VERTEXTINT", vertexMode == VertexMode.Tint);
 
 		SetKeyword( material, "_PARALLAXMAP", material.GetTexture("_ParallaxMap"));
 		SetKeyword( material, "_DETAIL_MULX2", material.GetTexture("_DetailAlbedoMap") || material.GetTexture("_DetailNormalMap"));

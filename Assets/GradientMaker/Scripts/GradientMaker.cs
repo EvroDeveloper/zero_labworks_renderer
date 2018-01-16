@@ -28,6 +28,7 @@ public class GradientMaker : MonoBehaviour {
 	private string path;
 	private Color[] gradientColours;
     [SerializeField]  private TextureWrapMode WrapMode = TextureWrapMode.Clamp;
+    [SerializeField]  private TextureImporterAlphaSource AlphaMode = TextureImporterAlphaSource.None;
 	
 	void Start (){
         CreateGradTexture ();
@@ -157,6 +158,7 @@ public class GradientMaker : MonoBehaviour {
             var outputFile = AssetDatabase.LoadAssetAtPath<Texture>("Assets/GradientMaker/Gradients/" + _fileName + ".png");
             TextureImporter TI = (TextureImporter)TextureImporter.GetAtPath("Assets/GradientMaker/Gradients/" + _fileName + ".png");
             TI.wrapMode = WrapMode;
+            TI.alphaSource = AlphaMode;
 			string logString = alreadyExists ? "Gradient Overwritten: " : "Gradient saved: ";
 			Debug.Log(logString + outputFile, outputFile);
 			EditorGUIUtility.PingObject(outputFile);

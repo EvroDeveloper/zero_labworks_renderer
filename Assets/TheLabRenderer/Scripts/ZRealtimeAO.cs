@@ -48,6 +48,11 @@ public class ZRealtimeAO : MonoBehaviour
     }
 #endif
 
+    //void OnValidate()
+    //{
+    //    UpdateVars();
+    //}
+
     void OnEnable()
     {
         UpdateVars();
@@ -59,7 +64,7 @@ public class ZRealtimeAO : MonoBehaviour
 
         if (AccountForScale == true)
         {
-            SphereRadius = TargetRadius * transform.localScale.x;
+            SphereRadius = TargetRadius * transform.lossyScale.x;
         }
         else
         {

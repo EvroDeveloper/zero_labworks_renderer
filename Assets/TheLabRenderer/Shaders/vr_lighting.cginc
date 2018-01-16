@@ -518,7 +518,11 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 
 		#if ( _BRDFMAP)
 		{
-		float3 remapped = tex2D(g_tBRDFMap, float2(vLightingTerms.x, 0.5 ) );
+
+		float tempdot = 	saturate( dot( vPositionToCameraDirWs.xyz, vNormalWs.xyz ) );
+
+
+		float3 remapped = tex2D(g_tBRDFMap, float2(vLightingTerms.x, tempdot ) );
 		o.vDiffuse.rgba += remapped.rgbb * vLightMask.rgba ;
 
 		}
@@ -564,7 +568,36 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	{
 		o.vIndirectDiffuse.rgb += ComputeOverrideLightmap( vLightmapUV.xy );
 	}
-	#elif ( LIGHTMAP_ON )
+
+
+	#elif defined( UNITY_SHOULD_SAMPLE_SH )
+	{
+		
+		#if (UNITY_LIGHT_PROBE_PROXY_VOLUME)
+		{
+		
+			if (unity_ProbeVolumeParams.x == 1)
+				{
+				o.vIndirectDiffuse.rgb += ShadeSHPerPixel(vNormalWs.xyz, o.vIndirectDiffuse.rgb, vPositionWs.xyz);  // Light probe Proxy Volume 
+				}
+				#if (!DYNAMICLIGHTMAP_ON)
+			else
+				{
+				o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );  // Simple Light probe
+				}
+				#endif
+		}
+		#else
+			{
+			// Simple Light probe
+			o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );
+			}
+		#endif
+
+	}	
+
+
+	#elif defined( LIGHTMAP_ON )
 	{
 		// Baked lightmaps
 		float4 bakedColorTex = Tex2DLevel( unity_Lightmap, vLightmapUV.xy, 0.0 );
@@ -640,30 +673,6 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			}
 		}
 		#endif
-	}
-
-	#elif ( UNITY_SHOULD_SAMPLE_SH )
-	{
-		
-		#if (UNITY_LIGHT_PROBE_PROXY_VOLUME)
-		{
-		
-			if (unity_ProbeVolumeParams.x == 1)
-				{
-				o.vIndirectDiffuse.rgb += ShadeSHPerPixel(vNormalWs.xyz, o.vIndirectDiffuse.rgb, vPositionWs.xyz);  // Light probe Proxy Volume 
-				}
-			else
-				{
-				o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );  // Simple Light probe
-				}
-		}
-		#else
-			{
-			// Simple Light probe
-			o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );
-			}
-		#endif
-
 	}
 	#endif
 
