@@ -34,7 +34,7 @@ public class ZRealtimeAO : MonoBehaviour
 
                 Gizmos.color = Color.grey;
                 Gizmos.DrawWireSphere(transform.position, SphereRadius);
-                Gizmos.DrawIcon(transform.position, "pointshadow", true); 
+               // Gizmos.DrawIcon(transform.position, "pointshadow", true); 
             }
 
             if (TypeOfShape == AOShape.Sphere)
