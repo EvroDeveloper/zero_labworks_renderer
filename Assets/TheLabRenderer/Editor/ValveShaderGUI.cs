@@ -63,11 +63,12 @@ internal class ValveShaderGUI : ShaderGUI
         public static GUIContent fresnelfallofftext = new GUIContent("Fresnel Falloff Scalar", "Added Fresnel falloff contribution");
         public static GUIContent fresnelExponentText = new GUIContent("Fresnel Exponent", "");
 		public static GUIContent cubeMapScalarText = new GUIContent( "Cube Map Scalar", "Multiplier for overall reflections" );
+        public static GUIContent NormalToOcclusionText = new GUIContent("Normal to Occlusion", "Add normal map to Occlusion");
 		public static GUIContent occlusionText = new GUIContent("Occlusion", "Occlusion (G)");
-		public static GUIContent occlusionStrengthDirectDiffuseText = new GUIContent( "AO Direct Diffuse", "" );
-		public static GUIContent occlusionStrengthDirectSpecularText = new GUIContent( "AO Direct Specular", "" );
-		public static GUIContent occlusionStrengthIndirectDiffuseText = new GUIContent( "AO Indirect Diffuse", "" );
-		public static GUIContent occlusionStrengthIndirectSpecularText = new GUIContent( "AO Indirect Specular", "" );
+		public static GUIContent occlusionStrengthDirectDiffuseText = new GUIContent( "Direct Diffuse", "" );
+		public static GUIContent occlusionStrengthDirectSpecularText = new GUIContent( "Direct Specular", "" );
+		public static GUIContent occlusionStrengthIndirectDiffuseText = new GUIContent( "Indirect Diffuse", "" );
+		public static GUIContent occlusionStrengthIndirectSpecularText = new GUIContent( "Indirect Specular", "" );
 		public static GUIContent emissionText = new GUIContent( "Emission", "Emission (RGB)" );
         public static GUIContent emissionFalloffText = new GUIContent("Emission Falloff", "Emission Falloff");
 		public static GUIContent detailMaskText = new GUIContent("Detail Mask", "Mask for Secondary Maps (A)");
@@ -121,6 +122,7 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty bumpMap = null;
     MaterialProperty FresnelFalloffScalar = null;
     MaterialProperty FresnelExponent = null;
+    MaterialProperty NormalToOcclusion = null;
 	MaterialProperty cubeMapScalar = null;
 	MaterialProperty occlusionStrength = null;
 	MaterialProperty occlusionMap = null;
@@ -182,6 +184,7 @@ internal class ValveShaderGUI : ShaderGUI
 		//heightMap = FindProperty("_ParallaxMap", props);
         FresnelFalloffScalar = FindProperty("g_flFresnelFalloff", props);
         FresnelExponent = FindProperty("g_flFresnelExponent", props);
+        NormalToOcclusion = FindProperty("_NormalToOcclusion", props);
 		cubeMapScalar = FindProperty( "g_flCubeMapScalar", props );
 		occlusionStrength = FindProperty ("_OcclusionStrength", props);
 		occlusionStrengthDirectDiffuse = FindProperty( "_OcclusionStrengthDirectDiffuse", props );
@@ -275,13 +278,14 @@ internal class ValveShaderGUI : ShaderGUI
 			if ( !bUnlit )
 			{
                 DoFluorescenceArea(material);
-
-				m_MaterialEditor.TexturePropertySingleLine( Styles.normalMapText, bumpMap, bumpMap.textureValue != null ? bumpScale : null );
-				DoSpecularMetallicArea( material );
+                DoSpecularMetallicArea(material);
                 m_MaterialEditor.ShaderProperty(FresnelFalloffScalar, Styles.fresnelfallofftext.text, 0);
                 m_MaterialEditor.ShaderProperty(FresnelExponent, Styles.fresnelExponentText.text, 0);
+				m_MaterialEditor.TexturePropertySingleLine( Styles.normalMapText, bumpMap, bumpMap.textureValue != null ? bumpScale : null );
+                if (bumpMap.textureValue != null)  m_MaterialEditor.ShaderProperty(NormalToOcclusion, Styles.NormalToOcclusionText.text, 0);
+            
 				m_MaterialEditor.TexturePropertySingleLine( Styles.occlusionText, occlusionMap, occlusionMap.textureValue != null ? occlusionStrength : null );
-				if ( occlusionMap.textureValue != null )
+                if (occlusionMap.textureValue != null || NormalToOcclusion.floatValue > 0)
 				{
 					m_MaterialEditor.ShaderProperty( occlusionStrengthDirectDiffuse, Styles.occlusionStrengthDirectDiffuseText.text, 2 );
 					m_MaterialEditor.ShaderProperty( occlusionStrengthDirectSpecular, Styles.occlusionStrengthDirectSpecularText.text, 2 );

@@ -36,6 +36,8 @@ Shader "Valve/vr_standard"
 		_BumpScale( "Scale", Float ) = 1.0
 		[Normal] _BumpMap( "Normal Map", 2D ) = "bump" {}
 
+		_NormalToOcclusion("Normal To Occlusion", Range(0.0, 2.0)) = 1.0
+
 		_Parallax ( "Height Scale", Range ( 0.005, 0.08 ) ) = 0.02
 		_ParallaxMap ( "Height Map", 2D ) = "black" {}
 
@@ -196,6 +198,7 @@ Shader "Valve/vr_standard"
 				float		_EmissionFalloff;
 				float		g_flFresnelExponent;
 				float Dotfresnel;
+				float 	_NormalToOcclusion;
 				
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -686,9 +689,20 @@ Shader "Valve/vr_standard"
 						// Compute lighting
 						lightingTerms = ComputeLighting( i.vPositionWs.xyz, vNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz, vRoughness.xy, vReflectance.rgb, g_flFresnelExponent, vLightmapUV.xyzw );
 
-						#if ( S_OCCLUSION )
+						#if ( S_OCCLUSION || _NORMALMAP )
 						{
+
+							#if ( !S_OCCLUSION)
+							float flOcclusion = 1;
+							#else
 							float flOcclusion = tex2D( _OcclusionMap, i.vTextureCoords.xy ).g;
+							#endif
+
+							#if ( _NORMALMAP )	
+							float2 normalABS = abs(vNormalTs.xy * vNormalTs.xy);
+							flOcclusion *= 1 - ((normalABS.x + normalABS.y) * _NormalToOcclusion);
+							#endif
+
 							lightingTerms.vDiffuse.rgba *= LerpOneTo( flOcclusion, _OcclusionStrength * _OcclusionStrengthDirectDiffuse );
 							lightingTerms.vSpecular.rgb *= LerpOneTo( flOcclusion, _OcclusionStrength * _OcclusionStrengthDirectSpecular );
 							lightingTerms.vIndirectDiffuse.rgb *= LerpOneTo( flOcclusion, _OcclusionStrength * _OcclusionStrengthIndirectDiffuse );
