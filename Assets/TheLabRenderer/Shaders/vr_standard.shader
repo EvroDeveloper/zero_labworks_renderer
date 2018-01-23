@@ -723,7 +723,7 @@ Shader "Valve/vr_standard"
 				//	#else
 					//{
 					// Diffuse
-					o.vColor.rgb = ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb ) * vAlbedo.rgb;
+					o.vColor.rgb = ClampToPositive( ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb ) * vAlbedo.rgb);
 				//	}
 				//	#endif
 
