@@ -53,6 +53,16 @@ public class ZRealtimeAO : MonoBehaviour
     //    UpdateVars();
     //}
 
+#if UNITY_EDITOR
+    void Update()
+    {
+        if (Application.isEditor && !Application.isPlaying)
+        {
+            UpdateVars();
+        }
+    }
+#endif
+
     void OnEnable()
     {
         UpdateVars();

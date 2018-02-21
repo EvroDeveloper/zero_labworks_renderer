@@ -578,26 +578,27 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		
 			if (unity_ProbeVolumeParams.x == 1)
 				{
-				o.vIndirectDiffuse.rgb += ShadeSHPerPixel(vNormalWs.xyz, o.vIndirectDiffuse.rgb, vPositionWs.xyz);  // Light probe Proxy Volume 
+				o.vIndirectDiffuse.rgb += ClampToPositive(ShadeSHPerPixel(vNormalWs.xyz, o.vIndirectDiffuse.rgb, vPositionWs.xyz));  // Light probe Proxy Volume 
 				}
 				#if (!DYNAMICLIGHTMAP_ON)
 			else
 				{
-				o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );  // Simple Light probe
+				o.vIndirectDiffuse.rgb += ClampToPositive(ShadeSH9( float4( vNormalWs.xyz, 1.0 ) ));  // Simple Light probe
 				}
 				#endif
 		}
 		#else
 			{
 			// Simple Light probe
-			o.vIndirectDiffuse.rgb += ShadeSH9( float4( vNormalWs.xyz, 1.0 ) );
+			o.vIndirectDiffuse.rgb += ClampToPositive(ShadeSH9( float4( vNormalWs.xyz, 1.0 ) ));
 			}
 		#endif
 
 	}	
+	#endif
 
 
-	#elif defined( LIGHTMAP_ON )
+	#if defined( LIGHTMAP_ON )
 	{
 		// Baked lightmaps
 		float4 bakedColorTex = Tex2DLevel( unity_Lightmap, vLightmapUV.xy, 0.0 );
