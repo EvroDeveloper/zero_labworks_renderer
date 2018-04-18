@@ -200,6 +200,13 @@ public class ValveCamera : MonoBehaviour
             s_bAllowLightCulling = false;
         }
 
+#if UNITY_2017_3_OR_NEWER
+        if (HasCommandLineArg("-nomask"))
+        {
+            UnityEngine.XR.XRSettings.useOcclusionMesh = false;
+        }
+#endif
+
 
 		if ( !s_bUsingStaticSettings )
 		{

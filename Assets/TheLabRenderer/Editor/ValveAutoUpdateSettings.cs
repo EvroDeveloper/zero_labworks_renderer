@@ -31,9 +31,10 @@ public class TheLabRenderer_Settings : EditorWindow
     const string gpuSkinning = "GPU Skinning";
     const string shadowCascades = "Shadow Cascades";
     const string pixelLightCount = "Pixel Light Count";
-    const string UnityShadowEnabled = "Shadow Cascades";
+    const string unityShadowEnabled = "Unity Shadows";
+    const string anisotropicFiltering = "Anisotropic Filtering";
 
-#if false // skyboxes are currently broken
+#if UNITY_2017_3_OR_NEWER // skyboxes are currently broken
 	const string singlePassStereoRendering = "Single-Pass Stereo Rendering";
 #endif
 
@@ -52,8 +53,11 @@ public class TheLabRenderer_Settings : EditorWindow
     const bool recommended_GpuSkinning = true;
     const int recommended_shadowCascades = 1;
     const int recommended_pixelLightCount = 99;
-    const ShadowQuality reommended_UnityShadowEnabled = ShadowQuality.Disable;
-#if false
+    const ShadowQuality recommended_UnityShadowEnabled = ShadowQuality.Disable;
+    const AnisotropicFiltering recommended_anisotropicFiltering =  AnisotropicFiltering.ForceEnable;
+
+    //const QualitySettings.anisotropicFiltering
+#if UNITY_2017_3_OR_NEWER
 	const bool recommended_SinglePassStereoRendering = true;
 #endif
 
@@ -66,6 +70,7 @@ public class TheLabRenderer_Settings : EditorWindow
 
     static void Update()
     {
+        
         bool show =
             (!EditorPrefs.HasKey(ignore + buildTarget) &&
                 EditorUserBuildSettings.activeBuildTarget != recommended_BuildTarget) ||
@@ -96,9 +101,11 @@ public class TheLabRenderer_Settings : EditorWindow
                 QualitySettings.shadowCascades != recommended_shadowCascades) ||
             (!EditorPrefs.HasKey(ignore + pixelLightCount) &&
                 QualitySettings.pixelLightCount != recommended_pixelLightCount) ||
-            (!EditorPrefs.HasKey(ignore + UnityShadowEnabled) &&
-                QualitySettings.shadows != reommended_UnityShadowEnabled) ||
-#if false
+            (!EditorPrefs.HasKey(ignore + unityShadowEnabled) &&
+                QualitySettings.shadows != recommended_UnityShadowEnabled) ||
+            (!EditorPrefs.HasKey(ignore + anisotropicFiltering) &&
+                QualitySettings.anisotropicFiltering != recommended_anisotropicFiltering) ||
+#if UNITY_2017_3_OR_NEWER
 			(!EditorPrefs.HasKey(ignore + singlePassStereoRendering) &&
 				PlayerSettings.singlePassStereoRendering != recommended_SinglePassStereoRendering) ||
 #endif
@@ -515,6 +522,32 @@ public class TheLabRenderer_Settings : EditorWindow
             GUILayout.EndHorizontal();
         }
 
+
+        if (!EditorPrefs.HasKey(ignore + unityShadowEnabled) &&
+    QualitySettings.shadows != recommended_UnityShadowEnabled)
+        {
+            ++numItems;
+
+            GUILayout.Label(unityShadowEnabled + string.Format(currentValue, QualitySettings.shadows));
+
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(string.Format(useRecommended, recommended_UnityShadowEnabled)))
+            {
+                QualitySettings.shadows = recommended_UnityShadowEnabled;
+            }
+
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Ignore"))
+            {
+                EditorPrefs.SetBool(ignore + unityShadowEnabled, true);
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+
         if (!EditorPrefs.HasKey(ignore + pixelLightCount) &&
             QualitySettings.pixelLightCount != recommended_pixelLightCount)
         {
@@ -539,7 +572,35 @@ public class TheLabRenderer_Settings : EditorWindow
             GUILayout.EndHorizontal();
         }
 
-#if false
+
+
+        if (!EditorPrefs.HasKey(ignore + anisotropicFiltering) &&
+            QualitySettings.anisotropicFiltering != recommended_anisotropicFiltering)
+        {
+            ++numItems;
+
+            GUILayout.Label(anisotropicFiltering + string.Format(currentValue, QualitySettings.anisotropicFiltering));
+
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(string.Format(useRecommended, recommended_anisotropicFiltering )))
+            {
+                QualitySettings.anisotropicFiltering = recommended_anisotropicFiltering;
+            }
+
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Ignore"))
+            {
+                EditorPrefs.SetBool(ignore + anisotropicFiltering, true);
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+
+
+#if UNITY_2017_3_OR_NEWER
 		if (!EditorPrefs.HasKey(ignore + singlePassStereoRendering) &&
 			PlayerSettings.singlePassStereoRendering != recommended_SinglePassStereoRendering)
 		{
@@ -585,7 +646,9 @@ public class TheLabRenderer_Settings : EditorWindow
             EditorPrefs.DeleteKey(ignore + gpuSkinning);
             EditorPrefs.DeleteKey(ignore + shadowCascades);
             EditorPrefs.DeleteKey(ignore + pixelLightCount);
-#if false
+            EditorPrefs.DeleteKey(ignore + anisotropicFiltering);
+            EditorPrefs.DeleteKey(ignore + unityShadowEnabled);
+#if UNITY_2017_3_OR_NEWER
 			EditorPrefs.DeleteKey(ignore + singlePassStereoRendering);
 #endif
         }
@@ -632,9 +695,13 @@ public class TheLabRenderer_Settings : EditorWindow
                     PlayerSettings.gpuSkinning = recommended_GpuSkinning;
                 if (!EditorPrefs.HasKey(ignore + shadowCascades))
                     QualitySettings.shadowCascades = recommended_shadowCascades;
+                if (!EditorPrefs.HasKey(ignore + unityShadowEnabled))
+                    QualitySettings.shadows = recommended_UnityShadowEnabled;
                 if (!EditorPrefs.HasKey(ignore + pixelLightCount))
                     QualitySettings.pixelLightCount = recommended_pixelLightCount;
-#if false
+                if (!EditorPrefs.HasKey(ignore + recommended_anisotropicFiltering))
+                    QualitySettings.anisotropicFiltering = recommended_anisotropicFiltering;
+#if UNITY_2017_3_OR_NEWER
 				if (!EditorPrefs.HasKey(ignore + singlePassStereoRendering))
 					PlayerSettings.singlePassStereoRendering = recommended_SinglePassStereoRendering;
 #endif
@@ -676,9 +743,13 @@ public class TheLabRenderer_Settings : EditorWindow
                         EditorPrefs.SetBool(ignore + gpuSkinning, true);
                     if (QualitySettings.shadowCascades != recommended_shadowCascades)
                         EditorPrefs.SetBool(ignore + shadowCascades, true);
+                    if (QualitySettings.shadows != recommended_UnityShadowEnabled)
+                        EditorPrefs.SetBool(ignore + unityShadowEnabled, true);
                     if (QualitySettings.pixelLightCount != recommended_pixelLightCount)
                         EditorPrefs.SetBool(ignore + pixelLightCount, true);
-#if false
+                    if (QualitySettings.anisotropicFiltering != recommended_anisotropicFiltering)
+                        EditorPrefs.SetBool(ignore + anisotropicFiltering, true);
+#if UNITY_2017_3_OR_NEWER
 					if (PlayerSettings.singlePassStereoRendering != recommended_SinglePassStereoRendering)
 						EditorPrefs.SetBool(ignore + singlePassStereoRendering, true);
 #endif

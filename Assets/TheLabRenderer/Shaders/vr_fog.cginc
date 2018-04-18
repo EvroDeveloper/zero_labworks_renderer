@@ -27,6 +27,7 @@ half2 CalculateFogCoords( float3 posWs )
 	results.y = heightFogParams.x * exp( -h * heightFogParams.y ) *
 		( 1.0 - exp( -cameraToPositionDist * cameraToPositionDirWs.y * heightFogParams.y ) ) / cameraToPositionDirWs.y;
 	
+	//return posWs.xy;
 	return saturate( results.xy );
 }
 

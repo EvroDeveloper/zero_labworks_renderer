@@ -159,6 +159,7 @@ public class GradientMaker : MonoBehaviour {
             TextureImporter TI = (TextureImporter)TextureImporter.GetAtPath("Assets/GradientMaker/Gradients/" + _fileName + ".png");
             TI.wrapMode = WrapMode;
             TI.alphaSource = AlphaMode;
+            TI.textureCompression = TextureImporterCompression.CompressedHQ;
 			string logString = alreadyExists ? "Gradient Overwritten: " : "Gradient saved: ";
 			Debug.Log(logString + outputFile, outputFile);
 			EditorGUIUtility.PingObject(outputFile);

@@ -16,9 +16,11 @@ internal class ValveShaderGUI : ShaderGUI
 		AlphaTest,
 		AlphaBlend,
 		Glass,
-		Additive
-		// TODO: MaskedGlass that will require an additional grayscale texture to act as a standard alpha blend mask
-	}
+		Additive,
+        Mod2x,
+        Multiply
+            // TODO: MaskedGlass that will require an additional grayscale texture to act as a standard alpha blend mask
+        }
 
 	public enum SpecularMode
 	{
@@ -37,6 +39,22 @@ internal class ValveShaderGUI : ShaderGUI
 
     }
 
+    public enum TexturePackingMode
+    {
+        None,      
+        MAES,
+        RMA,
+        MAS
+    }
+
+    public enum DetailBlendMode
+        {
+            Multiply2x,
+            Multiply,
+            Add,
+            Lerp
+        }
+
 
 	private static class Styles
 	{
@@ -48,18 +66,19 @@ internal class ValveShaderGUI : ShaderGUI
 
 		public static string emptyTootip = "";
 		public static GUIContent albedoText = new GUIContent("Albedo", "Albedo (RGB) and Transparency (A)");
-        public static GUIContent BRDFMapText = new GUIContent("BRDF Map", "Remaps shading to color ramp");
+        public static GUIContent BRDFMapText = new GUIContent("BRDF Map", "Remaps shading to color ramp. Compared to the normal, X is direction to the light, Y is direction from camera.");
         public static GUIContent colorMaskText = new GUIContent("Color Mask", "Multiplys albedo per color channel");
 		public static GUIContent alphaCutoffText = new GUIContent("Alpha Cutoff", "Threshold for alpha cutoff");
         public static GUIContent FluorescenceText = new GUIContent("Fluorescence", "Fluorescence (RGB), takes MAX color value of this and albedo");
 		public static GUIContent specularMapText = new GUIContent("Specular", "Reflectance (RGB) and Gloss (A)");
 		public static GUIContent reflectanceMinText = new GUIContent( "Reflectance Min", "" );
 		public static GUIContent reflectanceMaxText = new GUIContent( "Reflectance Max", "" );
-        public static GUIContent metallicMapText = new GUIContent("Metallic", "Metallic (R), Gloss (A), and extra Anisotropic Gloss dir (G) ");
+        public static GUIContent metallicMapText = new GUIContent("Metallic", "Metallic (R), Gloss (A) ");
+        public static GUIContent specularModText = new GUIContent("Smoothness Scaler", "Smoothness Multiplier");
 		public static GUIContent smoothnessText = new GUIContent("Gloss", "");
         public static GUIContent smoothnessText2 = new GUIContent("Gloss2", "");
 		public static GUIContent normalMapText = new GUIContent("Normal", "Normal Map");
-		//public static GUIContent heightMapText = new GUIContent("Height Map", "Height Map (G)");
+		public static GUIContent heightMapText = new GUIContent("Height Map", "Height Map (G)");
         public static GUIContent fresnelfallofftext = new GUIContent("Fresnel Falloff Scalar", "Added Fresnel falloff contribution");
         public static GUIContent fresnelExponentText = new GUIContent("Fresnel Exponent", "");
 		public static GUIContent cubeMapScalarText = new GUIContent( "Cube Map Scalar", "Multiplier for overall reflections" );
@@ -77,6 +96,7 @@ internal class ValveShaderGUI : ShaderGUI
         public static GUIContent castShadowsText = new GUIContent("Cast shadows", "");
 		public static GUIContent receiveShadowsText = new GUIContent( "Receive Shadows", "" );
 		public static GUIContent renderBackfacesText = new GUIContent( "Render Backfaces", "" );
+        public static GUIContent emissiveMode = new GUIContent("Emissive Multiply", "Multiply with albedo");
 		public static GUIContent overrideLightmapText = new GUIContent( "Override Lightmap", "Requires ValveOverrideLightmap.cs scrip on object" );
 		public static GUIContent worldAlignedTextureText = new GUIContent( "World Aligned Texture", "" );
 		public static GUIContent worldAlignedTextureSizeText = new GUIContent( "Size", "" );
@@ -90,19 +110,27 @@ internal class ValveShaderGUI : ShaderGUI
 		public static string renderingMode = "Rendering Mode";
 		public static string specularModeText = "Specular Mode";
         public static string VertexModeText = "Vertex Mode";
+        public static string PackingModeText = "Packing Mode";
+        public static string DetailModeText = "Detail Blend Mode";
 		public static GUIContent emissiveWarning = new GUIContent( "Emissive value is animated but the material has not been configured to support emissive. Please make sure the material itself has some amount of emissive." );
 		public static GUIContent emissiveColorWarning = new GUIContent ("Ensure emissive color is non-black for emission to have effect.");
 		public static readonly string[] blendNames = Enum.GetNames (typeof (BlendMode));
 		public static readonly string[] specularNames = Enum.GetNames( typeof( SpecularMode ) );
         public static readonly string[] vertexNames = Enum.GetNames(typeof(VertexMode));
+        public static readonly string[] PackingNames = Enum.GetNames(typeof(TexturePackingMode));
+        public static readonly string[] detailNames = Enum.GetNames(typeof(DetailBlendMode));
+
 
 	}
 
 	MaterialProperty unlit = null;
 	MaterialProperty blendMode = null;
+    MaterialProperty emissiveMode = null;
 	MaterialProperty specularMode = null;
     MaterialProperty vertexMode = null;
-	MaterialProperty albedoMap = null;
+    MaterialProperty PackingMode = null;
+    MaterialProperty DetailMode = null;
+    MaterialProperty albedoMap = null;
     MaterialProperty BRDFMap = null;
     MaterialProperty colorMask = null;
 	MaterialProperty albedoColor = null;
@@ -116,6 +144,7 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty reflectanceMax = null;
 	MaterialProperty metallicMap = null;
 	MaterialProperty metallic = null;
+    MaterialProperty SpecularMod = null;
 	MaterialProperty smoothness = null;
     MaterialProperty smoothness2 = null;
 	MaterialProperty bumpScale = null;
@@ -130,8 +159,8 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty occlusionStrengthDirectSpecular = null;
 	MaterialProperty occlusionStrengthIndirectDiffuse = null;
 	MaterialProperty occlusionStrengthIndirectSpecular = null;
-	//MaterialProperty heigtMapScale = null;
-	//MaterialProperty heightMap = null;
+	MaterialProperty heigtMapScale = null;
+	MaterialProperty heightMap = null;
 	MaterialProperty emissionColorForRendering = null;
 	MaterialProperty emissionMap = null;
     MaterialProperty emissionFalloff = null;
@@ -150,18 +179,26 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty worldAlignedTextureSize = null;
 	MaterialProperty worldAlignedTextureNormal = null;
 	MaterialProperty worldAlignedTexturePosition = null;
+    MaterialProperty offsetFactor = null;
+    MaterialProperty offsetUnits = null;
 
 	MaterialEditor m_MaterialEditor;
 	ColorPickerHDRConfig m_ColorPickerHDRConfig = new ColorPickerHDRConfig(0f, 99f, 1/99f, 3f);
 
 	bool m_FirstTimeApply = true;
 
+ 
+
+
 	public void FindProperties (MaterialProperty[] props)
 	{
 		unlit = FindProperty( "g_bUnlit", props );
 		blendMode = FindProperty( "_Mode", props );
+        emissiveMode = FindProperty("_EmissiveMode", props); 
 		specularMode = FindProperty( "_SpecularMode", props );
         vertexMode = FindProperty("_VertexMode", props);
+        PackingMode = FindProperty("_PackingMode", props);
+        DetailMode = FindProperty("_DetailMode", props);
 		albedoMap = FindProperty( "_MainTex", props );
         BRDFMap = FindProperty("g_tBRDFMap", props);
         colorMask = FindProperty("_ColorMask", props);
@@ -178,10 +215,11 @@ internal class ValveShaderGUI : ShaderGUI
 		metallic = FindProperty ("_Metallic", props, false);
 		smoothness = FindProperty ("_Glossiness", props);
         smoothness2 = FindProperty("_Glossiness2", props);
+        SpecularMod = FindProperty("_SpecMod", props);
 		bumpScale = FindProperty ("_BumpScale", props);
 		bumpMap = FindProperty ("_BumpMap", props);
-		//heigtMapScale = FindProperty ("_Parallax", props);
-		//heightMap = FindProperty("_ParallaxMap", props);
+		heigtMapScale = FindProperty ("_Parallax", props);
+		heightMap = FindProperty("_ParallaxMap", props);
         FresnelFalloffScalar = FindProperty("g_flFresnelFalloff", props);
         FresnelExponent = FindProperty("g_flFresnelExponent", props);
         NormalToOcclusion = FindProperty("_NormalToOcclusion", props);
@@ -210,11 +248,15 @@ internal class ValveShaderGUI : ShaderGUI
 		worldAlignedTextureSize = FindProperty( "g_vWorldAlignedTextureSize", props, worldAlignedTexture != null );
 		worldAlignedTextureNormal = FindProperty( "g_vWorldAlignedTextureNormal", props, worldAlignedTexture != null );
 		worldAlignedTexturePosition = FindProperty( "g_vWorldAlignedTexturePosition", props, worldAlignedTexture != null );
+        offsetFactor = FindProperty("_OffsetFactor", props);
+        offsetUnits = FindProperty("_OffsetUnits", props);
+        
 	}
 
 	public override void OnGUI (MaterialEditor materialEditor, MaterialProperty[] props)
 	{
-		FindProperties (props); // MaterialProperties can be animated so we do not cache them but fetch them every event to ensure animated values are updated correctly
+                 
+            FindProperties (props); // MaterialProperties can be animated so we do not cache them but fetch them every event to ensure animated values are updated correctly
 		m_MaterialEditor = materialEditor;
 		Material material = materialEditor.target as Material;
 
@@ -251,6 +293,8 @@ internal class ValveShaderGUI : ShaderGUI
 
             VertexModePopup();
 
+            TexturePackingPopup();
+
 			if ( !bUnlit )
 			{
 				SpecularModePopup();
@@ -283,9 +327,18 @@ internal class ValveShaderGUI : ShaderGUI
                 m_MaterialEditor.ShaderProperty(FresnelExponent, Styles.fresnelExponentText.text, 0);
 				m_MaterialEditor.TexturePropertySingleLine( Styles.normalMapText, bumpMap, bumpMap.textureValue != null ? bumpScale : null );
                 if (bumpMap.textureValue != null)  m_MaterialEditor.ShaderProperty(NormalToOcclusion, Styles.NormalToOcclusionText.text, 0);
-            
-				m_MaterialEditor.TexturePropertySingleLine( Styles.occlusionText, occlusionMap, occlusionMap.textureValue != null ? occlusionStrength : null );
-                if (occlusionMap.textureValue != null || NormalToOcclusion.floatValue > 0)
+
+                if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.None)
+                {
+                    m_MaterialEditor.TexturePropertySingleLine(Styles.occlusionText, occlusionMap, occlusionMap.textureValue != null ? occlusionStrength : null);
+
+                }
+                else
+                {
+                    m_MaterialEditor.RangeProperty(occlusionStrength, "Occlusion");
+                }
+
+                if (occlusionMap.textureValue != null || NormalToOcclusion.floatValue > 0 || (TexturePackingMode)material.GetInt("_PackingMode") != TexturePackingMode.MAES)
 				{
 					m_MaterialEditor.ShaderProperty( occlusionStrengthDirectDiffuse, Styles.occlusionStrengthDirectDiffuseText.text, 2 );
 					m_MaterialEditor.ShaderProperty( occlusionStrengthDirectSpecular, Styles.occlusionStrengthDirectSpecularText.text, 2 );
@@ -296,8 +349,9 @@ internal class ValveShaderGUI : ShaderGUI
 	
 			}
 
-          			//m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
-			DoEmissionArea( material );
+            DoEmissionArea(material);
+          	//m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
+			
 		
 
             
@@ -311,37 +365,17 @@ internal class ValveShaderGUI : ShaderGUI
 			}
 
 
-            //overriding settings
-            GUILayout.Label(Styles.OverridesMapsText, EditorStyles.boldLabel);
 
-            if (!bUnlit)
-            {
-                m_MaterialEditor.TexturePropertySingleLine(Styles.overrideLightmapText, overrideLightmap);
-                m_MaterialEditor.ShaderProperty(cubeMapScalar, Styles.cubeMapScalarText.text, 0);
-            }
-
-
-			if ( worldAlignedTexture != null )
-			{
-				m_MaterialEditor.ShaderProperty( worldAlignedTexture, Styles.worldAlignedTextureText.text );
-
-				if ( worldAlignedTexture.floatValue != 0.0f )
-				{
-					EditorGUI.indentLevel = 2;
-					Vector3GUI( Styles.worldAlignedTextureSizeText, worldAlignedTextureSize );
-					Vector3GUI( Styles.worldAlignedTextureNormalText, worldAlignedTextureNormal );
-					Vector3GUI( Styles.worldAlignedTexturePositionText, worldAlignedTexturePosition );
-					EditorGUI.indentLevel = 0;
-				}
-			}
-
-			EditorGUILayout.Space();
 
 			// Secondary properties
 			GUILayout.Label( Styles.secondaryMapsText, EditorStyles.boldLabel );
+
+           
+
             m_MaterialEditor.TexturePropertySingleLine(Styles.detailMaskText, detailMask);
             EditorGUILayout.Space();
 
+            DetailModePopup();
 			m_MaterialEditor.TexturePropertySingleLine( Styles.detailAlbedoText, detailAlbedoMap );
 			if ( !bUnlit )
 			{
@@ -349,7 +383,45 @@ internal class ValveShaderGUI : ShaderGUI
 			}
 			m_MaterialEditor.TextureScaleOffsetProperty( detailAlbedoMap );
 			m_MaterialEditor.ShaderProperty( uvSetSecondary, Styles.uvSetLabel.text );
-		}
+
+                //Advanced Options
+
+
+                //overriding settings
+                GUILayout.Label(Styles.OverridesMapsText, EditorStyles.boldLabel);
+
+                if (!bUnlit)
+                {
+                    m_MaterialEditor.TexturePropertySingleLine(Styles.overrideLightmapText, overrideLightmap);
+                    m_MaterialEditor.ShaderProperty(SpecularMod, Styles.specularModText);
+                    m_MaterialEditor.ShaderProperty(cubeMapScalar, Styles.cubeMapScalarText.text, 0);
+                }
+
+
+                if (worldAlignedTexture != null)
+                {
+                    m_MaterialEditor.ShaderProperty(worldAlignedTexture, Styles.worldAlignedTextureText.text);
+
+                    if (worldAlignedTexture.floatValue != 0.0f)
+                    {
+                        EditorGUI.indentLevel = 2;
+                        Vector3GUI(Styles.worldAlignedTextureSizeText, worldAlignedTextureSize);
+                        Vector3GUI(Styles.worldAlignedTextureNormalText, worldAlignedTextureNormal);
+                        Vector3GUI(Styles.worldAlignedTexturePositionText, worldAlignedTexturePosition);
+                        EditorGUI.indentLevel = 0;
+                    }
+                }
+
+                //  EditorGUILayout.BeginHorizontal();
+                m_MaterialEditor.ShaderProperty(offsetFactor, "Offset Factor");
+                m_MaterialEditor.ShaderProperty(offsetUnits, "Offset Units");
+                //  EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
+
+                //  EditorGUILayout.Toggle
+
+            }
 		if ( EditorGUI.EndChangeCheck() )
 		{
 			foreach ( var obj in blendMode.targets )
@@ -422,6 +494,8 @@ internal class ValveShaderGUI : ShaderGUI
 		EditorGUI.showMixedValue = false;
 	}
 
+
+
 	void SpecularModePopup()
 	{
 		EditorGUI.showMixedValue = specularMode.hasMixedValue;
@@ -455,13 +529,54 @@ internal class ValveShaderGUI : ShaderGUI
         EditorGUI.showMixedValue = false;
     }
 
-	void DoAlbedoArea(Material material)
+    void TexturePackingPopup()
+    {
+        EditorGUI.showMixedValue = PackingMode.hasMixedValue;
+        var mode = (TexturePackingMode)PackingMode.floatValue;
+
+        EditorGUI.BeginChangeCheck();
+        mode = (TexturePackingMode)EditorGUILayout.Popup(Styles.PackingModeText, (int)mode, Styles.PackingNames);
+        if (EditorGUI.EndChangeCheck())
+        {
+            m_MaterialEditor.RegisterPropertyChangeUndo("Packing Mode");
+            PackingMode.floatValue = (float)mode;
+        }
+
+        EditorGUI.showMixedValue = false;
+    }
+
+    void DetailModePopup()
+    {
+
+        EditorGUI.showMixedValue = DetailMode.hasMixedValue;
+        var mode = (DetailBlendMode)DetailMode.floatValue;
+
+        EditorGUI.BeginChangeCheck();
+        mode = (DetailBlendMode)EditorGUILayout.Popup(Styles.DetailModeText, (int)mode, Styles.detailNames);
+        if (EditorGUI.EndChangeCheck())
+        {
+            m_MaterialEditor.RegisterPropertyChangeUndo("Detail Mode");
+            DetailMode.floatValue = (float)mode;
+        }
+
+        EditorGUI.showMixedValue = false;
+
+        }
+
+        void DoAlbedoArea(Material material)
 	{
 		m_MaterialEditor.TexturePropertySingleLine(Styles.albedoText, albedoMap, albedoColor);
         if (((BlendMode)material.GetFloat("_Mode") == BlendMode.AlphaTest || (BlendMode)material.GetFloat("_Mode") == BlendMode.AlphaBlend || (BlendMode)material.GetFloat("_Mode") == BlendMode.Glass))
 		{
-			m_MaterialEditor.ShaderProperty(alphaCutoff, Styles.alphaCutoffText.text, MaterialEditor.kMiniTextureFieldLabelIndentLevel+1);
-		}
+                if ((BlendMode)material.GetFloat("_Mode") == BlendMode.AlphaTest)
+                {
+                    m_MaterialEditor.ShaderProperty(alphaCutoff, Styles.alphaCutoffText.text, MaterialEditor.kMiniTextureFieldLabelIndentLevel + 1);
+                }
+                else
+                {
+                    m_MaterialEditor.ShaderProperty(alphaCutoff, "Alpha Falloff", MaterialEditor.kMiniTextureFieldLabelIndentLevel + 1);
+                }
+            }
 	}
 
     void DoBRDFArea(Material material)
@@ -483,9 +598,12 @@ internal class ValveShaderGUI : ShaderGUI
         // If texture was assigned and color was black set color to white
         if (colorMask.textureValue != null)
         {
-            m_MaterialEditor.ColorProperty(colorShift1, Styles.emptyTootip);
-            m_MaterialEditor.ColorProperty(colorShift2, Styles.emptyTootip);
-            m_MaterialEditor.ColorProperty(colorShift3, Styles.emptyTootip);
+             
+            m_MaterialEditor.ColorProperty(colorShift1, "Color Tint 1");
+            m_MaterialEditor.ColorProperty(colorShift2, "Color Tint 2");
+            m_MaterialEditor.ColorProperty(colorShift3, "Color Tint 3");
+
+         
         }
     }
 
@@ -498,13 +616,21 @@ internal class ValveShaderGUI : ShaderGUI
 		bool showEmissionColorAndGIControls = brightness > 0.0f;
 		
 		bool hadEmissionTexture = emissionMap.textureValue != null;
-
+        
 		// Texture and HDR color controls
-		m_MaterialEditor.TexturePropertyWithHDRColor(Styles.emissionText, emissionMap, emissionColorForRendering, m_ColorPickerHDRConfig, false);
+        if ((TexturePackingMode)material.GetInt("_PackingMode") != TexturePackingMode.MAES){
+		m_MaterialEditor.TexturePropertyWithHDRColor(Styles.emissionText, emissionMap, emissionColorForRendering, m_ColorPickerHDRConfig, false);}
+        else{
+          //  GUILayout.BeginHorizontal();              
+            m_MaterialEditor.ColorProperty(emissionColorForRendering, "Emissive Color");
+         //   GUILayout.EndHorizontal();
+        
+        }
 
 		// If texture was assigned and color was black set color to white
 		if (emissionMap.textureValue != null && !hadEmissionTexture && brightness <= 0f)
 			emissionColorForRendering.colorValue = Color.white;
+            
 
 		// Dynamic Lightmapping mode
 		if (showEmissionColorAndGIControls)
@@ -512,8 +638,8 @@ internal class ValveShaderGUI : ShaderGUI
 			bool shouldEmissionBeEnabled = ShouldEmissionBeEnabled(emissionColorForRendering.colorValue);
 			using ( new EditorGUI.DisabledScope( !shouldEmissionBeEnabled ) )
 			{
-                m_MaterialEditor.ShaderProperty(emissionFalloff, Styles.emissionFalloffText.text, 2);
-
+               if (unlit.floatValue == 0) m_MaterialEditor.ShaderProperty(emissionFalloff, Styles.emissionFalloffText.text, 2);
+                m_MaterialEditor.ShaderProperty(emissiveMode, Styles.emissiveMode.text);
 				m_MaterialEditor.LightmapEmissionProperty( MaterialEditor.kMiniTextureFieldLabelIndentLevel + 1 );
 
 			}
@@ -527,7 +653,34 @@ internal class ValveShaderGUI : ShaderGUI
 
 	void DoSpecularMetallicArea( Material material )
 	{
-		SpecularMode specularMode = ( SpecularMode )material.GetInt( "_SpecularMode" );
+            GUIContent MetallicDis;
+
+            if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.None)
+            {
+                MetallicDis = Styles.metallicMapText;
+            }
+            else if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.RMA)
+            {
+                MetallicDis = new GUIContent("RMA Metallic", "Roughness (R), Metallic (G), AO (B) ");
+            }
+            else if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.MAES)
+            {
+                MetallicDis = new GUIContent("MAES Metallic", "Metallic (R), AO (G), Gray Emission (B) Gloss (A) ");
+            }
+            else if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.MAS)
+            {
+                MetallicDis = new GUIContent("MAS Metallic", "Metallic (R), AO (G), Gloss (B) ");
+            }
+
+            else {
+                MetallicDis = Styles.metallicMapText;
+            }
+
+
+
+
+
+            SpecularMode specularMode = ( SpecularMode )material.GetInt( "_SpecularMode" );
 		if ( specularMode == SpecularMode.BlinnPhong )
 		{
 			if (specularMap.textureValue == null)
@@ -544,28 +697,38 @@ internal class ValveShaderGUI : ShaderGUI
 		else if ( specularMode == SpecularMode.Metallic )
 		{
 			if (metallicMap.textureValue == null)
-				m_MaterialEditor.TexturePropertyTwoLines(Styles.metallicMapText, metallicMap, metallic, Styles.smoothnessText, smoothness);
+				m_MaterialEditor.TexturePropertyTwoLines(MetallicDis, metallicMap, metallic, Styles.smoothnessText, smoothness);
 			else
-				m_MaterialEditor.TexturePropertySingleLine(Styles.metallicMapText, metallicMap);
+				m_MaterialEditor.TexturePropertySingleLine(MetallicDis, metallicMap);
 		}
 
         else if (specularMode == SpecularMode.Anisotropic)
         {
             if (metallicMap.textureValue == null)
             {
-                m_MaterialEditor.TexturePropertyTwoLines(Styles.metallicMapText, metallicMap, metallic, Styles.smoothnessText, smoothness);
+                m_MaterialEditor.TexturePropertyTwoLines(MetallicDis, metallicMap, metallic, Styles.smoothnessText, smoothness);
                 m_MaterialEditor.ShaderProperty(smoothness2, Styles.smoothnessText2);
             }
             else
-                m_MaterialEditor.TexturePropertySingleLine(Styles.metallicMapText, metallicMap);
+                m_MaterialEditor.TexturePropertySingleLine(MetallicDis, metallicMap);
         }
         else if (specularMode == SpecularMode.Retroreflective)
 
         {
             if (metallicMap.textureValue == null)
-                m_MaterialEditor.TexturePropertyTwoLines(Styles.metallicMapText, metallicMap, metallic, Styles.smoothnessText, smoothness);
+                m_MaterialEditor.TexturePropertyTwoLines(MetallicDis, metallicMap, metallic, Styles.smoothnessText, smoothness);
             else
-                m_MaterialEditor.TexturePropertySingleLine(Styles.metallicMapText, metallicMap);
+                m_MaterialEditor.TexturePropertySingleLine(MetallicDis, metallicMap);
+        }
+
+
+
+        if (((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.RMA) && metallicMap.textureValue != null )
+        {
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.HelpBox("RMA Texture likely needs sRGB disabled", MessageType.Info);
+            //GUILayout.Button("Fix it!");
+            GUILayout.EndHorizontal();
         }
 
 
@@ -601,7 +764,7 @@ internal class ValveShaderGUI : ShaderGUI
 
 				break;
 			case BlendMode.AlphaBlend:
-				material.SetOverrideTag("RenderType", "Transparent");
+                material.SetOverrideTag("RenderType", "ValveTransparent");
 				material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
 				material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
 				material.SetInt("_ZWrite", 0);
@@ -614,7 +777,7 @@ internal class ValveShaderGUI : ShaderGUI
 
 				break;
 			case BlendMode.Glass:
-				material.SetOverrideTag("RenderType", "Transparent");
+                material.SetOverrideTag("RenderType", "ValveTransparent");
 				material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
 				material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
 				material.SetInt("_ZWrite", 0);
@@ -626,7 +789,7 @@ internal class ValveShaderGUI : ShaderGUI
                 material.SetInt("_Test", 0);
 				break;
 			case BlendMode.Additive:
-				material.SetOverrideTag( "RenderType", "Transparent" );
+				material.SetOverrideTag( "RenderType", "ValveTransparent" );
 				material.SetInt( "_SrcBlend", ( int )UnityEngine.Rendering.BlendMode.One );
 				material.SetInt( "_DstBlend", ( int )UnityEngine.Rendering.BlendMode.One );
 				material.SetInt( "_ZWrite", 0 );
@@ -637,8 +800,97 @@ internal class ValveShaderGUI : ShaderGUI
 				material.renderQueue = 3000;
                 material.SetInt("_Test", 0);
 				break;
-		}
+           case BlendMode.Mod2x:
+                material.SetOverrideTag("RenderType", "ValveTransparent");
+                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.DstColor);
+                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.SrcColor);
+                material.SetInt("_ZWrite", 0);
+                material.SetFloat("_FogMultiplier", 0.5f);
+                material.DisableKeyword("_ALPHATEST_ON");
+                material.EnableKeyword("_ALPHABLEND_ON");
+                material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.renderQueue = 3000;
+                material.SetInt("_Test", 0);
+
+                break;
+
+            case BlendMode.Multiply:
+                material.SetOverrideTag("RenderType", "ValveTransparent");
+                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.DstColor);
+                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                material.SetInt("_ZWrite", 0);
+                material.SetFloat("_FogMultiplier", 1.0f);
+                material.DisableKeyword("_ALPHATEST_ON");
+                material.DisableKeyword("_ALPHABLEND_ON");
+                material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.renderQueue = 3000;
+                material.SetInt("_Test", 0);
+                break;
+            }
 	}
+
+    public static void SetupTexturePackingMode(Material material, TexturePackingMode packingMode)
+    {
+        switch (packingMode)
+        {
+            case TexturePackingMode.None:
+                material.DisableKeyword("S_PACKING_MAES");
+                material.DisableKeyword("S_PACKING_RMA");
+                material.DisableKeyword("S_PACKING_MAS");
+                    break;
+            case TexturePackingMode.RMA:
+                material.DisableKeyword("S_PACKING_MAES");
+                material.EnableKeyword("S_PACKING_RMA");
+                material.DisableKeyword("S_PACKING_MAS");
+                    break;
+            case TexturePackingMode.MAES:
+                material.EnableKeyword("S_PACKING_MAES");
+                material.DisableKeyword("S_PACKING_RMA");
+                material.DisableKeyword("S_PACKING_MAS");
+                    break;
+            case TexturePackingMode.MAS:
+                material.DisableKeyword("S_PACKING_MAES");
+                material.DisableKeyword("S_PACKING_RMA");
+                material.EnableKeyword("S_PACKING_MAS");
+                    break;
+
+            }
+    }
+
+        public static void SetupDetailBlendMode(Material material, DetailBlendMode detailMode)
+        {
+            switch (detailMode)
+            {
+               case DetailBlendMode.Multiply2x:
+                    material.EnableKeyword("_DETAIL_MULX2");
+                    material.DisableKeyword("_DETAIL_MUL");
+                    material.DisableKeyword("_DETAIL_ADD");
+                    material.DisableKeyword("_DETAIL_LERP");
+               break;
+               case DetailBlendMode.Multiply:
+                    material.DisableKeyword("_DETAIL_MULX2");
+                    material.EnableKeyword("_DETAIL_MUL");
+                    material.DisableKeyword("_DETAIL_ADD");
+                    material.DisableKeyword("_DETAIL_LERP");
+               break;
+               case DetailBlendMode.Add:
+                    material.DisableKeyword("_DETAIL_MULX2");
+                    material.DisableKeyword("_DETAIL_MUL");
+                    material.EnableKeyword("_DETAIL_ADD");
+                    material.DisableKeyword("_DETAIL_LERP");
+                break;
+                case DetailBlendMode.Lerp:
+                    material.DisableKeyword("_DETAIL_MULX2");
+                    material.DisableKeyword("_DETAIL_MUL");
+                    material.DisableKeyword("_DETAIL_ADD");
+                    material.EnableKeyword("_DETAIL_LERP");
+                break;
+            }
+
+
+        }
+
+
 
 	static bool ShouldEmissionBeEnabled (Color color)
 	{
@@ -680,12 +932,18 @@ internal class ValveShaderGUI : ShaderGUI
 		SetKeyword( material, "S_SPECULAR_METALLIC", specularMode == SpecularMode.Metallic );
         SetKeyword( material, "S_ANISOTROPIC_GLOSS", specularMode == SpecularMode.Anisotropic);
         SetKeyword( material, "S_RETROREFLECTIVE", specularMode == SpecularMode.Retroreflective);
-		SetKeyword( material, "S_OCCLUSION", material.GetTexture("_OcclusionMap") );
+        if (material.GetTexture("_OcclusionMap") || (TexturePackingMode)material.GetInt("_PackingMode") != TexturePackingMode.None)
+        {
+            SetKeyword(material, "S_OCCLUSION", true);
+        }
         SetKeyword( material, "_VERTEXTINT", vertexMode == VertexMode.Tint);
 
 		SetKeyword( material, "_PARALLAXMAP", material.GetTexture("_ParallaxMap"));
-		SetKeyword( material, "_DETAIL_MULX2", material.GetTexture("_DetailAlbedoMap") || material.GetTexture("_DetailNormalMap"));
-		SetKeyword( material, "S_OVERRIDE_LIGHTMAP", material.GetTexture( "g_tOverrideLightmap" ) );
+            //SetKeyword( material, "_DETAIL_MULX2", material.GetTexture("_DetailAlbedoMap") || material.GetTexture("_DetailNormalMap"));
+        
+
+
+        SetKeyword( material, "S_OVERRIDE_LIGHTMAP", material.GetTexture( "g_tOverrideLightmap" ) );
 		
 		SetKeyword( material, "S_UNLIT", material.GetInt( "g_bUnlit" ) == 1 );
 		SetKeyword( material, "S_RECEIVE_SHADOWS", material.GetInt( "g_bReceiveShadows" ) == 1 );
@@ -785,7 +1043,8 @@ internal class ValveShaderGUI : ShaderGUI
 	static void MaterialChanged(Material material)
 	{
 		SetupMaterialWithBlendMode(material, (BlendMode)material.GetFloat("_Mode"));
-
+        SetupTexturePackingMode(material, (TexturePackingMode)material.GetFloat("_PackingMode"));
+        SetupDetailBlendMode(material, (DetailBlendMode)material.GetFloat("_DetailMode"));
 		SetMaterialKeywords(material);
         if (material.GetFloat("g_bCastShadows") == 0.0f)
             material.SetOverrideTag("RenderType", "DO_NOT_RENDER");

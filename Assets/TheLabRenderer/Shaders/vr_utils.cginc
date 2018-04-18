@@ -17,8 +17,24 @@ float g_flTime = 0.0; // Set by ValveCamera.cs
 
 //float3 g_vMiddleEyePositionWs;
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------------
-float3 ScreenSpaceDither( float2 vScreenPos )
+// //---------------------------------------------------------------------------------------------------------------------------------------------------------
+// float3 ScreenSpaceDither( float2 vScreenPos )
+// {
+// 	//if ( Blink( 1.5 ) )
+// 	//	return 0.0;
+
+// 	//if ( ( int )vScreenPos.y == 840 )
+// 	//	return 0.3;
+// 	//if ( vScreenPos.y < 840 )
+// 	//	return 0.0;
+
+// 	float3 vDither = dot( float2( 171.0, 231.0 ), vScreenPos.xy + g_flTime.xx ).xxx;
+// 	vDither.rgb = frac( vDither.rgb / float3( 103.0, 71.0, 97.0 ) ) - float3( 0.5, 0.5, 0.5 );
+// 	return ( vDither.rgb / 255.0 ) * 0.375;
+// }
+
+
+float4 ScreenSpaceDither( float2 vScreenPos )
 {
 	//if ( Blink( 1.5 ) )
 	//	return 0.0;
@@ -30,7 +46,7 @@ float3 ScreenSpaceDither( float2 vScreenPos )
 
 	float3 vDither = dot( float2( 171.0, 231.0 ), vScreenPos.xy + g_flTime.xx ).xxx;
 	vDither.rgb = frac( vDither.rgb / float3( 103.0, 71.0, 97.0 ) ) - float3( 0.5, 0.5, 0.5 );
-	return ( vDither.rgb / 255.0 ) * 0.375;
+	return ( float4(vDither.rgbr ) / 255.0 ) * 0.375;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------

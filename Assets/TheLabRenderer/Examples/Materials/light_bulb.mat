@@ -8,7 +8,7 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: light_bulb
   m_Shader: {fileID: 4800000, guid: 908b379d4818cd64184b95a21123d909, type: 3}
-  m_ShaderKeywords: S_SPECULAR_NONE S_UNLIT _EMISSION
+  m_ShaderKeywords: S_SPECULAR_NONE S_UNLIT _DETAIL_MULX2 _EMISSION
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -67,6 +67,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - g_tBRDFMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - g_tOverrideLightmap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -75,9 +79,11 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DetailMode: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EmissionFalloff: 0
+    - _EmissiveMode: 0
     - _FogMultiplier: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -85,18 +91,24 @@ Material:
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
+    - _NormalToOcclusion: 1
     - _OcclusionStrength: 1
     - _OcclusionStrengthDirectDiffuse: 1
     - _OcclusionStrengthDirectSpecular: 1
     - _OcclusionStrengthIndirectDiffuse: 1
     - _OcclusionStrengthIndirectSpecular: 1
+    - _OffsetFactor: 0
+    - _OffsetUnits: 0
+    - _PackingMode: 0
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
+    - _SpecMod: 1
     - _SpecularHighlights: 1
     - _SpecularMode: 0
     - _SrcBlend: 1
     - _Test: 0
     - _UVSec: 0
+    - _VertexMode: 0
     - _ZWrite: 1
     - g_bCastShadows: 1
     - g_bReceiveShadows: 1

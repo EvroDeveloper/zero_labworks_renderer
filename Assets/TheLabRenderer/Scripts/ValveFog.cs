@@ -21,12 +21,13 @@ public class ValveFog : MonoBehaviour
 	public float heightFogBaseHeight = -40.0f;
 
 	// Textures
+    
 	private Texture2D gradientFogTexture;
 
 	void Start()
 	{
 		UpdateConstants();
-	}
+    }
 
 	void OnEnable()
 	{

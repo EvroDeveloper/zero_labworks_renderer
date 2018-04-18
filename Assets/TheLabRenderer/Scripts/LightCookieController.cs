@@ -18,15 +18,12 @@ public class LightCookieController : MonoBehaviour {
     [SerializeField]
     static public Texture2DArray CookieArray;
 
-  //  public RenderTexture TempRT;
-      //  public Texture2D tempTex;
-
 
     public void OnValidate()
     {
         if (FindObjectsOfType<LightCookieController>().Length > 1)
         {
-            Debug.LogError("Found Another Instance of cookie Controller in scene");
+            Debug.LogError("Found another instance of Cookie Controller in scene");
             return;
         }
 
@@ -44,7 +41,7 @@ public class LightCookieController : MonoBehaviour {
 
         if (FindObjectsOfType<LightCookieController>().Length > 1)
         {
-            Debug.LogError("Found Another Instance of cookie Controller in scene");
+            Debug.LogError("Found another instance of Cookie Controller in scene");
             return;
         }
 
@@ -61,7 +58,7 @@ public class LightCookieController : MonoBehaviour {
         {
             if (tex == null)
             {
-                Debug.LogError("Cookie list Can not have empty texture slots");
+                Debug.LogError("Cookie list can not have empty texture slots");
                 return;
             }
         }
@@ -71,29 +68,35 @@ public class LightCookieController : MonoBehaviour {
             Debug.LogError("Cookie texture list is empty");
             return;
         }
-        //Make Cookie Texture Array :: Is linear for color blending, input textures should keep srgb color enabled
-
+        //Make Cookie Texture Array :: Is linear for color blending, input textures should keep sRGB color enabled
+        
         CookieArray = new Texture2DArray(MasterCookieResolution, MasterCookieResolution, CookieList.Length, TextureFormat.ARGB32, true, true);
-        Texture2D tempTex = new Texture2D(MasterCookieResolution, MasterCookieResolution, TextureFormat.ARGB32, true);
-        RenderTexture TempRT = new RenderTexture(MasterCookieResolution, MasterCookieResolution, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear );
+        Texture2D tempTex = new Texture2D(MasterCookieResolution, MasterCookieResolution, TextureFormat.ARGB32, false, true);
+        RenderTexture TempRT = new RenderTexture(MasterCookieResolution, MasterCookieResolution, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+                
 
         TempRT.Create();
+
+
         //Casting Array to RT to normalize texture sizes and avoid setting restrictions
 
+       
         for (int i = 0; i < CookieList.Length; i++)
         {
             Graphics.Blit(CookieList[i], TempRT);
-
+            
             //Move RT to tex2D to get pixels
             RenderTexture.active = TempRT;
             tempTex.ReadPixels(new Rect(0, 0, TempRT.width, TempRT.height), 0, 0);
+            
             tempTex.Apply();
 
             //Set Pixels to array
              CookieArray.SetPixels32(tempTex.GetPixels32(0), i, 0);
+                
         }
 
-        CookieArray.Apply();
+        CookieArray.Apply(true);
 
         //clear from memory
 
@@ -111,7 +114,9 @@ public class LightCookieController : MonoBehaviour {
 
     public void ApplyArray()
     {
-        Shader.SetGlobalTexture("g_tVrLightCookieTexture", CookieArray);               
+        Shader.SetGlobalTexture("g_tVrLightCookieTexture", CookieArray);
+
+       // AssetDatabase.CreateAsset(CookieArray, "Assets/hellothere.asset");
     }
 
 }

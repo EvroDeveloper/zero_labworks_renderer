@@ -213,7 +213,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 	SubShader
 	{
-		Tags{ "RenderType" = "Transparent" "PerformanceChecks" = "False" }
+		Tags{ "RenderType" = "ValveTransparent" "PerformanceChecks" = "False" }
 		LOD 300
 
 		Pass
