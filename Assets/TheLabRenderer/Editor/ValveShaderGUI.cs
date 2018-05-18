@@ -66,19 +66,23 @@ internal class ValveShaderGUI : ShaderGUI
 
 		public static string emptyTootip = "";
 		public static GUIContent albedoText = new GUIContent("Albedo", "Albedo (RGB) and Transparency (A)");
-        public static GUIContent BRDFMapText = new GUIContent("BRDF Map", "Remaps shading to color ramp. Compared to the normal, X is direction to the light, Y is direction from camera.");
+        public static GUIContent BRDFMapText = new GUIContent("BRDF LUT", "Remaps shading to color ramp. Compared to the normal, X is direction to the light, Y is direction from camera.");
         public static GUIContent colorMaskText = new GUIContent("Color Mask", "Multiplys albedo per color channel");
 		public static GUIContent alphaCutoffText = new GUIContent("Alpha Cutoff", "Threshold for alpha cutoff");
-        public static GUIContent FluorescenceText = new GUIContent("Fluorescence", "Fluorescence (RGB), takes MAX color value of this and albedo");
+        public static GUIContent FluorescenceText = new GUIContent("Fluorescence", "Fluorescence. Absorbs light and re-emits at a longer wavelength. MAX color value of this and albedo");
+        public static GUIContent AbsorbanceText = new GUIContent("Absorbance Color", "Absorbance Color");
 		public static GUIContent specularMapText = new GUIContent("Specular", "Reflectance (RGB) and Gloss (A)");
 		public static GUIContent reflectanceMinText = new GUIContent( "Reflectance Min", "" );
 		public static GUIContent reflectanceMaxText = new GUIContent( "Reflectance Max", "" );
         public static GUIContent metallicMapText = new GUIContent("Metallic", "Metallic (R), Gloss (A) ");
         public static GUIContent specularModText = new GUIContent("Smoothness Scaler", "Smoothness Multiplier");
-		public static GUIContent smoothnessText = new GUIContent("Gloss", "");
-        public static GUIContent smoothnessText2 = new GUIContent("Gloss2", "");
-		public static GUIContent normalMapText = new GUIContent("Normal", "Normal Map");
-		public static GUIContent heightMapText = new GUIContent("Height Map", "Height Map (G)");
+        public static GUIContent anisotropicRatioText = new GUIContent("Anisotropic Ratio", "");
+        public static GUIContent anisotropicRotationText = new GUIContent("Anisotropic Rotation", "");
+        public static GUIContent smoothnessText = new GUIContent("Gloss", "");
+        public static GUIContent normalMapText = new GUIContent("Normal", "Normal Map");
+		public static GUIContent heightMapText = new GUIContent("Parallax Map", "Parallax Map (R), Float controls depth");
+        public static GUIContent heightIterationsText = new GUIContent("Iterations", "More iterations reduces artifacts but makes material heavier. Use with care.");
+        public static GUIContent heightOffsetText = new GUIContent("Zero Plane Offset","");
         public static GUIContent fresnelfallofftext = new GUIContent("Fresnel Falloff Scalar", "Added Fresnel falloff contribution");
         public static GUIContent fresnelExponentText = new GUIContent("Fresnel Exponent", "");
 		public static GUIContent cubeMapScalarText = new GUIContent( "Cube Map Scalar", "Multiplier for overall reflections" );
@@ -146,7 +150,8 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty metallic = null;
     MaterialProperty SpecularMod = null;
 	MaterialProperty smoothness = null;
-    MaterialProperty smoothness2 = null;
+    MaterialProperty AnisotropicRotation = null;
+    MaterialProperty AnisotropicRatio = null;    
 	MaterialProperty bumpScale = null;
 	MaterialProperty bumpMap = null;
     MaterialProperty FresnelFalloffScalar = null;
@@ -161,12 +166,15 @@ internal class ValveShaderGUI : ShaderGUI
 	MaterialProperty occlusionStrengthIndirectSpecular = null;
 	MaterialProperty heigtMapScale = null;
 	MaterialProperty heightMap = null;
-	MaterialProperty emissionColorForRendering = null;
+    MaterialProperty heightIterations = null;
+    MaterialProperty heightOffset = null;
+    MaterialProperty emissionColorForRendering = null;
 	MaterialProperty emissionMap = null;
     MaterialProperty emissionFalloff = null;
     MaterialProperty fluorescenceMap = null;
     MaterialProperty fluorescenceColor = null;
-	MaterialProperty detailMask = null;
+    MaterialProperty AbsorbanceColor = null;
+    MaterialProperty detailMask = null;
 	MaterialProperty detailAlbedoMap = null;
 	MaterialProperty detailNormalMapScale = null;
 	MaterialProperty detailNormalMap = null;
@@ -214,12 +222,15 @@ internal class ValveShaderGUI : ShaderGUI
 		metallicMap = FindProperty ("_MetallicGlossMap", props, false);
 		metallic = FindProperty ("_Metallic", props, false);
 		smoothness = FindProperty ("_Glossiness", props);
-        smoothness2 = FindProperty("_Glossiness2", props);
+        AnisotropicRatio = FindProperty("_AnisotropicRatio", props);
+        AnisotropicRotation = FindProperty("_AnisotropicRotation", props);
         SpecularMod = FindProperty("_SpecMod", props);
 		bumpScale = FindProperty ("_BumpScale", props);
 		bumpMap = FindProperty ("_BumpMap", props);
 		heigtMapScale = FindProperty ("_Parallax", props);
 		heightMap = FindProperty("_ParallaxMap", props);
+        heightIterations = FindProperty("_ParallaxIterations", props);  
+        heightOffset = FindProperty("_ParallaxOffset", props);  
         FresnelFalloffScalar = FindProperty("g_flFresnelFalloff", props);
         FresnelExponent = FindProperty("g_flFresnelExponent", props);
         NormalToOcclusion = FindProperty("_NormalToOcclusion", props);
@@ -235,7 +246,8 @@ internal class ValveShaderGUI : ShaderGUI
         emissionFalloff = FindProperty("_EmissionFalloff", props);
         fluorescenceMap = FindProperty ("_FluorescenceMap", props);
         fluorescenceColor = FindProperty ("_FluorescenceColor", props);
-		detailMask = FindProperty ("_DetailMask", props);
+        AbsorbanceColor = FindProperty("_Absorbance", props);
+        detailMask = FindProperty ("_DetailMask", props);
 		detailAlbedoMap = FindProperty ("_DetailAlbedoMap", props);
 		detailNormalMapScale = FindProperty ("_DetailNormalMapScale", props);
 		detailNormalMap = FindProperty ("_DetailNormalMap", props);
@@ -256,15 +268,16 @@ internal class ValveShaderGUI : ShaderGUI
 	public override void OnGUI (MaterialEditor materialEditor, MaterialProperty[] props)
 	{
                  
-            FindProperties (props); // MaterialProperties can be animated so we do not cache them but fetch them every event to ensure animated values are updated correctly
+        FindProperties (props); // MaterialProperties can be animated so we do not cache them but fetch them every event to ensure animated values are updated correctly
 		m_MaterialEditor = materialEditor;
 		Material material = materialEditor.target as Material;
 
 		ShaderPropertiesGUI (material);
+        base.OnGUI(m_MaterialEditor, props);  //Default GUI, hid redundent properties shader side
 
-		// Make sure that needed keywords are set up if we're switching some existing
-		// material to a standard shader.
-		if (m_FirstTimeApply)
+            // Make sure that needed keywords are set up if we're switching some existing
+            // material to a standard shader.
+            if (m_FirstTimeApply)
 		{
 			SetMaterialKeywords (material);
 			m_FirstTimeApply = false;
@@ -293,12 +306,23 @@ internal class ValveShaderGUI : ShaderGUI
 
             VertexModePopup();
 
-            TexturePackingPopup();
 
-			if ( !bUnlit )
-			{
-				SpecularModePopup();
-			}
+
+                if (!bUnlit)
+                {
+                    SpecularModePopup();
+
+                    if ((SpecularMode)material.GetInt("_SpecularMode") == SpecularMode.Metallic)
+                    {
+                        TexturePackingPopup();
+                    }
+                    else
+                    {
+                        material.SetInt("_PackingMode", (int)TexturePackingMode.None) ;
+                    }
+            }
+
+            
 
             m_MaterialEditor.ShaderProperty(castShadows, Styles.castShadowsText.text);
             bool bCastShadows = (castShadows.floatValue != 0.0f);
@@ -315,9 +339,7 @@ internal class ValveShaderGUI : ShaderGUI
 			GUILayout.Label( Styles.primaryMapsText, EditorStyles.boldLabel );
 			DoAlbedoArea( material );
 
-            DoBRDFArea(material);
 
-            DoColorShiftArea(material);
             
 			if ( !bUnlit )
 			{
@@ -326,7 +348,7 @@ internal class ValveShaderGUI : ShaderGUI
                 m_MaterialEditor.ShaderProperty(FresnelFalloffScalar, Styles.fresnelfallofftext.text, 0);
                 m_MaterialEditor.ShaderProperty(FresnelExponent, Styles.fresnelExponentText.text, 0);
 				m_MaterialEditor.TexturePropertySingleLine( Styles.normalMapText, bumpMap, bumpMap.textureValue != null ? bumpScale : null );
-                if (bumpMap.textureValue != null)  m_MaterialEditor.ShaderProperty(NormalToOcclusion, Styles.NormalToOcclusionText.text, 0);
+                if (bumpMap.textureValue != null)  m_MaterialEditor.ShaderProperty(NormalToOcclusion, Styles.NormalToOcclusionText.text, 1);
 
                 if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.None)
                 {
@@ -350,12 +372,24 @@ internal class ValveShaderGUI : ShaderGUI
 			}
 
             DoEmissionArea(material);
-          	//m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
-			
-		
 
-            
-			EditorGUI.BeginChangeCheck(); // !!! AV - This is from Unity's script. Can these Begin/End calls be nested like this?
+
+                m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
+
+                if (heightMap.textureValue != null)
+                {
+ 
+                    float ParaIte = (material.GetFloat("_ParallaxIterations"));
+                    if ((ParaIte % 1) != 0) ParaIte -= ParaIte % 1;
+                    material.SetFloat("_ParallaxIterations", ParaIte);              
+                    m_MaterialEditor.ShaderProperty(heightIterations, Styles.heightIterationsText, 2);
+                   // m_MaterialEditor.ShaderProperty(heightOffset, Styles.heightOffsetText, 2);
+
+
+                }
+
+
+                EditorGUI.BeginChangeCheck(); // !!! AV - This is from Unity's script. Can these Begin/End calls be nested like this?
 
             		
 			m_MaterialEditor.TextureScaleOffsetProperty( albedoMap );
@@ -370,13 +404,19 @@ internal class ValveShaderGUI : ShaderGUI
 			// Secondary properties
 			GUILayout.Label( Styles.secondaryMapsText, EditorStyles.boldLabel );
 
-           
+                DoBRDFArea(material);
+                DoColorShiftArea(material);
 
-            m_MaterialEditor.TexturePropertySingleLine(Styles.detailMaskText, detailMask);
-            EditorGUILayout.Space();
+                EditorGUILayout.Space();
+
+
+        
 
             DetailModePopup();
-			m_MaterialEditor.TexturePropertySingleLine( Styles.detailAlbedoText, detailAlbedoMap );
+
+                m_MaterialEditor.TexturePropertySingleLine(Styles.detailMaskText, detailMask);
+
+                m_MaterialEditor.TexturePropertySingleLine( Styles.detailAlbedoText, detailAlbedoMap );
 			if ( !bUnlit )
 			{
 				m_MaterialEditor.TexturePropertySingleLine( Styles.detailNormalMapText, detailNormalMap, detailNormalMapScale );
@@ -420,6 +460,16 @@ internal class ValveShaderGUI : ShaderGUI
                 EditorGUILayout.Space();
 
                 //  EditorGUILayout.Toggle
+
+
+          
+
+
+
+
+
+
+
 
             }
 		if ( EditorGUI.EndChangeCheck() )
@@ -531,10 +581,12 @@ internal class ValveShaderGUI : ShaderGUI
 
     void TexturePackingPopup()
     {
+       
+
         EditorGUI.showMixedValue = PackingMode.hasMixedValue;
         var mode = (TexturePackingMode)PackingMode.floatValue;
 
-        EditorGUI.BeginChangeCheck();
+        EditorGUI.BeginChangeCheck();            
         mode = (TexturePackingMode)EditorGUILayout.Popup(Styles.PackingModeText, (int)mode, Styles.PackingNames);
         if (EditorGUI.EndChangeCheck())
         {
@@ -586,8 +638,15 @@ internal class ValveShaderGUI : ShaderGUI
 
     void DoFluorescenceArea(Material material)
     {
-        m_MaterialEditor.TexturePropertySingleLine(Styles.FluorescenceText, fluorescenceMap, fluorescenceColor);
-    }
+            if (fluorescenceMap.textureValue != null || (material.GetColor("_FluorescenceColor")).maxColorComponent > 0 ) {
+                m_MaterialEditor.TexturePropertyTwoLines(Styles.FluorescenceText, fluorescenceMap, fluorescenceColor, Styles.AbsorbanceText, AbsorbanceColor);
+            }
+            else
+            {
+                m_MaterialEditor.TexturePropertySingleLine(Styles.FluorescenceText, fluorescenceMap, fluorescenceColor);
+            }
+
+        }
 
 
     void DoColorShiftArea(Material material)
@@ -639,8 +698,8 @@ internal class ValveShaderGUI : ShaderGUI
 			using ( new EditorGUI.DisabledScope( !shouldEmissionBeEnabled ) )
 			{
                if (unlit.floatValue == 0) m_MaterialEditor.ShaderProperty(emissionFalloff, Styles.emissionFalloffText.text, 2);
-                m_MaterialEditor.ShaderProperty(emissiveMode, Styles.emissiveMode.text);
-				m_MaterialEditor.LightmapEmissionProperty( MaterialEditor.kMiniTextureFieldLabelIndentLevel + 1 );
+                m_MaterialEditor.ShaderProperty(emissiveMode, Styles.emissiveMode.text, 2);
+				m_MaterialEditor.LightmapEmissionProperty( MaterialEditor.kMiniTextureFieldLabelIndentLevel );
 
 			}
 		}
@@ -707,11 +766,15 @@ internal class ValveShaderGUI : ShaderGUI
             if (metallicMap.textureValue == null)
             {
                 m_MaterialEditor.TexturePropertyTwoLines(MetallicDis, metallicMap, metallic, Styles.smoothnessText, smoothness);
-                m_MaterialEditor.ShaderProperty(smoothness2, Styles.smoothnessText2);
+
+                    m_MaterialEditor.ShaderProperty(AnisotropicRatio , Styles.anisotropicRatioText, 1 );
+                   // m_MaterialEditor.ShaderProperty(AnisotropicRotation, Styles.anisotropicRotationText);
+           //     m_MaterialEditor.ShaderProperty(smoothness2, Styles.smoothnessText2,3);
             }
             else
                 m_MaterialEditor.TexturePropertySingleLine(MetallicDis, metallicMap);
-        }
+                m_MaterialEditor.ShaderProperty(AnisotropicRotation, Styles.anisotropicRotationText, 1 );
+            }
         else if (specularMode == SpecularMode.Retroreflective)
 
         {
@@ -996,8 +1059,9 @@ internal class ValveShaderGUI : ShaderGUI
 			if (!shouldEmissionBeEnabled)
 				flags |= MaterialGlobalIlluminationFlags.EmissiveIsBlack;
 
-			material.globalIlluminationFlags = flags;
-		}
+			material.globalIlluminationFlags = flags;                  
+             
+        }
 
 		// Reflectance constants
 		float flReflectanceMin = material.GetFloat( "g_flReflectanceMin" );

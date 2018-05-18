@@ -523,4 +523,37 @@ float CalculateDistanceToCamera( float3 vPositionWs )
 	return length( g_vCameraPositionWs.xyz - vPositionWs.xyz );
 }
 
+				
+float2 IterativeParallax27_g1( sampler2D tex , float2 UVs , float2 plane , int ite , float refp , float scale )
+{
+	UVs += plane * scale * refp * ite;
+	for(int i = 0; i < ite; i++)
+	{
+		UVs += (tex2D(tex, UVs).g - 1) * plane * scale;
+	}
+	return UVs;
+}
+
+float2 PremeczParallax( sampler2D hMap , float2 UVs , float2 View , int ITERATION , float BIAS, float SCALE )
+{
+
+	for(int i = 0; i < ITERATION; i++) 
+	{
+		float Normal = 1 - tex2D(hMap, UVs).b;
+		float h = (Normal * SCALE) + BIAS;
+		UVs += (h * Normal)  * View;
+	}
+	return UVs;
+	//http://old.cescg.org/CESCG-2006/papers/TUBudapest-Premecz-Matyas.pdf
+
+//
+// for(int i = 0; i < ITERATION; i++) {
+// float4 Normal = tex2D(hMap, uv);
+// float h = Normal.a * SCALE + BIAS;
+// uv += (h - uv.z) * Normal.z * View;
+//}
+}
+
+
+
 #endif

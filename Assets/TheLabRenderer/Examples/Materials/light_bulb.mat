@@ -110,6 +110,10 @@ Material:
     - _UVSec: 0
     - _VertexMode: 0
     - _ZWrite: 1
+    - g_Absorbed_ReflectanceBias: 0
+    - g_Absorbed_ReflectanceMax: 1
+    - g_Absorbed_ReflectanceMin: 0
+    - g_Absorbed_ReflectanceScale: 1
     - g_bCastShadows: 1
     - g_bReceiveShadows: 1
     - g_bRenderBackfaces: 0
@@ -123,6 +127,7 @@ Material:
     - g_flReflectanceMin: 0
     - g_flReflectanceScale: 1
     m_Colors:
+    - _Absorbance: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
     - _Color: {r: 0.35294116, g: 0.35294116, b: 0.35294116, a: 1}
     - _ColorShift1: {r: 1, g: 1, b: 1, a: 1}
     - _ColorShift2: {r: 1, g: 1, b: 1, a: 1}

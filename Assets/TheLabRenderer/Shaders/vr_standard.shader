@@ -6,83 +6,87 @@ Shader "Valve/vr_standard"
 {
 	Properties
 	{
-		[Toggle( S_UNLIT )] g_bUnlit( "g_bUnlit", Int ) = 0
+		[HideInInspector] [Toggle( S_UNLIT )] g_bUnlit( "g_bUnlit", Int ) = 0
 
-		_Color( "Color", Color ) = ( 1, 1, 1, 1 )
-		_MainTex( "Albedo", 2D ) = "white" {}
+		[HideInInspector] _Color( "Color", Color ) = ( 1, 1, 1, 1 )
+		[HideInInspector] _MainTex( "Albedo", 2D ) = "white" {}
 
-		g_tBRDFMap("BRDF Map", 2D) = "grey" {} 
+		[HideInInspector] g_tBRDFMap("BRDF Map", 2D) = "grey" {} 
 
-		_ColorMask( "Color Mask", 2D ) = "white" {}
-		_ColorShift1( "Color Shift 1", Color ) = ( 1, 1, 1 )
-		_ColorShift2( "Color Shift 2", Color ) = ( 1, 1, 1 )
-		_ColorShift3( "Color Shift 3", Color ) = ( 1, 1, 1 )
+		[HideInInspector] _ColorMask( "Color Mask", 2D ) = "white" {}
+		[HideInInspector] _ColorShift1( "Color Shift 1", Color ) = ( 1, 1, 1 )
+		[HideInInspector] _ColorShift2( "Color Shift 2", Color ) = ( 1, 1, 1 )
+		[HideInInspector] _ColorShift3( "Color Shift 3", Color ) = ( 1, 1, 1 )
 
-		_Cutoff( "Alpha Cutoff", Range( 0.0, 1.0 ) ) = 0.5
+		[HideInInspector] _Cutoff( "Alpha Cutoff", Range( 0.0, 1.0 ) ) = 0.5
 
-		_Glossiness("Smoothness", Range(0.0, 1.0)) = 0.5
-		_Glossiness2("Anisotropic Smoothness", Range(0.0, 1.0)) = 0.5
-		_SpecColor("Specular", Color) = (0.2,0.2,0.2)
-		_SpecGlossMap("Specular", 2D) = "white" {}
+		[HideInInspector] _Glossiness("Smoothness", Range(0.0, 1.0)) = 0.5
+	//	[HideInInspector] _Glossiness2("Anisotropic Smoothness", Range(0.0, 1.0)) = 0.5
+		[HideInInspector] _AnisotropicRotation("Anisotropic Rotation" , Range(0.0, 1.0)) = 0.5
+		[HideInInspector][Gamma] _AnisotropicRatio("Anisotropic Ratio" , range (0.0,1.0)   ) = 0.5
+		[HideInInspector] _SpecColor("Specular", Color) = (0.2,0.2,0.2)
+		[HideInInspector] _SpecGlossMap("Specular", 2D) = "white" {}
 
-		g_flReflectanceMin( "g_flReflectanceMin", Range( 0.0, 1.0 ) ) = 0.0
-		g_flReflectanceMax( "g_flReflectanceMax", Range( 0.0, 1.0 ) ) = 1.0
+		[HideInInspector] g_flReflectanceMin( "g_flReflectanceMin", Range( 0.0, 1.0 ) ) = 0.0
+		[HideInInspector] g_flReflectanceMax( "g_flReflectanceMax", Range( 0.0, 1.0 ) ) = 1.0
 		[HideInInspector] g_flReflectanceScale( "g_flReflectanceScale", Range( 0.0, 1.0 ) ) = 1.0
 		[HideInInspector] g_flReflectanceBias( "g_flReflectanceBias", Range( 0.0, 1.0 ) ) = 0.0
 
-		[Gamma] _Metallic( "Metallic", Range( 0.0, 1.0 ) ) = 0.0
-		_MetallicGlossMap( "Metallic", 2D ) = "white" {}
+		[HideInInspector] [Gamma] _Metallic( "Metallic", Range( 0.0, 1.0 ) ) = 0.0
+		[HideInInspector] _MetallicGlossMap( "Metallic", 2D ) = "white" {}
 
-		_SpecMod( "Specular Mod", Range( 0.0, 2.0 ) ) = 1.0
+		[HideInInspector] _SpecMod( "Specular Mod", Range( 0.0, 2.0 ) ) = 1.0
 
-		_BumpScale( "Scale", Float ) = 1.0
-		[Normal] _BumpMap( "Normal Map", 2D ) = "bump" {}
+		[HideInInspector] _BumpScale( "Scale", Float ) = 1.0
+		[HideInInspector]  [Normal] _BumpMap( "Normal Map", 2D ) = "bump" {}
 
-		_NormalToOcclusion("Normal To Occlusion", Range(0.0, 2.0)) = 1.0
+		[HideInInspector] _NormalToOcclusion("Normal To Occlusion", Range(0.0, 2.0)) = 1.0
 
-		_Parallax ( "Height Scale", Range ( 0.005, 0.10 ) ) = 0.02
-		_ParallaxMap ( "Height Map", 2D ) = "black" {}
+		[HideInInspector] _Parallax ( "Height Scale", float ) = -0.02
+		[HideInInspector] _ParallaxMap ( "Height Map", 2D ) = "black" {}
+		[HideInInspector]_ParallaxIterations ("Parallax Iterations", Range(1.0,32.0) ) = 1.0
+		[HideInInspector]_ParallaxOffset ("Parallax Offset", Float ) = 0.0 //Need to debug
 
-		_OcclusionStrength( "Strength", Range( 0.0, 1.0 ) ) = 1.0
-		_OcclusionMap( "Occlusion", 2D ) = "white" {}
-		_OcclusionStrengthDirectDiffuse( "StrengthDirectDiffuse", Range( 0.0, 1.0 ) ) = 1.0
-		_OcclusionStrengthDirectSpecular( "StrengthDirectSpecular", Range( 0.0, 1.0 ) ) = 1.0
-		_OcclusionStrengthIndirectDiffuse( "StrengthIndirectDiffuse", Range( 0.0, 1.0 ) ) = 1.0
-		_OcclusionStrengthIndirectSpecular( "StrengthIndirectSpecular", Range( 0.0, 1.0 ) ) = 1.0
+		[HideInInspector] _OcclusionStrength( "Strength", Range( 0.0, 1.0 ) ) = 1.0
+		[HideInInspector] _OcclusionMap( "Occlusion", 2D ) = "white" {}
+		[HideInInspector] _OcclusionStrengthDirectDiffuse( "StrengthDirectDiffuse", Range( 0.0, 1.0 ) ) = 1.0
+		[HideInInspector] _OcclusionStrengthDirectSpecular( "StrengthDirectSpecular", Range( 0.0, 1.0 ) ) = 1.0
+		[HideInInspector] _OcclusionStrengthIndirectDiffuse( "StrengthIndirectDiffuse", Range( 0.0, 1.0 ) ) = 1.0
+		[HideInInspector] _OcclusionStrengthIndirectSpecular( "StrengthIndirectSpecular", Range( 0.0, 1.0 ) ) = 1.0
 
-		g_flFresnelFalloff ("Fresnel Falloff Scalar" , Range(0.0 , 1.0 ) ) = 1.0
-		g_flFresnelExponent ( "Fresnel Exponent", Range( 0.5, 10.0 ) ) = 5.0
-		g_flCubeMapScalar( "Cube Map Scalar", Range( 0.0, 2.0 ) ) = 1.0
+		[HideInInspector] g_flFresnelFalloff ("Fresnel Falloff Scalar" , Range(0.0 , 1.0 ) ) = 1.0
+		[HideInInspector] g_flFresnelExponent ( "Fresnel Exponent", Range( 0.5, 10.0 ) ) = 5.0
+		[HideInInspector] g_flCubeMapScalar( "Cube Map Scalar", Range( 0.0, 2.0 ) ) = 1.0
 
-		[HDR]_EmissionColor( "Emissive Color", Color ) = ( 0, 0, 0 )
-		_EmissionMap( "Emission", 2D ) = "white" {}
-		_EmissionFalloff("Emission Falloff" , Range( 0.0, 10.0 ) ) = 0.0
+		[HideInInspector] [HDR]_EmissionColor( "Emissive Color", Color ) = ( 0, 0, 0 )
+		[HideInInspector] _EmissionMap( "Emission", 2D ) = "white" {}
+		[HideInInspector] _EmissionFalloff("Emission Falloff" , Range( 0.0, 10.0 ) ) = 0.0
 
-		_FluorescenceMap( "Fluorescence", 2D ) = "white" {}
-		_FluorescenceColor("Fluorescence Color" , Color ) = (0,0,0)
-		
-		_DetailMask( "Detail Mask", 2D ) = "white" {}
+		[HideInInspector] _FluorescenceMap( "Fluorescence", 2D ) = "white" {}
+		[HideInInspector] _FluorescenceColor("Fluorescence Color" , Color ) = (0,0,0)
+		[HideInInspector] _Absorbance("Absorbance Color" , Color ) = (0.1,0.25,0.5,1.0)
+		[HideInInspector] _DetailMask( "Detail Mask", 2D ) = "white" {}
 
-		_DetailAlbedoMap( "Detail Albedo x2", 2D ) = "grey" {}
-		_DetailNormalMapScale( "Scale", Float ) = 1.0
-		_DetailNormalMap( "Normal Map", 2D ) = "bump" {}
+		[HideInInspector] _DetailAlbedoMap( "Detail Albedo x2", 2D ) = "grey" {}
+		[HideInInspector] _DetailNormalMapScale( "Scale", Float ) = 1.0
+		[HideInInspector] _DetailNormalMap( "Normal Map", 2D ) = "bump" {}
 			
-		g_tOverrideLightmap( "Override Lightmap", 2D ) = "white" {}
+		[HideInInspector] g_tOverrideLightmap( "Override Lightmap", 2D ) = "white" {}
 
-		[Enum(UV0,0,UV1,1)] _UVSec ( "UV Set for secondary textures", Float ) = 0
+		[HideInInspector] [Enum(UV0,0,UV1,1)] _UVSec ( "UV Set for secondary textures", Float ) = 0
 
-		[Toggle( D_CASTSHADOW )] g_bCastShadows("g_bCastShadows", Int) = 1
+		[HideInInspector] [Toggle( D_CASTSHADOW )] g_bCastShadows("g_bCastShadows", Int) = 1
 
-		[Toggle( S_RECEIVE_SHADOWS )] g_bReceiveShadows( "g_bReceiveShadows", Int ) = 1
+		[HideInInspector] [Toggle( S_RECEIVE_SHADOWS )] g_bReceiveShadows( "g_bReceiveShadows", Int ) = 1
 
-		[Toggle( S_RENDER_BACKFACES )] g_bRenderBackfaces( "g_bRenderBackfaces", Int ) = 0
+		[HideInInspector] [Toggle( S_RENDER_BACKFACES )] g_bRenderBackfaces( "g_bRenderBackfaces", Int ) = 0
 
-		[Toggle( S_EMISSIVE_MULTI )] _EmissiveMode ("__emissiveMode", Int) = 0
+		[HideInInspector] [Toggle( S_EMISSIVE_MULTI )] _EmissiveMode ("__emissiveMode", Int) = 0
 
-		[Toggle( S_WORLD_ALIGNED_TEXTURE )] g_bWorldAlignedTexture( "g_bWorldAlignedTexture", Int ) = 0
-		g_vWorldAlignedTextureSize( "g_vWorldAlignedTextureSize", Vector ) = ( 1.0, 1.0, 1.0, 0.0 )
-		g_vWorldAlignedTextureNormal( "g_vWorldAlignedTextureNormal", Vector ) = ( 0.0, 1.0, 0.0, 0.0 )
-		g_vWorldAlignedTexturePosition( "g_vWorldAlignedTexturePosition", Vector ) = ( 0.0, 0.0, 0.0, 0.0 )
+		[HideInInspector] [Toggle( S_WORLD_ALIGNED_TEXTURE )] g_bWorldAlignedTexture( "g_bWorldAlignedTexture", Int ) = 0
+		[HideInInspector] g_vWorldAlignedTextureSize( "g_vWorldAlignedTextureSize", Vector ) = ( 1.0, 1.0, 1.0, 0.0 )
+		[HideInInspector] g_vWorldAlignedTextureNormal( "g_vWorldAlignedTextureNormal", Vector ) = ( 0.0, 1.0, 0.0, 0.0 )
+		[HideInInspector] g_vWorldAlignedTexturePosition( "g_vWorldAlignedTexturePosition", Vector ) = ( 0.0, 0.0, 0.0, 0.0 )
 		[HideInInspector] g_vWorldAlignedNormalTangentU( "g_vWorldAlignedNormalTangentU", Vector ) = ( -1.0, 0.0, 0.0, 0.0)
 		[HideInInspector] g_vWorldAlignedNormalTangentV( "g_vWorldAlignedNormalTangentV", Vector ) = ( 0.0, 0.0, 1.0, 0.0)
 
@@ -172,6 +176,7 @@ Shader "Valve/vr_standard"
 				#pragma multi_compile _ D_VALVE_SHADOWING_POINT_LIGHTS
 				#pragma multi_compile _ Z_SHAPEAO
 				
+				
 
 				#pragma skip_variants SHADOWS_SOFT
 
@@ -198,7 +203,7 @@ Shader "Valve/vr_standard"
 				#include "UnityCG.cginc"
 				#include "UnityLightingCommon.cginc"
 				#include "UnityStandardUtils.cginc"
-				#include "UnityStandardInput.cginc"
+				#include "vr_StandardInput.cginc"
 				#include "vr_utils.cginc"
 				#include "vr_lighting.cginc"
 				#include "vr_matrix_palette_skinning.cginc"
@@ -211,7 +216,8 @@ Shader "Valve/vr_standard"
 				sampler2D	_FluorescenceMap;
 				sampler2D	_ColorMask;
 				float4		_FluorescenceColor;
-				float		_Glossiness2;
+				float4 		_Absorbance;
+				//float		_Glossiness2;
 				float3		_ColorShift1;
 				float3		_ColorShift2;
 				float3		_ColorShift3;
@@ -220,11 +226,18 @@ Shader "Valve/vr_standard"
 				float 		Dotfresnel;
 				float 		_NormalToOcclusion;
 				float		_SpecMod;
+				float		_ParallaxIterations;
+				float		_ParallaxOffset;
+
+
+
 				
+
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
 				{
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 					float4 vPositionOs : POSITION;
 					float4 vertexColor : COLOR;
 					float3 vNormalOs : NORMAL;
@@ -236,7 +249,7 @@ Shader "Valve/vr_standard"
 						float2 vTexCoord2 : TEXCOORD2;
 					#endif
 
-					#if ( _NORMALMAP )
+					#if ( _NORMALMAP || _PARALLAXMAP )
 						float4 vTangentUOs_flTangentVSign : TANGENT;
 					#endif
 
@@ -247,6 +260,7 @@ Shader "Valve/vr_standard"
 
 				struct PS_INPUT
 				{
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 					float4 vPositionPs : SV_Position;
 
 					float4 vertexColor : COLOR;
@@ -254,6 +268,7 @@ Shader "Valve/vr_standard"
 					#if ( !S_UNLIT )
 						float3 vPositionWs : TEXCOORD0;
 						float3 vNormalWs : TEXCOORD1;
+					
 					#endif
 
 					#if ( _DETAIL )
@@ -270,7 +285,7 @@ Shader "Valve/vr_standard"
 						#endif
 					#endif
 
-					#if ( _NORMALMAP )
+					#if ( _NORMALMAP || _PARALLAXMAP )
 						float3 vTangentUWs : TEXCOORD4;
 						float3 vTangentVWs : TEXCOORD5;
 					#endif
@@ -280,6 +295,8 @@ Shader "Valve/vr_standard"
 					#endif
 				};
 
+				
+
 				float g_flValveGlobalVertexScale = 1.0; // Used to "hide" all valve materials for debugging
 
 				// World-aligned texture
@@ -288,14 +305,22 @@ Shader "Valve/vr_standard"
 				float3 g_vWorldAlignedNormalTangentV = float3( 0.0, 0.0, 1.0 );
 				float3 g_vWorldAlignedTexturePosition = float3( 0.0, 0.0, 0.0 );
 
+
+
 				// MainVs ---------------------------------------------------------------------------------------------------------------------------------------------------
 				PS_INPUT MainVs( VS_INPUT i )
 				{
 					PS_INPUT o = ( PS_INPUT )0;
 
+					//Instancing
+					UNITY_INITIALIZE_OUTPUT(PS_INPUT, o);
+					UNITY_SETUP_INSTANCE_ID(i);
+					UNITY_TRANSFER_INSTANCE_ID(i,o);
+
+
 					#if ( MATRIX_PALETTE_SKINNING )
 					{
-						#if ( _NORMALMAP )
+						#if ( _NORMALMAP || _PARALLAXMAP )
 						{
 							MatrixPaletteSkinning( i.vPositionOs.xyzw, i.vNormalOs.xyz, i.vTangentUOs_flTangentVSign.xyz, i.vBoneIndices.xyzw );
 						}
@@ -305,7 +330,7 @@ Shader "Valve/vr_standard"
 						}
 						#endif
 					}
-					#endif
+					#endif 
 
 					// Position
 					i.vPositionOs.xyzw *= g_flValveGlobalVertexScale; // Used to "hide" all valve materials for debugging
@@ -329,7 +354,7 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
-					#if ( _NORMALMAP )
+					#if ( _NORMALMAP || _PARALLAXMAP )
 					{
 						// TangentU and TangentV
 						float3 vTangentUWs = UnityObjectToWorldDir( i.vTangentUOs_flTangentVSign.xyz ); // Transform tangentU into world space
@@ -337,6 +362,10 @@ Shader "Valve/vr_standard"
 
 						o.vTangentUWs.xyz = vTangentUWs.xyz;
 						o.vTangentVWs.xyz = cross( vNormalWs.xyz, vTangentUWs.xyz ) * i.vTangentUOs_flTangentVSign.w;
+
+						
+
+
 					}
 					#endif
 
@@ -358,6 +387,7 @@ Shader "Valve/vr_standard"
 						#if ( _DETAIL )
 						{
 							o.vTextureCoords.zw = TRANSFORM_TEX( ( ( _UVSec == 0 ) ? i.vTexCoord0 : i.vTexCoord1 ), _DetailAlbedoMap );
+							//float2 detailscale = _DetailAlbedoMap_ST.xy;
 						}
 						#endif
 					}
@@ -391,7 +421,7 @@ Shader "Valve/vr_standard"
 				}
 
 				// MainPs ---------------------------------------------------------------------------------------------------------------------------------------------------
-				#define g_vColorTint _Color
+				//#define g_vColorTint _Color
 				#define g_tColor _MainTex
 				#define g_tNormalMap _BumpMap
 				#define g_flBumpScale _BumpScale
@@ -403,15 +433,14 @@ Shader "Valve/vr_standard"
 				#define g_flDetailNormalScale _DetailNormalMapScale
 				#define g_tFluorescenceMap _FluorescenceMap
 				#define g_vColorFluorescence _FluorescenceColor
+				#define g_vAbsorbance _Absorbance
 				#define g_vColorShift1 _ColorShift1
 				#define g_vColorShift2 _ColorShift2
 				#define g_vColorShift3 _ColorShift3
 				#define g_fEmissionFalloff _EmissionFalloff
-				//#define g_tBRDFMap _BRDFTex;
 				#define g_tParallax _ParallaxMap
 				#define g_fParallaxScale _Parallax
 				#define g_fSpecMod _SpecMod
-
 
 				float g_flReflectanceScale = 1.0;
 				float g_flReflectanceBias = 0.0;
@@ -422,16 +451,7 @@ Shader "Valve/vr_standard"
 				float _OcclusionStrengthIndirectSpecular = 1.0;
 
 				float _FogMultiplier = 1.0;
-				
-				float2 IterativeParallax27_g1( sampler2D tex , float2 UVs , float2 plane , int ite , float refp , float scale )
-				{
-					UVs += plane * scale * refp * ite;
-					for(int i = 0; i < ite; i++)
-					{
-						UVs += (tex2D(tex, UVs).g - 1) * plane * scale;
-					}
-					return UVs;
-				}
+
 
 
 				struct PS_OUTPUT
@@ -447,7 +467,7 @@ Shader "Valve/vr_standard"
 				{
 					PS_OUTPUT o = ( PS_OUTPUT )0;
 
-					
+					UNITY_SETUP_INSTANCE_ID(i);
 
 					//-----------------------------------------------------------//
 					// Negate the world normal if we are rendering the back face //
@@ -463,7 +483,7 @@ Shader "Valve/vr_standard"
 					//---------------//
 					float3 vTangentUWs = float3( 1.0, 0.0, 0.0 );
 					float3 vTangentVWs = float3( 0.0, 1.0, 0.0 );
-					#if ( _NORMALMAP )
+					#if ( _NORMALMAP || _PARALLAXMAP )
 					{
 						vTangentUWs.xyz = i.vTangentUWs.xyz;
 						vTangentVWs.xyz = i.vTangentVWs.xyz;
@@ -491,9 +511,40 @@ Shader "Valve/vr_standard"
 					float3 unPackedTexture = tex2D(_MetallicGlossMap, i.vTextureCoords.xy).rgb;
 
 					#endif
-
 					
+					//-----------------------//
+					//		Parallaxing		//
+					//---------------------//
+					
+					#if (_PARALLAXMAP)
 
+					float3  CamDirTs =  CalculatePositionToCameraDirTs( i.vPositionWs.xyz, vTangentUWs, vTangentVWs, i.vNormalWs.xyz ) ;
+					float2 planes = CamDirTs.zx / CamDirTs.y;
+					float ite = round(_ParallaxIterations);
+					float4 zTextureCoords = float4(0,0,0,0);
+					//float2 tempUVs = IterativeParallax27_g1(  g_tParallax ,  i.vTextureCoords.xy , planes.xy  , ite , 0.0 , g_fParallaxScale / ite );
+					zTextureCoords.xy = PremeczParallax(  g_tParallax ,  i.vTextureCoords.xy , planes.xy  , ite , _ParallaxOffset , g_fParallaxScale / ite );
+					
+					//Add parallaxing to detail maps //FIXIT!_!_!_!_!_!_!_!_!
+					#if ( _DETAIL )
+					 zTextureCoords.zw = (( zTextureCoords.xy - i.vTextureCoords.xy) * _DetailAlbedoMap_ST.xy + i.vTextureCoords.zw) ;  
+					#else
+					zTextureCoords.zw = i.vTextureCoords.zw ;
+					#endif		
+
+					//Attempting to fix world pos for shadows
+					// float3 tempt = float3(( -( zTextureCoords - i.vTextureCoords.xy ) ).xy, 0) + CamDirTs  ;
+					// i.vPositionWs = Vec3TsToWsNormalized(tempt, i.vNormalWs.xyz, vTangentUWs, vTangentVWs );
+
+					#else 
+
+						#if ( _DETAIL )
+						float4 zTextureCoords = i.vTextureCoords;
+						#else
+						float2 zTextureCoords = i.vTextureCoords.xy;
+						#endif
+
+					#endif
 
 
 					//--------//
@@ -511,14 +562,14 @@ Shader "Valve/vr_standard"
 					float3 vNormalTs = float3( 0.0, 0.0, 1.0 );
 					#if ( _NORMALMAP )
 					{
-						vNormalTs.xyz = UnpackScaleNormal( tex2D( g_tNormalMap, i.vTextureCoords.xy ), g_flBumpScale );
+						vNormalTs.xyz = UnpackScaleNormal( tex2D( g_tNormalMap, zTextureCoords.xy ), g_flBumpScale );
 						//vNormalTs.y = -vNormalTs.y;
 
 						// Apply detail to tangent normal
 						#if ( _DETAIL )
 						{
-							float flDetailMask = DetailMask( i.vTextureCoords.xy );
-							float3 vDetailNormalTs = UnpackScaleNormal( tex2D( g_tDetailNormal, i.vTextureCoords.zw ), g_flDetailNormalScale );
+							float flDetailMask = DetailMask( zTextureCoords.xy );
+							float3 vDetailNormalTs = UnpackScaleNormal( tex2D( g_tDetailNormal, zTextureCoords.zw ), g_flDetailNormalScale );
 							#if ( _DETAIL_LERP )
 							{
 								vNormalTs.xyz = lerp( vNormalTs.xyz, vDetailNormalTs.xyz, flDetailMask );
@@ -547,25 +598,26 @@ Shader "Valve/vr_standard"
 					// Albedo //
 					//--------//
 
-
-					//float3 vpos = CalculatePositionToCameraDirTs( i.vPositionWs, i.vTangentUWs, i.vTangentVWs, vNormalWs );
-					
-					//float2 tempParallax = ParallaxOffset( tex2D(g_tParallax , i.vTextureCoords.xy ).g , g_fParallaxScale , normalize(float3(vpos.xy + vNormalWs.xy , vpos.z) ) );
-				//	float3 planes = vTangentVWs.xy / vTangentVWs.z
-					
-				//	float2 tempParallax = ParallaxOffset( tex2D(g_tParallax , i.vTextureCoords.xy ).g , g_fParallaxScale , normalize(float3(vpos.xy + vNormalWs.xy , vpos.z) ) )
-
-
-					
+									
 					//float4 vAlbedoTexel = tex2D( g_tColor, tempParallax  ) * g_vColorTint.rgba;
-					float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * g_vColorTint.rgba;
-					float3 vAlbedo = vAlbedoTexel.rgb;
+				//	float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * UNITY_ACCESS_INSTANCED_PROP(_Color).rgba;
+					float4 vAlbedoTexel = tex2D( g_tColor,  zTextureCoords   ) * UNITY_ACCESS_INSTANCED_PROP(_Color).rgba;
 
+			//float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * (_Color).rgba;
+
+				float3 vAlbedo = vAlbedoTexel.rgb;
+				// vAlbedo *= CamDirTs.zxy;
+
+				
 					// Apply detail to albedo
+
+
+
+
 					#if ( _DETAIL )
 					{
-						float flDetailMask = DetailMask( i.vTextureCoords.xy );
-						float3 vDetailAlbedo = tex2D( g_tDetailAlbedo, i.vTextureCoords.zw ).rgb;
+						float flDetailMask = DetailMask( zTextureCoords.xy );
+						float3 vDetailAlbedo = tex2D( g_tDetailAlbedo, zTextureCoords.zw ).rgb;
 						#if ( _DETAIL_MULX2 )
 							vAlbedo.rgb *= LerpWhiteTo( vDetailAlbedo.rgb * unity_ColorSpaceDouble.rgb, flDetailMask );
 						#elif ( _DETAIL_MUL )
@@ -585,7 +637,7 @@ Shader "Valve/vr_standard"
 					//--------------//
 					#if ( _FLUORESCENCEMAP)
 					//float3 vFluorescence = max(tex2D( g_tFluorescenceMap, i.vTextureCoords.xy ).rgb, g_vColorFluorescence.rgb);
-					float3 vFluorescence = tex2D( g_tFluorescenceMap, i.vTextureCoords.xy ).rgb * g_vColorFluorescence.rgb;
+					float3 vFluorescence = tex2D( g_tFluorescenceMap, zTextureCoords.xy ).rgb * g_vColorFluorescence.rgb;
 
 					#endif
 
@@ -664,7 +716,7 @@ Shader "Valve/vr_standard"
 							#if ( S_PACKING_MAES ||  S_PACKING_RMA || S_PACKING_MAS )
 							vMetallicGloss.xy = unPackedTexture.rb;
 							#else
-							vMetallicGloss.xy = tex2D(_MetallicGlossMap, i.vTextureCoords.xy).ra;
+							vMetallicGloss.xy = tex2D(_MetallicGlossMap, zTextureCoords.xy).ra;
 							#endif
 
 						#else
@@ -683,7 +735,7 @@ Shader "Valve/vr_standard"
 					{
 						float4 vReflectanceGloss; // = SpecularGloss( i.vTextureCoords.xy );
 						#ifdef _SPECGLOSSMAP
-							vReflectanceGloss.rgba = tex2D(_SpecGlossMap, i.vTextureCoords.xy);
+							vReflectanceGloss.rgba = tex2D(_SpecGlossMap, zTextureCoords.xy);
 						#else
 							vReflectanceGloss.rgba = float4(_SpecColor.rgb, _Glossiness);
 						#endif
@@ -698,11 +750,11 @@ Shader "Valve/vr_standard"
 
 
 
-						float3 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
+						float4 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
 						#ifdef _METALLICGLOSSMAP
-							vMetallicGloss.xyz = tex2D(_MetallicGlossMap, i.vTextureCoords.xy).rag;
+							vMetallicGloss.xyzw = tex2D(_MetallicGlossMap, zTextureCoords.xy).ragb;
 						#else
-							vMetallicGloss.xyz = half3(_Metallic, _Glossiness, _Glossiness2);
+							vMetallicGloss.xyzw = half4(_Metallic, _Glossiness, _AnisotropicRotation, _AnisotropicRatio);
 						#endif
 
 						float flOneMinusReflectivity;
@@ -721,7 +773,7 @@ Shader "Valve/vr_standard"
 
 						float2 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
 						#ifdef _METALLICGLOSSMAP
-							vMetallicGloss.xy = tex2D(_MetallicGlossMap, i.vTextureCoords.xy).ra;
+							vMetallicGloss.xy = tex2D(_MetallicGlossMap, zTextureCoords.xy).ra;
 						#else
 							vMetallicGloss.xy = half2(_Metallic, _Glossiness);
 						#endif
@@ -786,14 +838,14 @@ Shader "Valve/vr_standard"
 							#if (S_PACKING_MAES || S_PACKING_RMA || S_PACKING_MAS )
 							float flOcclusion = unPackedTexture.g;
 							#else
-							float flOcclusion = tex2D( _OcclusionMap, i.vTextureCoords.xy ).g;
+							float flOcclusion = tex2D( _OcclusionMap, zTextureCoords.xy ).g;
 							#endif
 
 
 							#endif
 
 							#if ( _NORMALMAP )	
-							float2 normalABS = abs(vNormalTs.xy * vNormalTs.xy);
+							float2 normalABS =  abs(vNormalTs.xy * vNormalTs.xy) ;
 							flOcclusion *= LerpOneTo(   (1 - (normalABS.x + normalABS.y) ) * (vNormalTs.z ), _NormalToOcclusion);						 
 							#endif
 
@@ -825,23 +877,32 @@ Shader "Valve/vr_standard"
 					//Color Shifting
 					#if ( _COLORSHIFT )
 					{
-						float3 ColorMaskTex = 1 - tex2D(_ColorMask, i.vTextureCoords.xy ).rgb ;
+						float3 ColorMaskTex = 1 - tex2D(_ColorMask, zTextureCoords.xy ).rgb ;
 						float3 ColorShifter = max(g_vColorShift1.rgb, ColorMaskTex.rrr) * max(g_vColorShift2.rgb, ColorMaskTex.ggg) * max(g_vColorShift3.rgb, ColorMaskTex.bbb);
 						o.vColor.rgb *= ColorShifter;
 					}
 					#endif
 
 					// Fluorescence
-					#if ( _FLUORESCENCEMAP )
-			
+					#if ( _FLUORESCENCEMAP )			
 
-					float3 LitFluorescence =  float3(
-										/*RED*/		max(max(lightingTerms.vDiffuse.r + lightingTerms.vIndirectDiffuse.r , max( lightingTerms.vDiffuse.g + lightingTerms.vIndirectDiffuse.g, lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b)), lightingTerms.vDiffuse.a),
-										/*GREEN*/	max((max(lightingTerms.vDiffuse.g + lightingTerms.vIndirectDiffuse.g, lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b)) , lightingTerms.vDiffuse.a),
-										/*BLUE*/	max(lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b , lightingTerms.vDiffuse.a)
-													) 
-													* vFluorescence.rgb ;
-					o.vColor.rgb = max(o.vColor.rgb, LitFluorescence.rgb);
+					// float3 LitFluorescence =  float3(
+					// 					/*RED*/		max(max(lightingTerms.vDiffuse.r + lightingTerms.vIndirectDiffuse.r , max( lightingTerms.vDiffuse.g + lightingTerms.vIndirectDiffuse.g, lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b)), lightingTerms.vDiffuse.a),
+					// 					/*GREEN*/	max((max(lightingTerms.vDiffuse.g + lightingTerms.vIndirectDiffuse.g, lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b)) , lightingTerms.vDiffuse.a),
+					// 					/*BLUE*/	max(lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b , lightingTerms.vDiffuse.a)
+					// 								) 
+					// 								* vFluorescence.rgb ;
+					// o.vColor.rgb = max(o.vColor.rgb, LitFluorescence.rgb);
+
+					float4 FluorescenceAbsorb = (lightingTerms.vDiffuse + float4( lightingTerms.vIndirectDiffuse.rgb , 0.0 ) ) * g_vAbsorbance;					
+
+					float Absorbed_B = FluorescenceAbsorb.b + FluorescenceAbsorb.a;
+					float Absorbed_G = Absorbed_B + FluorescenceAbsorb.g;
+					float Absorbed_R = Absorbed_G + FluorescenceAbsorb.r;
+
+					float3 LitFluorescence =  float3(Absorbed_R, Absorbed_G, Absorbed_B) * vFluorescence.rgb ;
+					o.vColor.rgb = max(o.vColor.rgb, LitFluorescence.rgb);					
+
 					#endif
 					//)
 
@@ -849,7 +910,7 @@ Shader "Valve/vr_standard"
 					#ifdef S_PACKING_MAES
 					float3 vEmission = unPackedTexture.a * _EmissionColor ;
 					#else
-					float3 vEmission = Emission( i.vTextureCoords.xy );
+					float3 vEmission = Emission( zTextureCoords.xy );
 					#endif
 					
 
@@ -862,7 +923,7 @@ Shader "Valve/vr_standard"
 					o.vColor.rgb += lightingTerms.vIndirectSpecular.rgb; // Indirect specular applies its own fresnel in the forward lighting header file
 					// Emission - Unity just adds the emissive term at the end instead of adding it to the diffuse lighting term. Artists may want both options.
 
-
+					
 					
 					
 					#if (!S_UNLIT)					
@@ -891,6 +952,8 @@ Shader "Valve/vr_standard"
 					#if ( _VERTEXTINT )
 					o.vColor.rgb *= i.vertexColor.xyz;
 					#endif
+
+					
 					
 					// Fog
 					#if ( D_VALVE_FOG )

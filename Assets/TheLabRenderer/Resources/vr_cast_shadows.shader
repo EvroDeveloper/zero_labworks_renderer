@@ -28,8 +28,9 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			CGPROGRAM
 			 #pragma target 5.0
-			#pragma only_renderers d3d11
-			//#pragma multi_compile_shadowcaster
+			//#pragma only_renderers d3d11
+			#pragma multi_compile_shadowcaster
+			#pragma multi_compile_instancing
 
 			// Valve custom dynamic combos
 			 #pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
@@ -42,6 +43,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			struct VertexInput
 			{
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 
 				float4 vPositionOs : POSITION;
 		 		float3 vNormalOs : NORMAL;
@@ -53,7 +55,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			struct VertexOutput
 			{
-
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 vPositionPs : SV_POSITION;
 			};
 			
@@ -74,15 +76,14 @@ Shader  "Valve/Internal/vr_cast_shadows"
 			{
 				VertexOutput o;
 
+				UNITY_INITIALIZE_OUTPUT(VertexOutput, o);
+				UNITY_SETUP_INSTANCE_ID(i);
+				UNITY_TRANSFER_INSTANCE_ID(i,o);
 
 				#if ( MATRIX_PALETTE_SKINNING )
 
 				 {
 					MatrixPaletteSkinning(i.vPositionOs.xyzw, i.vBoneIndices.xyzw);
-
-
-
-
 
 				}
 				#endif
@@ -128,6 +129,8 @@ Shader  "Valve/Internal/vr_cast_shadows"
 			#pragma target 5.0
 			#pragma only_renderers d3d11
 			//#pragma multi_compile_shadowcaster
+			#pragma multi_compile_instancing
+
 
 			// Valve  custom dynamic combos
 			#pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
@@ -140,6 +143,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			struct VertexInput
 			{
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 				 float4 vPositionOs : POSITION;
 				float3 vNormalOs : NORMAL;
 				float2 uv0 : TEXCOORD0;
@@ -151,6 +155,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			struct VertexOutput
 			{
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 				 float4 vPositionPs : SV_POSITION;
 				float2 uv0 : TEXCOORD0;
 			};
@@ -169,13 +174,21 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 
 			sampler2D _MainTex;
-			float4	_Color;
+			//float4	_Color;
+			UNITY_INSTANCING_CBUFFER_START(InstanceProperties)
+				UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
+			UNITY_INSTANCING_CBUFFER_END
 			fixed _Cutoff;
 			float4 _MainTex_ST;
 		
 			VertexOutput MainVs(VertexInput i)
 			{
 				VertexOutput o;
+
+				UNITY_INITIALIZE_OUTPUT(VertexOutput, o);
+				UNITY_SETUP_INSTANCE_ID(i);
+				UNITY_TRANSFER_INSTANCE_ID(i,o);
+				
 
 			#if ( MATRIX_PALETTE_SKINNING )
 			 {
@@ -200,8 +213,10 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			float4 MainPs(VertexOutput i) : SV_Target
 			{
+				UNITY_SETUP_INSTANCE_ID(i);
+
 				float2  newUV = TRANSFORM_TEX(i.uv0, _MainTex);
-				 half alpha = tex2D(_MainTex, newUV).a * _Color.a;
+				 half alpha = tex2D(_MainTex, newUV).a * UNITY_ACCESS_INSTANCED_PROP(_Color).a;
 				clip(alpha - _Cutoff);
 
 				return float4(0.0, 0.0, 0.0, 0.0);
@@ -231,6 +246,8 @@ Shader  "Valve/Internal/vr_cast_shadows"
 			 #pragma target 5.0
 			#pragma only_renderers d3d11
 			//#pragma multi_compile_shadowcaster
+			#pragma multi_compile_instancing
+
 
 			// Valve custom dynamic combos
 			 #pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
@@ -243,6 +260,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			struct VertexInput
 			{
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 vPositionOs : POSITION;
 		 		float3 vNormalOs : NORMAL;
 				float2 uv0 : TEXCOORD0;
@@ -256,6 +274,7 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			struct VertexOutput
 			{
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 				 float4 vPositionPs : SV_POSITION;
 				float2 uv0 : TEXCOORD0;
 
@@ -284,15 +303,20 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			sampler2D _MainTex;
 			sampler3D _DitherMaskLOD;
-			half4 _Color;
+		//	half4 _Color;
+			UNITY_INSTANCING_CBUFFER_START(InstanceProperties)
+				UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
+			UNITY_INSTANCING_CBUFFER_END
 			fixed  _Cutoff;
 			float4 _MainTex_ST;
 
 			VertexOutput MainVs(VertexInput i)
 			{
-
-
 				VertexOutput o;
+
+				UNITY_INITIALIZE_OUTPUT(VertexOutput, o);
+				UNITY_SETUP_INSTANCE_ID(i);
+				UNITY_TRANSFER_INSTANCE_ID(i,o);
 
 			#if ( MATRIX_PALETTE_SKINNING )
 		 	{
@@ -324,8 +348,11 @@ Shader  "Valve/Internal/vr_cast_shadows"
 
 			float4 MainPs(VertexOutputClip i) :  SV_Target
 			{
+			//	UNITY_SETUP_INSTANCE_ID(i);
+
+
 				float2  newUV = TRANSFORM_TEX(i.uv0, _MainTex);
-				half alpha = tex2D(_MainTex, newUV).a * _Color.a * i.color.a;
+				half alpha = tex2D(_MainTex, newUV).a * UNITY_ACCESS_INSTANCED_PROP(_Color).a * i.color.a;
 
 
 

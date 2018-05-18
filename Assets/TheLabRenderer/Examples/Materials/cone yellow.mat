@@ -8,7 +8,8 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: cone yellow
   m_Shader: {fileID: 4800000, guid: 908b379d4818cd64184b95a21123d909, type: 3}
-  m_ShaderKeywords: S_RECEIVE_SHADOWS S_SPECULAR_BLINNPHONG _BRDFMAP _FLUORESCENCEMAP
+  m_ShaderKeywords: S_RECEIVE_SHADOWS S_SPECULAR_BLINNPHONG _BRDFMAP _DETAIL_MULX2
+    _FLUORESCENCEMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -79,6 +80,7 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DetailMode: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EmissionFalloff: 0
@@ -96,9 +98,12 @@ Material:
     - _OcclusionStrengthDirectSpecular: 1
     - _OcclusionStrengthIndirectDiffuse: 1
     - _OcclusionStrengthIndirectSpecular: 1
+    - _OffsetFactor: 0
+    - _OffsetUnits: 0
     - _PackingMode: 0
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
+    - _SpecMod: 1
     - _SpecularHighlights: 1
     - _SpecularMode: 1
     - _SrcBlend: 1
@@ -106,6 +111,10 @@ Material:
     - _UVSec: 0
     - _VertexMode: 0
     - _ZWrite: 1
+    - g_Absorbed_ReflectanceBias: 0
+    - g_Absorbed_ReflectanceMax: 1
+    - g_Absorbed_ReflectanceMin: 0
+    - g_Absorbed_ReflectanceScale: 1
     - g_bCastShadows: 1
     - g_bReceiveShadows: 1
     - g_bRenderBackfaces: 0
@@ -119,6 +128,7 @@ Material:
     - g_flReflectanceMin: 0
     - g_flReflectanceScale: 1
     m_Colors:
+    - _Absorbance: {r: 0.491, g: 0.816, b: 0.941, a: 1}
     - _Color: {r: 1, g: 0.9724138, b: 0, a: 1}
     - _ColorShift1: {r: 1, g: 1, b: 1, a: 1}
     - _ColorShift2: {r: 1, g: 1, b: 1, a: 1}
