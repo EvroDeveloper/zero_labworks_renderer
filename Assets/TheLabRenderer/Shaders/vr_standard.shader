@@ -529,7 +529,7 @@ Shader "Valve/vr_standard"
 					#if ( _DETAIL )
 					 zTextureCoords.zw = (( zTextureCoords.xy - i.vTextureCoords.xy) * _DetailAlbedoMap_ST.xy + i.vTextureCoords.zw) ;  
 					#else
-					zTextureCoords.zw = i.vTextureCoords.zw ;
+					zTextureCoords.zw = i.vTextureCoords.xy ;
 					#endif		
 
 					//Attempting to fix world pos for shadows

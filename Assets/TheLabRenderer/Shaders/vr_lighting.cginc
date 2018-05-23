@@ -233,7 +233,7 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 			float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), saturate(flNDotV) , vSpecularExponent.xy);
             float normTerm = GGXTerm(flNDotHX, vSpecularExponent.x / max(saturate(zHardness * zHardness * zHardness ) , 0.0001)) ;
 
-			flSpecularTerm = (visTerm * normTerm * UNITY_PI *  0.8) ;
+			flSpecularTerm = (visTerm * normTerm * UNITY_PI *  0.8) * flNDotV ;
 			//flSpecularTerm *= pow(flNDotH,20) ;
 
 
@@ -302,7 +302,7 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		float3 vFresnel = FresnelTerm( vReflectance , flLDotH);
 
 		#if ( S_ANISOTROPIC_GLOSS )
-		vSpecularTerm.rgb = flSpecularTerm * pow(flNDotL, 5) * (zHardness * zHardness) ;
+		vSpecularTerm.rgb = flSpecularTerm * vFresnel.rgb * pow(flNDotL, 5) * (zHardness * zHardness) ;
 		#else
 		vSpecularTerm.rgb = flSpecularTerm * vFresnel.rgb  * pow(flNDotL, 0.5) * (zHardness * zHardness) ;
 		#endif
