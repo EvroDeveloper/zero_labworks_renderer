@@ -460,7 +460,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 108196756}
-  m_Text: '*Four real-time spotlights with Light Cookies'
+  m_Text: '*Four real-time spotlights with colored Light Cookies'
   m_OffsetZ: 0
   m_CharacterSize: 0.05
   m_LineSpacing: 1
@@ -1950,7 +1950,7 @@ MonoBehaviour:
   m_adaptiveQualityEnabled: 1
   m_adaptiveQualityDebugVis: 0
   m_MSAALevel: 8
-  m_minRenderTargetScale: 0.8
+  m_minRenderTargetScale: 0.65
   m_maVRenderTargetScale: 2
   m_maVRenderTargetDimension: 4096
   m_cullLightsInSceneEditor: 0

@@ -107,6 +107,7 @@ Shader "Valve/vr_standard"
 		[HideInInspector] _OffsetFactor ( "__fac", Float ) = 0.0
 		[HideInInspector] _OffsetUnits  ( "__units", Float ) = 0.0
 		
+		 _ColorMultiplier ("target color", float) = 0.0
 
 	}
 
@@ -138,7 +139,9 @@ Shader "Valve/vr_standard"
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 				#pragma shader_feature	_VERTEXTINT
-				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
+				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON 
+				#pragma shader_feature _ALPHAMULTIPLY_ON
+				#pragma shader_feature _ALPHAMOD2X_ON
 				#pragma shader_feature _NORMALMAP
 				#pragma shader_feature _METALLICGLOSSMAP
 				#pragma shader_feature _SPECGLOSSMAP
@@ -229,7 +232,7 @@ Shader "Valve/vr_standard"
 				float		_ParallaxIterations;
 				float		_ParallaxOffset;
 
-
+				float 		_ColorMultiplier;
 
 				
 
@@ -261,6 +264,7 @@ Shader "Valve/vr_standard"
 				struct PS_INPUT
 				{
 					UNITY_VERTEX_INPUT_INSTANCE_ID
+					UNITY_VERTEX_OUTPUT_STEREO
 					float4 vPositionPs : SV_Position;
 
 					float4 vertexColor : COLOR;
@@ -316,6 +320,7 @@ Shader "Valve/vr_standard"
 					UNITY_INITIALIZE_OUTPUT(PS_INPUT, o);
 					UNITY_SETUP_INSTANCE_ID(i);
 					UNITY_TRANSFER_INSTANCE_ID(i,o);
+					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 
 					#if ( MATRIX_PALETTE_SKINNING )
@@ -748,8 +753,6 @@ Shader "Valve/vr_standard"
 					#elif ( S_ANISOTROPIC_GLOSS  )
 					{
 
-
-
 						float4 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
 						#ifdef _METALLICGLOSSMAP
 							vMetallicGloss.xyzw = tex2D(_MetallicGlossMap, zTextureCoords.xy).ragb;
@@ -957,8 +960,13 @@ Shader "Valve/vr_standard"
 					
 					// Fog
 					#if ( D_VALVE_FOG )
-					{
+					{				
+						
+						#if (_ALPHAPREMULTIPLY_ON || _ALPHAMULTIPLY_ON || _ALPHAMOD2X_ON)
+						o.vColor.rgba = ApplyFog( o.vColor.rgba, i.vFogCoords.xy, _FogMultiplier, _ColorMultiplier );
+						#else
 						o.vColor.rgb = ApplyFog( o.vColor.rgb, i.vFogCoords.xy, _FogMultiplier );
+						#endif
 					}
 					#endif
 

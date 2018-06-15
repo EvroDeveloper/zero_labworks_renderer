@@ -75,7 +75,7 @@ public class ValveCamera : MonoBehaviour
 	[Range( 0.0f, 8.0f )] public int m_MSAALevel = 4;
 	public float m_minRenderTargetScale = 0.65f;
 	public float m_maVRenderTargetScale = 2.0f;
-	[NonSerialized] private int m_nFillRatePercentStep = 15;
+	[NonSerialized] private int m_nFillRatePercentStep = 25;
 	public int m_maVRenderTargetDimension = 4096;
 
 	[NonSerialized] private static bool s_bUsingStaticSettings = false;

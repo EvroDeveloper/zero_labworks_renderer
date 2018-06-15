@@ -8,7 +8,7 @@
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 // !!! HACK !!! Workaround for bug in Unity 5.4.0b9 where _WorldSpaceCameraPos appears to be set incorrectly breaking every view-dependent line of shader code
-#define _WorldSpaceCameraPos ( float3( unity_CameraToWorld[0][3], unity_CameraToWorld[1][3], unity_CameraToWorld[2][3] ) )
+//#define _WorldSpaceCameraPos ( float3( unity_CameraToWorld[0][3], unity_CameraToWorld[1][3], unity_CameraToWorld[2][3] ) )
 // !!! END HACK !!!
 
 #define g_vCameraPositionWs ( _WorldSpaceCameraPos )

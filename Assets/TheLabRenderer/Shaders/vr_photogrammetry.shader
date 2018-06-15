@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+﻿// Upgrade NOTE: replaced 'UNITY_INSTANCE_ID' with 'UNITY_VERTEX_INPUT_INSTANCE_ID'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
 // Copyright (c) Valve Corporation, All rights reserved. ======================================================================================================
 
@@ -29,8 +31,8 @@ Shader "Valve/vr_photogrammetry"
 
 			CGPROGRAM
 				#pragma target 5.0
-				#pragma only_renderers d3d11
-				#pragma exclude_renderers gles
+				//#pragma only_renderers d3d11
+				//#pragma exclude_renderers gles
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 				#pragma multi_compile _ D_VALVE_FOG
@@ -54,12 +56,17 @@ Shader "Valve/vr_photogrammetry"
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
 				struct VS_INPUT
 				{
+					UNITY_VERTEX_INPUT_INSTANCE_ID
+
 					float4 vPositionOs : POSITION;
 					float2 vTexCoord0 : TEXCOORD0;
 				};
 
 				struct PS_INPUT
 				{
+					UNITY_VERTEX_INPUT_INSTANCE_ID
+					UNITY_VERTEX_OUTPUT_STEREO
+
 					float4 vPositionPs : SV_Position;
 					float3 vPositionWs : TEXCOORD0;
 					float4 vTextureCoords : TEXCOORD1;
@@ -83,6 +90,10 @@ Shader "Valve/vr_photogrammetry"
 				PS_INPUT MainVs( VS_INPUT i )
 				{
 					PS_INPUT o = ( PS_INPUT )0;
+
+					UNITY_SETUP_INSTANCE_ID(i);
+					UNITY_TRANSFER_INSTANCE_ID(i, o);
+					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 					// Position
 					i.vPositionOs.xyzw *= g_flValveGlobalVertexScale; // Used to "hide" all valve materials for debugging
@@ -111,6 +122,8 @@ Shader "Valve/vr_photogrammetry"
 				PS_OUTPUT MainPs( PS_INPUT i )
 				{
 					PS_OUTPUT o = ( PS_OUTPUT )0;
+
+					UNITY_SETUP_INSTANCE_ID(i);
 
 					float4 vColorTexel = tex2D( g_tColor, i.vTextureCoords.xy );
 

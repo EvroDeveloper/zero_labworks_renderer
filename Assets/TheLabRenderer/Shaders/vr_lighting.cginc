@@ -58,6 +58,11 @@ float g_flFresnelFalloff = 1.0;
 float g_flReflectanceMin = 0.0;
 float g_flReflectanceMax = 1.0;
 
+#if ( S_ANISOTROPIC_GLOSS )
+
+float3 RotatedTangent;
+
+#endif
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct LightingTerms_t
 {
@@ -168,6 +173,9 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		flDiffuseTerm *= ( ( vDiffuseExponent.x * 0.5 + vDiffuseExponent.y * 0.5 ) + 1.0 ) * 0.5;
 		flDiffuseTerm *= flNDotL;
 		*/
+
+
+		//Check to see if BRDF LUT is on, then check to see if a light softened
 		#if ( !_BRDFMAP )
 		{
 			if (zHardness < 1){
@@ -205,23 +213,29 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		float flSpecularTerm = 0.0;
 		#if ( S_ANISOTROPIC_GLOSS )
 		{
-			 // Adds 34 asm instructions compared to isotropic spec in #else below
-			// float3 vSpecularNormalX = vHalfAngleDirWs.xyz - ( vEllipseUWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseUWs.xyz ) ); // Not normalized on purpose
-			// float3 vSpecularNormalY = vHalfAngleDirWs.xyz - ( vEllipseVWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseVWs.xyz ) ); // Not normalized on purpose
 
-			// float flNDotHX = ClampToPositive( dot( vSpecularNormalX.xyz, vHalfAngleDirWs.xyz ) );
-			// float flNDotHkX = pow( flNDotHX, vSpecularExponent.x * 0.5 );
-			// flNDotHkX *= vSpecularScale.x;
+			//Vavle's implementation. It didn't support anisotropic rotation so I made my own solution. Changed a few variables to get my version to work.
 
-			// float flNDotHY = ClampToPositive( dot( vSpecularNormalY.xyz, vHalfAngleDirWs.xyz ) );
-			// float flNDotHkY = pow( flNDotHY, vSpecularExponent.y * 0.5 );
-			// flNDotHkY *= vSpecularScale.y;
+				// Adds 34 asm instructions compared to isotropic spec in #else below
+				// float3 vSpecularNormalX = vHalfAngleDirWs.xyz - ( vEllipseUWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseUWs.xyz ) ); // Not normalized on purpose
+				// float3 vSpecularNormalY = vHalfAngleDirWs.xyz - ( vEllipseVWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseVWs.xyz ) ); // Not normalized on purpose
 
-			// flSpecularTerm = flNDotHkX * flNDotHkY;
+				// float flNDotHX = ClampToPositive( dot( vSpecularNormalX.xyz, vHalfAngleDirWs.xyz ) );
+				// float flNDotHkX = pow( flNDotHX, vSpecularExponent.x * 0.5 );
+				// flNDotHkX *= vSpecularScale.x;
+
+				// float flNDotHY = ClampToPositive( dot( vSpecularNormalY.xyz, vHalfAngleDirWs.xyz ) );
+				// float flNDotHkY = pow( flNDotHY, vSpecularExponent.y * 0.5 );
+				// flNDotHkY *= vSpecularScale.y;
+
+				// flSpecularTerm = flNDotHkX * flNDotHkY;
+
+
+			//Kevin's implementation
 			
 			//Rotate Anisotropic Direction
 			float rotationAngle = _AnisotropicRotation *  UNITY_PI ;
-			float3 RotatedTangent = ( cos(rotationAngle).xxx * vEllipseUWs ) - (sin(rotationAngle).xxx * vEllipseVWs.xyz ) ;
+			RotatedTangent = ( cos(rotationAngle).xxx * vEllipseUWs ) - (sin(rotationAngle).xxx * vEllipseVWs.xyz ) ; //stored for reflection probes
 
 			float3 vSpecularNormal = vHalfAngleDirWs.xyz - ( RotatedTangent.xyz * dot( vHalfAngleDirWs.xyz, RotatedTangent.xyz ) ); // Not normalized on purpose
 			float flNDotH = ((dot(vNormalWs , vHalfAngleDirWs)) )  ;
@@ -235,16 +249,6 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 
 			flSpecularTerm = (visTerm * normTerm * UNITY_PI *  0.8) * flNDotV ;
 			//flSpecularTerm *= pow(flNDotH,20) ;
-
-
-				// float flNDotH = saturate(( dot( vNormalWs.xyz, vHalfAngleDirWs.xyz ) ));
-				// float flNDotL = normalize( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) + 0.0001 );
-				// //float flNDotV = saturate( dot( vNormalWs.xyz, vPositionToCameraDirWs.xyz ) );
-
-			    // float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), saturate(flNDotV) , vSpecularExponent.xy);
-                // float normTerm = GGXTerm(flNDotH, vSpecularExponent.xy / max(saturate(zHardness * zHardness * zHardness ) , 0.0001) ) ;
-                // flSpecularTerm = (visTerm * normTerm * UNITY_PI * 0.8 );
-
 
 		}
 
@@ -475,8 +479,9 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			continue;
 		}
 
-		#if ( !_BRDFMAP )			
-			
+		#if ( _BRDFMAP || S_ANISOTROPIC_GLOSS )	
+
+		#else					
 		if ( g_vLightFalloffParams[i].w > .99) { 	// Check if lambert wrap is less than 1
 				if ( dot( vNormalWs.xyz, vPositionToLightRayWs.xyz ) <= 0.0 )
 				{
@@ -486,14 +491,18 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		}
 		#endif
 
+		
 		float3 vPositionToLightDirWs = normalize( vPositionToLightRayWs.xyz );
 		float flOuterConeCos = g_vSpotLightInnerOuterConeCosines[ i ].y;
 		float flTemp = dot( vPositionToLightDirWs.xyz, -g_vLightDirection[ i ].xyz ) - flOuterConeCos;
+		#if !S_ANISOTROPIC_GLOSS 
 		if ( flTemp <= 0.0 )
 		{
 			// Outside spotlight cone
 			continue;
 		}
+		#endif
+
 		float4 vSpotAtten = saturate( flTemp * g_vSpotLightInnerOuterConeCosines[ i ].z ).xxxx;
 
 
@@ -756,15 +765,26 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	//-------------------//
 	#if ( 1 )
 	{
-		float flRoughness = dot( vRoughness.xy, float2( 0.5, 0.5 ) );
+		//float flRoughness = dot( vRoughness.xy, float2(0.5,0.5 ) );
+		float flRoughness = dot( vRoughness.x, float(0.5 ) * 2 ); //only considering first value. Second was for the old anisotropic.
 
 		float3 vReflectionDirWs = CalculateCameraReflectionDirWs( vPositionWs.xyz, vNormalWs.xyz );
 		float3 vReflectionDirWs0 = vReflectionDirWs.xyz;
+
+
 		#if ( UNITY_SPECCUBE_BOX_PROJECTION )
 		{
 			#if ( S_RETROREFLECTIVE )
 			{
 			vReflectionDirWs0.xyz = BoxProjectedCubemapDirection( vPositionToCameraDirWs.xyz, vPositionWs.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax );
+			}
+			#elif ( S_ANISOTROPIC_GLOSS ) 
+			{			
+			//Adding Ubisoft's reflection stretch to fake anisotropic reflections. https://www.gdcvault.com/play/1022234/Rendering-the-World-of-Far
+			float3 AnisotropicNormal = (cross(cross(vPositionToCameraDirWs,RotatedTangent), RotatedTangent));
+			float3 ReflectionNormal = normalize( lerp( -vNormalWs, AnisotropicNormal, (1 - _AnisotropicRatio) * 0.666666) ) ;
+			float3 AnisotropicReflection = vPositionToCameraDirWs - 2 * dot(ReflectionNormal,vPositionToCameraDirWs) * ReflectionNormal ;
+			vReflectionDirWs0.xyz = BoxProjectedCubemapDirection( -AnisotropicReflection.xyz, vPositionWs.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax );
 			}
 			#else
 			{
@@ -790,13 +810,21 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 				#if ( S_RETROREFLECTIVE )
 				{
 					
-					vReflectionDirWs1.xyz = BoxProjectedCubemapDirection( vPositionToCameraDirWs.xyz, vPositionWs.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax );
+				vReflectionDirWs1.xyz = BoxProjectedCubemapDirection( vPositionToCameraDirWs.xyz, vPositionWs.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax );
 
 				}
+				#elif ( S_ANISOTROPIC_GLOSS )
+				{
+				float3 AnisotropicNormal = (cross(cross(vPositionToCameraDirWs,RotatedTangent), RotatedTangent));
+				float3 ReflectionNormal = normalize( lerp( -vNormalWs, AnisotropicNormal, (1 - _AnisotropicRatio) * 0.666666) ) ;
+				float3 AnisotropicReflection = vPositionToCameraDirWs - 2 * dot(ReflectionNormal,vPositionToCameraDirWs) * ReflectionNormal ;
+				vReflectionDirWs1.xyz = BoxProjectedCubemapDirection( -AnisotropicReflection.xyz, vPositionWs.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax );
+				
 
+				}
 				#else
 				{
-						vReflectionDirWs1.xyz = BoxProjectedCubemapDirection( vReflectionDirWs.xyz, vPositionWs.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax );
+				vReflectionDirWs1.xyz = BoxProjectedCubemapDirection( vReflectionDirWs.xyz, vPositionWs.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax );
 				}
 				#endif
 

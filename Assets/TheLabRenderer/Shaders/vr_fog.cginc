@@ -44,6 +44,21 @@ half3 ApplyFog( half3 c, half2 fogCoord, float fogMultiplier )
 	return c.rgb;
 }
 
+//ALPHA Fog
+half4 ApplyFog( half4 c, half2 fogCoord, float fogMultiplier, float ColorMultiplier )
+{
+	// Apply gradient fog
+	half4 f = tex2D( gradientFogTexture, half2( fogCoord.x, 0.0f ) ).rgba;
+	c.rgb = lerp( c.rgb, f.rgb * fogMultiplier, f.a );
+	
+	// Apply height fog
+	c.rgb = lerp( c.rgb, heightFogColor.rgb * fogMultiplier, fogCoord.y );
+
+	c.rgb = lerp(c.rgb, half3(ColorMultiplier, ColorMultiplier, ColorMultiplier) , saturate(f.a + fogCoord.y) );
+
+	return half4(c.rgb, (1 - f.a) * c.a);
+}
+
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 half3 ApplyFog( half3 c, half2 fogCoord )
 {
