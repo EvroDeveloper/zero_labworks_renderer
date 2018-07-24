@@ -256,29 +256,29 @@ public class TheLabRenderer_Settings : EditorWindow
             GUILayout.EndHorizontal();
         }
 
-        if (!EditorPrefs.HasKey(ignore + defaultIsFullScreen) &&
-            PlayerSettings.defaultIsFullScreen != recommended_DefaultIsFullScreen)
-        {
-            ++numItems;
+        //if (!EditorPrefs.HasKey(ignore + defaultIsFullScreen) &&
+        //    PlayerSettings.defaultIsFullScreen != recommended_DefaultIsFullScreen)
+        //{
+        //    ++numItems;
 
-            GUILayout.Label(defaultIsFullScreen + string.Format(currentValue, PlayerSettings.defaultIsFullScreen));
+        //    GUILayout.Label(defaultIsFullScreen + string.Format(currentValue, PlayerSettings.defaultIsFullScreen));
 
-            GUILayout.BeginHorizontal();
+        //    GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(string.Format(useRecommended, recommended_DefaultIsFullScreen)))
-            {
-                PlayerSettings.defaultIsFullScreen = recommended_DefaultIsFullScreen;
-            }
+        //    if (GUILayout.Button(string.Format(useRecommended, recommended_DefaultIsFullScreen)))
+        //    {
+        //        PlayerSettings.defaultIsFullScreen = recommended_DefaultIsFullScreen;
+        //    }
 
-            GUILayout.FlexibleSpace();
+        //    GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button("Ignore"))
-            {
-                EditorPrefs.SetBool(ignore + defaultIsFullScreen, true);
-            }
+        //    if (GUILayout.Button("Ignore"))
+        //    {
+        //        EditorPrefs.SetBool(ignore + defaultIsFullScreen, true);
+        //    }
 
-            GUILayout.EndHorizontal();
-        }
+        //    GUILayout.EndHorizontal();
+        //}
 
         if (!EditorPrefs.HasKey(ignore + defaultScreenSize) &&
             (PlayerSettings.defaultScreenWidth != recommended_DefaultScreenWidth ||
@@ -377,30 +377,32 @@ public class TheLabRenderer_Settings : EditorWindow
 
             GUILayout.EndHorizontal();
         }
+        
 
-        if (!EditorPrefs.HasKey(ignore + fullscreenMode) &&
-            PlayerSettings.d3d11FullscreenMode != recommended_FullscreenMode)
-        {
-            ++numItems;
+        //Diabled to not conflict with SteamVR's new settings
+        //if (!EditorPrefs.HasKey(ignore + fullscreenMode) &&
+        //    PlayerSettings.d3d11FullscreenMode != recommended_FullscreenMode)
+        //{
+        //    ++numItems;
 
-            GUILayout.Label(fullscreenMode + string.Format(currentValue, PlayerSettings.d3d11FullscreenMode));
+        //    GUILayout.Label(fullscreenMode + string.Format(currentValue, PlayerSettings.d3d11FullscreenMode));
 
-            GUILayout.BeginHorizontal();
+        //    GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(string.Format(useRecommended, recommended_FullscreenMode)))
-            {
-                PlayerSettings.d3d11FullscreenMode = recommended_FullscreenMode;
-            }
+        //    if (GUILayout.Button(string.Format(useRecommended, recommended_FullscreenMode)))
+        //    {
+        //        PlayerSettings.d3d11FullscreenMode = recommended_FullscreenMode;
+        //    }
 
-            GUILayout.FlexibleSpace();
+        //    GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button("Ignore"))
-            {
-                EditorPrefs.SetBool(ignore + fullscreenMode, true);
-            }
+        //    if (GUILayout.Button("Ignore"))
+        //    {
+        //        EditorPrefs.SetBool(ignore + fullscreenMode, true);
+        //    }
 
-            GUILayout.EndHorizontal();
-        }
+        //    GUILayout.EndHorizontal();
+        //}
 
         if (!EditorPrefs.HasKey(ignore + visibleInBackground) &&
             PlayerSettings.visibleInBackground != recommended_VisibleInBackground)

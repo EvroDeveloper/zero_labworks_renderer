@@ -179,6 +179,13 @@ public class ValveCamera : MonoBehaviour
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
 	void OnEnable()
 	{
+       var vrcam = FindObjectsOfType<ValveCamera>();
+
+        if (vrcam.Length > 1) Debug.LogError(vrcam.Length + " Valve Camera's found. Only use one.");
+
+
+
+
 		if ( HasCommandLineArg( "-noflush" ) )
 		{
 			m_bAllowFlush = false;

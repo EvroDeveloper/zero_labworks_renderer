@@ -14,6 +14,9 @@ CBUFFER_START( ZVrAO )
 CBUFFER_END
 
 
+
+
+
 	float CalculateSphericalAO(float3 posWs, float3 vNormalWs)
 	{
 
@@ -62,6 +65,16 @@ CBUFFER_END
 		OcclusionOuts *= OcclusionOutput;
 		}
 	return saturate(OcclusionOuts);
+	}
+
+	float CalculateShapeAO(float3 posWs, float3 vNormalWs)
+	{
+
+		float AO = 1 * CalculateSphericalAO( posWs,  vNormalWs);
+		AO *= CalculatePointAO( posWs,  vNormalWs);
+
+		return AO;
+
 	}
 
 

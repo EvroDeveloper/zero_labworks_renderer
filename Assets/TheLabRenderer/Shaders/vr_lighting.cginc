@@ -20,8 +20,6 @@ CBUFFER_START( ValveVrLighting )
 	int g_nNumLights;
 	bool g_bIndirectLightmaps = false;
 
-	float _AnisotropicRotation;
-	float _AnisotropicRatio;
 
 	float4 g_vLightColor[ MAX_LIGHTS ];
 	float4 g_vLightPosition_flInvRadius[ MAX_LIGHTS ];
@@ -59,10 +57,9 @@ float g_flReflectanceMin = 0.0;
 float g_flReflectanceMax = 1.0;
 
 #if ( S_ANISOTROPIC_GLOSS )
-
 float3 RotatedTangent;
-
 #endif
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct LightingTerms_t
 {
@@ -83,23 +80,23 @@ float CalculateGeometricRoughnessFactor( float3 vGeometricNormalWs )
 	return flGeometricRoughnessFactor;
 }
 
-float2 AdjustRoughnessByGeometricNormal( float2 vRoughness, float3 vGeometricNormalWs )
+float AdjustRoughnessByGeometricNormal( float vRoughness, float3 vGeometricNormalWs )
 {
 
 #if !S_RETROREFLECTIVE
 	float flGeometricRoughnessFactor = CalculateGeometricRoughnessFactor( vGeometricNormalWs.xyz );
 	//if ( Blink( 1.0 ) )
-	vRoughness.xy = max( vRoughness.xy, flGeometricRoughnessFactor.xx );
-	return vRoughness.xy;
+	vRoughness = max( vRoughness, flGeometricRoughnessFactor );
+	return vRoughness;
 #else	
 	
-	return vRoughness.xy;
+	return vRoughness;
 	
 #endif
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-void RoughnessEllipseToScaleAndExp( float2 vRoughness, out float2 o_vDiffuseExponentOut, out float2 o_vSpecularExponentOut, out float2 o_vSpecularScaleOut )
+void RoughnessEllipseToScaleAndExp( float vRoughness, out float o_vDiffuseExponentOut, out float o_vSpecularExponentOut, out float o_vSpecularScaleOut )
 {
 
 //	o_vDiffuseExponentOut.xy = ( ( 1.0 - ( vRoughness.x + vRoughness.y ) * 0.5 ) * 0.8 ) + 0.6; // Outputs 0.6-1.4
@@ -108,11 +105,11 @@ void RoughnessEllipseToScaleAndExp( float2 vRoughness, out float2 o_vDiffuseExpo
 
 	
 	
-	o_vDiffuseExponentOut.xy = ( ( 1.0 - vRoughness.xy ) * 0.8 ) + 0.6; // 0.8 and 0.6 are magic numbers
+	o_vDiffuseExponentOut = ( ( 1.0 - vRoughness ) * 0.8 ) + 0.6; // 0.8 and 0.6 are magic numbers
 	//o_vSpecularExponentOut.xy = exp2( pow( float2( 1.0, 1.0 ) - vRoughness.xy, float2( 1.5, 1.5 ) ) * float2( 14.0, 14.0 ) ); // Outputs 1-16384
-	o_vSpecularScaleOut.xy = 1.0 - saturate( vRoughness.xy * 0.5 ); // This is an energy conserving scalar for the roughness exponent.
+	o_vSpecularScaleOut = 1.0 - saturate( vRoughness * 0.5 ); // This is an energy conserving scalar for the roughness exponent.
 
-	o_vSpecularExponentOut = vRoughness.xy * vRoughness.xy ;
+	o_vSpecularExponentOut = vRoughness * vRoughness ;
 
 }
 
@@ -149,7 +146,7 @@ float DistanceFalloff( float flDistToLightSq, float flLightInvRadius, float2 vFa
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 									   float3 vNormalWs, float3 vEllipseUWs, float3 vEllipseVWs, float3 vPositionToLightDirWs, float3 vPositionToCameraDirWs,
-									   float2 vDiffuseExponent, float2 vSpecularExponent, float2 vSpecularScale, float3 vReflectance, float flFresnelExponent , float zHardness, float flNDotV)
+									   float vDiffuseExponent, float vSpecularExponent, float vSpecularScale, float2 zSpecularAnisotropic, float3 vReflectance, float flFresnelExponent , float zHardness, float flNDotV)
 {
 	float flNDotL = ( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) );
 
@@ -175,15 +172,17 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		*/
 
 
-		//Check to see if BRDF LUT is on, then check to see if a light softened
+		//Check to see if BRDF LUT is on, then check to see if the light is softened
 		#if ( !_BRDFMAP )
 		{
 			if (zHardness < 1){
-			float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
+		//	float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
+			float flDiffuseExponent = vDiffuseExponent;
 			flDiffuseTerm = ClampToPositive( pow( saturate ( (flNDotL * zHardness) + 1 - zHardness ) ,  flDiffuseExponent  )   *  ( ( flDiffuseExponent + 1 ) * 0.5 )   );	
 			}
 			else{
-			float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
+		//	float flDiffuseExponent = ( vDiffuseExponent.x + vDiffuseExponent.y ) * 0.5;
+			float flDiffuseExponent = vDiffuseExponent;
 			flDiffuseTerm = pow( flNDotL, flDiffuseExponent ) * ( ( flDiffuseExponent + 1.0 ) * 0.5 );
 			}
 		}
@@ -214,38 +213,37 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 		#if ( S_ANISOTROPIC_GLOSS )
 		{
 
-			//Vavle's implementation. It didn't support anisotropic rotation so I made my own solution. Changed a few variables to get my version to work.
+			////Vavle's implementation. It didn't support anisotropic rotation beyond direct x and y directions. I made my own solution to account for all angles. Changed a few variables to get my version to work.
+			
+			//// Adds 34 asm instructions compared to isotropic spec in #else below
+			// float3 vSpecularNormalX = vHalfAngleDirWs.xyz - ( vEllipseUWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseUWs.xyz ) ); // Not normalized on purpose
+			// float3 vSpecularNormalY = vHalfAngleDirWs.xyz - ( vEllipseVWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseVWs.xyz ) ); // Not normalized on purpose
 
-				// Adds 34 asm instructions compared to isotropic spec in #else below
-				// float3 vSpecularNormalX = vHalfAngleDirWs.xyz - ( vEllipseUWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseUWs.xyz ) ); // Not normalized on purpose
-				// float3 vSpecularNormalY = vHalfAngleDirWs.xyz - ( vEllipseVWs.xyz * dot( vHalfAngleDirWs.xyz, vEllipseVWs.xyz ) ); // Not normalized on purpose
+			// float flNDotHX = ClampToPositive( dot( vSpecularNormalX.xyz, vHalfAngleDirWs.xyz ) );
+			// float flNDotHkX = pow( flNDotHX, vSpecularExponent.x * 0.5 );
+			// flNDotHkX *= vSpecularScale.x;
 
-				// float flNDotHX = ClampToPositive( dot( vSpecularNormalX.xyz, vHalfAngleDirWs.xyz ) );
-				// float flNDotHkX = pow( flNDotHX, vSpecularExponent.x * 0.5 );
-				// flNDotHkX *= vSpecularScale.x;
+			// float flNDotHY = ClampToPositive( dot( vSpecularNormalY.xyz, vHalfAngleDirWs.xyz ) );
+			// float flNDotHkY = pow( flNDotHY, vSpecularExponent.y * 0.5 );
+			// flNDotHkY *= vSpecularScale.y;
 
-				// float flNDotHY = ClampToPositive( dot( vSpecularNormalY.xyz, vHalfAngleDirWs.xyz ) );
-				// float flNDotHkY = pow( flNDotHY, vSpecularExponent.y * 0.5 );
-				// flNDotHkY *= vSpecularScale.y;
-
-				// flSpecularTerm = flNDotHkX * flNDotHkY;
-
-
-			//Kevin's implementation
+			// flSpecularTerm = flNDotHkX * flNDotHkY;
+			
+			////Kevin's implementation
 			
 			//Rotate Anisotropic Direction
-			float rotationAngle = _AnisotropicRotation *  UNITY_PI ;
+			float rotationAngle = zSpecularAnisotropic.x * UNITY_TWO_PI ; //convert from radians to degrees
 			RotatedTangent = ( cos(rotationAngle).xxx * vEllipseUWs ) - (sin(rotationAngle).xxx * vEllipseVWs.xyz ) ; //stored for reflection probes
 
 			float3 vSpecularNormal = vHalfAngleDirWs.xyz - ( RotatedTangent.xyz * dot( vHalfAngleDirWs.xyz, RotatedTangent.xyz ) ); // Not normalized on purpose
 			float flNDotH = ((dot(vNormalWs , vHalfAngleDirWs)) )  ;
 			
 			//Anisotropic Ratio
-			float flNDotHX = lerp( ( dot( vSpecularNormal.xyz, vHalfAngleDirWs.xyz ) ), flNDotH , _AnisotropicRatio );
+			float flNDotHX = lerp( ( dot( vSpecularNormal.xyz, vHalfAngleDirWs.xyz ) ), flNDotH , zSpecularAnisotropic.y );
 
 			//GGX Specular
-			float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), saturate(flNDotV) , vSpecularExponent.xy);
-            float normTerm = GGXTerm(flNDotHX, vSpecularExponent.x / max(saturate(zHardness * zHardness * zHardness ) , 0.0001)) ;
+			float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), saturate(flNDotV) , vSpecularExponent);
+            float normTerm = GGXTerm(flNDotHX, vSpecularExponent / max(saturate(zHardness * zHardness * zHardness ) , 0.0001)) ;
 
 			flSpecularTerm = (visTerm * normTerm * UNITY_PI *  0.8) * flNDotV ;
 			//flSpecularTerm *= pow(flNDotH,20) ;
@@ -260,8 +258,8 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 				//float flNDotL = normalize( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) );
 				//float flNDotV =  dot( vNormalWs.xyz, vPositionToCameraDirWs.xyz ) ;
 
-			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), flVDotL, vSpecularExponent.xy);
-                float normTerm = GGXTerm(flVDotL, vSpecularExponent.xy);
+			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), flVDotL, vSpecularExponent);
+                float normTerm = GGXTerm(flVDotL, vSpecularExponent);
                 flSpecularTerm = (visTerm * normTerm * UNITY_PI  * flNDotV);
 
 			//float flNDotH = saturate( dot(  vPositionToCameraDirWs.xyz , vPositionToLightDirWs.xyz ) );
@@ -281,8 +279,8 @@ float4 ComputeDiffuseAndSpecularTerms( bool bDiffuse, bool bSpecular,
 				float flNDotL = normalize( dot( vNormalWs.xyz, vPositionToLightDirWs.xyz ) + 0.0001 );
 				//float flNDotV = saturate( dot( vNormalWs.xyz, vPositionToCameraDirWs.xyz ) );
 
-			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), saturate(flNDotV) , vSpecularExponent.xy);
-                float normTerm = GGXTerm(flNDotH, vSpecularExponent.xy / max(saturate(zHardness * zHardness * zHardness ) , 0.0001) ) ;
+			    float visTerm = SmithJointGGXVisibilityTerm( (flNDotL), saturate(flNDotV) , vSpecularExponent);
+                float normTerm = GGXTerm(flNDotH, vSpecularExponent / max(saturate(zHardness * zHardness * zHardness ) , 0.0001) ) ;
                 flSpecularTerm = (visTerm * normTerm * UNITY_PI * 0.8 );
 
 				//vSpecularTerm.rgb = flSpecularTerm;
@@ -443,7 +441,7 @@ float3 ComputeOverrideLightmap( float2 vLightmapUV )
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vTangentUWs, float3 vTangentVWs, float2 vRoughness,
+LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vTangentUWs, float3 vTangentVWs, float3 vRoughness,
 								 float3 vReflectance, float flFresnelExponent, float4 vLightmapUV, float flNDotV )
 {
 	LightingTerms_t o;
@@ -454,10 +452,14 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	o.vTransmissiveSunlight = float3( 0.0, 0.0, 0.0 );
 
 	// Convert roughness to scale and exp
-	float2 vDiffuseExponent;
-	float2 vSpecularExponent;
-	float2 vSpecularScale;
-	RoughnessEllipseToScaleAndExp( vRoughness.xy, vDiffuseExponent.xy, vSpecularExponent.xy, vSpecularScale.xy );
+	float vDiffuseExponent;
+	float vSpecularExponent;
+	float vSpecularScale;
+	float2 zSpecularAnisotropic;
+	RoughnessEllipseToScaleAndExp( vRoughness.x, vDiffuseExponent, vSpecularExponent, vSpecularScale );
+	//vRoughness : roughness, AnisotropicRotation, AnisotropicRatio
+	//zSpecularAnisotropic = float2(_AnisotropicRotation , _AnisotropicRatio) ;
+	zSpecularAnisotropic.xy = saturate(vRoughness.yz);
 
 	float3 vPositionToCameraDirWs = CalculatePositionToCameraDirWs( vPositionWs.xyz );
 
@@ -482,7 +484,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		#if ( _BRDFMAP || S_ANISOTROPIC_GLOSS )	
 
 		#else					
-		if ( g_vLightFalloffParams[i].w > .99) { 	// Check if lambert wrap is less than 1
+		if ( g_vLightFalloffParams[i].w > .99) { 	// Check if lambert wrap is less than 1 //MOVE TO PRECOMPUTE
 				if ( dot( vNormalWs.xyz, vPositionToLightRayWs.xyz ) <= 0.0 )
 				{
 				// Backface cull pixel to this light
@@ -495,13 +497,13 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		float3 vPositionToLightDirWs = normalize( vPositionToLightRayWs.xyz );
 		float flOuterConeCos = g_vSpotLightInnerOuterConeCosines[ i ].y;
 		float flTemp = dot( vPositionToLightDirWs.xyz, -g_vLightDirection[ i ].xyz ) - flOuterConeCos;
-		#if !S_ANISOTROPIC_GLOSS 
+		//#if !S_ANISOTROPIC_GLOSS 
 		if ( flTemp <= 0.0 )
 		{
 			// Outside spotlight cone
 			continue;
 		}
-		#endif
+		//#endif
 
 		float4 vSpotAtten = saturate( flTemp * g_vSpotLightInnerOuterConeCosines[ i ].z ).xxxx;
 
@@ -560,7 +562,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		float4 vLightingTerms = ComputeDiffuseAndSpecularTerms( g_vLightShadowIndex_vLightParams[ i ].z != 0.0, g_vLightShadowIndex_vLightParams[ i ].w != 0.0,
 																vNormalWs.xyz, vEllipseUWs.xyz, vEllipseVWs.xyz,
 																vPositionToLightDirWs.xyz, vPositionToCameraDirWs.xyz,
-																vDiffuseExponent.xy, vSpecularExponent.xy, vSpecularScale.xy, vReflectance.rgb, flFresnelExponent , g_vLightFalloffParams[ i ].w, flNDotV);
+																vDiffuseExponent, vSpecularExponent, vSpecularScale, zSpecularAnisotropic, vReflectance.rgb, flFresnelExponent , g_vLightFalloffParams[ i ].w, flNDotV);
 
 
 		float4 vLightColor = g_vLightColor[ i ].rgba;
@@ -629,6 +631,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			else
 				{
 				o.vIndirectDiffuse.rgb += ClampToPositive(ShadeSH9( float4( vNormalWs.xyz, 1.0 ) ));  // Simple Light probe
+				//o.vIndirectDiffuse.rgb = float3(1,0,0);
 				}
 				#endif
 		}
@@ -711,7 +714,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 				float4 vLightingTerms = ComputeDiffuseAndSpecularTerms( false, true,
 																		vNormalWs.xyz, vEllipseUWs.xyz, vEllipseVWs.xyz,
 																		o_light.dir.xyz, vPositionToCameraDirWs.xyz,
-																		vDiffuseExponent.xy, vSpecularExponent.xy, vSpecularScale.xy, vReflectance.rgb, flFresnelExponent , g_vLightFalloffParams[ i ].w, flNDotV);
+																		vDiffuseExponent, vSpecularExponent, vSpecularScale, zSpecularAnisotropic, vReflectance.rgb, flFresnelExponent , g_vLightFalloffParams[ i ].w, flNDotV);
 
 				float4 vLightColor = float4(_LightColor0.rgb , _LightColor0.a);
 				float4 vLightMask = vLightColor.rgba;
@@ -748,8 +751,8 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			float4 vLightingTerms = ComputeDiffuseAndSpecularTerms( false, true,
 																	vNormalWs.xyz, vEllipseUWs.xyz, vEllipseVWs.xyz,
 																	o_light.dir.xyz, vPositionToCameraDirWs.xyz,
-																	vDiffuseExponent.xy, vSpecularExponent.xy, 
-																	vSpecularScale.xy, vReflectance.rgb, 
+																	vDiffuseExponent, vSpecularExponent, 
+																	vSpecularScale, zSpecularAnisotropic, vReflectance.rgb, 
 																	flFresnelExponent , g_vLightFalloffParams[ i ].w, flNDotV);
 
 			float4 vLightColor = float4(_LightColor0.rgb, _LightColor0.a);
@@ -766,7 +769,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	#if ( 1 )
 	{
 		//float flRoughness = dot( vRoughness.xy, float2(0.5,0.5 ) );
-		float flRoughness = dot( vRoughness.x, float(0.5 ) * 2 ); //only considering first value. Second was for the old anisotropic.
+		float flRoughness = dot( vRoughness.x, 1 ); //only considering first value. Second was for the old anisotropic.
 
 		float3 vReflectionDirWs = CalculateCameraReflectionDirWs( vPositionWs.xyz, vNormalWs.xyz );
 		float3 vReflectionDirWs0 = vReflectionDirWs.xyz;
@@ -780,9 +783,9 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			}
 			#elif ( S_ANISOTROPIC_GLOSS ) 
 			{			
-			//Adding Ubisoft's reflection stretch to fake anisotropic reflections. https://www.gdcvault.com/play/1022234/Rendering-the-World-of-Far
+			//Adding Ubisoft's reflection stretch for anisotropic reflections. https://www.gdcvault.com/play/1022234/Rendering-the-World-of-Far
 			float3 AnisotropicNormal = (cross(cross(vPositionToCameraDirWs,RotatedTangent), RotatedTangent));
-			float3 ReflectionNormal = normalize( lerp( -vNormalWs, AnisotropicNormal, (1 - _AnisotropicRatio) * 0.666666) ) ;
+			float3 ReflectionNormal = normalize( lerp( -vNormalWs, AnisotropicNormal, (1 - vRoughness.z) * 0.666666) ) ;
 			float3 AnisotropicReflection = vPositionToCameraDirWs - 2 * dot(ReflectionNormal,vPositionToCameraDirWs) * ReflectionNormal ;
 			vReflectionDirWs0.xyz = BoxProjectedCubemapDirection( -AnisotropicReflection.xyz, vPositionWs.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax );
 			}
@@ -816,11 +819,9 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 				#elif ( S_ANISOTROPIC_GLOSS )
 				{
 				float3 AnisotropicNormal = (cross(cross(vPositionToCameraDirWs,RotatedTangent), RotatedTangent));
-				float3 ReflectionNormal = normalize( lerp( -vNormalWs, AnisotropicNormal, (1 - _AnisotropicRatio) * 0.666666) ) ;
+				float3 ReflectionNormal = normalize( lerp( -vNormalWs, AnisotropicNormal, (1 - vRoughness.y) * 0.666666) ) ;
 				float3 AnisotropicReflection = vPositionToCameraDirWs - 2 * dot(ReflectionNormal,vPositionToCameraDirWs) * ReflectionNormal ;
 				vReflectionDirWs1.xyz = BoxProjectedCubemapDirection( -AnisotropicReflection.xyz, vPositionWs.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax );
-				
-
 				}
 				#else
 				{
@@ -844,6 +845,8 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			o.vIndirectSpecular.rgb += vEnvMap0.rgb;
 		}
 		#endif
+
+		
 	}
 	#endif
 
@@ -857,14 +860,17 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	o.vIndirectSpecular.rgb *= vFresnel.rgb;
 	o.vIndirectSpecular.rgb *= g_flCubeMapScalar;
 
+
 	// Since we have indirect specular, apply reflectance to indirect diffuse
 	o.vIndirectDiffuse.rgb *= ( float3( 1.0, 1.0, 1.0 ) - vReflectance.rgb );
+
+	
 
 	return o;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-LightingTerms_t ComputeLightingDiffuseOnly( float3 vPositionWs, float3 vNormalWs, float3 vTangentUWs, float3 vTangentVWs, float2 vRoughness, float4 vLightmapUV )
+LightingTerms_t ComputeLightingDiffuseOnly( float3 vPositionWs, float3 vNormalWs, float3 vTangentUWs, float3 vTangentVWs, float3 vRoughness, float4 vLightmapUV )
 {
 	LightingTerms_t lightingTerms = ComputeLighting( vPositionWs, vNormalWs, vTangentUWs, vTangentVWs, vRoughness, 0.0, 1.0, vLightmapUV.xyzw, 0 );
 

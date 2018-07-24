@@ -33,7 +33,7 @@ Shader "Valve/vr_standard"
 		[HideInInspector] g_flReflectanceBias( "g_flReflectanceBias", Range( 0.0, 1.0 ) ) = 0.0
 
 		[HideInInspector] [Gamma] _Metallic( "Metallic", Range( 0.0, 1.0 ) ) = 0.0
-		[HideInInspector] _MetallicGlossMap( "Metallic", 2D ) = "white" {}
+		[HideInInspector] _MetallicGlossMap( "Metallic", 2D ) = "black" {}
 
 		[HideInInspector] _SpecMod( "Specular Mod", Range( 0.0, 2.0 ) ) = 1.0
 
@@ -107,7 +107,7 @@ Shader "Valve/vr_standard"
 		[HideInInspector] _OffsetFactor ( "__fac", Float ) = 0.0
 		[HideInInspector] _OffsetUnits  ( "__units", Float ) = 0.0
 		
-		 _ColorMultiplier ("target color", float) = 0.0
+		[HideInInspector] _ColorMultiplier ("target color", float) = 0.0
 
 	}
 
@@ -455,6 +455,10 @@ Shader "Valve/vr_standard"
 				float _OcclusionStrengthIndirectDiffuse = 1.0;
 				float _OcclusionStrengthIndirectSpecular = 1.0;
 
+				
+				float _AnisotropicRotation;
+				float _AnisotropicRatio;
+
 				float _FogMultiplier = 1.0;
 
 
@@ -592,7 +596,7 @@ Shader "Valve/vr_standard"
 						// Convert to world space
 						vNormalWs.xyz = Vec3TsToWsNormalized( vNormalTs.xyz, vGeometricNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz  );
 
-						//vNormalWs.xyz += ScreenSpaceDither( i.vPositionPs.xy ).xyz * 0.2;
+						//vNormalWs.xyz += ScreenSpaceDither( i.vPositionPs.xy ).xyz * 30.2;
 
 					}
 					#endif
@@ -703,7 +707,7 @@ Shader "Valve/vr_standard"
 					//-----------//
 					// Roughness //
 					//-----------//
-					float2 vRoughness = float2( 0.6, 0.6 );// vNormalTexel.rb;
+					float3 vRoughness = float3( 0.6, 0.0, 0.0 );// vNormalTexel.rb;
 					//#if ( S_HIGH_QUALITY_GLOSS )
 					//{
 					//	float4 vGlossTexel = Tex2D( g_tGloss, i.vTextureCoords.xy );
@@ -713,7 +717,7 @@ Shader "Valve/vr_standard"
 
 					// Reflectance and gloss
 					float3 vReflectance = float3( 0.0, 0.0, 0.0 );
-					float2 flGloss = float2(0.0 , 0.0);
+					float3 flGloss = float3(0.0, 0.0, 0.0);
 					#if ( S_SPECULAR_METALLIC )
 					{
 						float2 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
@@ -734,7 +738,7 @@ Shader "Valve/vr_standard"
 						vAlbedo.rgb = diffColor.rgb;
 
 						vReflectance.rgb = vSpecColor.rgb;
-						flGloss.xy = vMetallicGloss.yy;
+						flGloss.x = vMetallicGloss.y;
 					}
 					#elif ( S_SPECULAR_BLINNPHONG )
 					{
@@ -747,15 +751,18 @@ Shader "Valve/vr_standard"
 
 						vReflectanceGloss.rgb = ( vReflectanceGloss.rgb * g_flReflectanceScale.xxx ) + g_flReflectanceBias.xxx;
 						vReflectance.rgb = vReflectanceGloss.rgb;
-						flGloss.xy = vReflectanceGloss.aa;
+						flGloss.x = vReflectanceGloss.a;
 					}
 
 					#elif ( S_ANISOTROPIC_GLOSS  )
 					{
-
+						//x = Metallic, y = Gloss, z = Rotation, w = Ratio
 						float4 vMetallicGloss;// = MetallicGloss( i.vTextureCoords.xy );
 						#ifdef _METALLICGLOSSMAP
-							vMetallicGloss.xyzw = tex2D(_MetallicGlossMap, zTextureCoords.xy).ragb;
+							vMetallicGloss.xyzw = tex2D(_MetallicGlossMap, zTextureCoords.xy ).ragb;	
+							vMetallicGloss.z = frac(vMetallicGloss.z + _AnisotropicRotation);
+							//+ ScreenSpaceDither( zTextureCoords.xy * 256 ).xy * 0.2 
+
 						#else
 							vMetallicGloss.xyzw = half4(_Metallic, _Glossiness, _AnisotropicRotation, _AnisotropicRatio);
 						#endif
@@ -766,7 +773,7 @@ Shader "Valve/vr_standard"
 						vAlbedo.rgb = diffColor.rgb;
 
 						vReflectance.rgb = vSpecColor.rgb;
-						flGloss.xy = vMetallicGloss.yz;
+						flGloss.xyz = vMetallicGloss.yzw;
 					}
 
 					#elif ( S_RETROREFLECTIVE )
@@ -787,17 +794,18 @@ Shader "Valve/vr_standard"
 						vAlbedo.rgb = diffColor.rgb;
 
 						vReflectance.rgb = vSpecColor.rgb;
-						flGloss.xy = vMetallicGloss.yy ;//* normalBlend;
+						flGloss.x = vMetallicGloss.y ;//* normalBlend;
 					
 					}
 
 					
 					#endif
+ 
+					vRoughness.xyz = float3( ( 1.0 - saturate(flGloss.x * g_fSpecMod) ), flGloss.y, flGloss.z );
 
-					vRoughness.xy = ( 1.0 - saturate(flGloss.xy * g_fSpecMod) );
 					#if ( !S_SPECULAR_NONE )
 					{
-						vRoughness.xy = AdjustRoughnessByGeometricNormal( vRoughness.xy, vGeometricNormalWs.xyz );
+						vRoughness.x = AdjustRoughnessByGeometricNormal( vRoughness.x, vGeometricNormalWs.xyz );
 					}
 					#endif
 
@@ -829,7 +837,7 @@ Shader "Valve/vr_standard"
 						#endif
 
 						// Compute lighting
-						lightingTerms = ComputeLighting( i.vPositionWs.xyz, vNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz, vRoughness.xy, vReflectance.rgb, g_flFresnelExponent, vLightmapUV.xyzw, Dotfresnel );
+						lightingTerms = ComputeLighting( i.vPositionWs.xyz, vNormalWs.xyz, vTangentUWs.xyz, vTangentVWs.xyz, vRoughness.xyz, vReflectance.rgb, g_flFresnelExponent, vLightmapUV.xyzw, Dotfresnel );
 
 						#if ( S_OCCLUSION || _NORMALMAP )
 						{
@@ -936,9 +944,8 @@ Shader "Valve/vr_standard"
 					//Shape Occlusion
 					#if (Z_SHAPEAO)
 					{
-					float vAO = CalculateSphericalAO( i.vPositionWs.xyz, vNormalWs.xyz);
-					vAO *= CalculatePointAO( i.vPositionWs.xyz, vNormalWs.xyz );
-
+					float vAO = CalculateShapeAO( i.vPositionWs.xyz, vNormalWs.xyz);
+					
 					o.vColor.rgb *= vAO;
 					}
 					#endif

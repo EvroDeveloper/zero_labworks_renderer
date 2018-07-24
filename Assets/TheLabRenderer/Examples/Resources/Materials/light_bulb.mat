@@ -76,7 +76,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AnisotropicRatio: 0.5
+    - _AnisotropicRotation: 0.5
     - _BumpScale: 1
+    - _ColorMultiplier: 0
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailMode: 0
@@ -101,6 +104,8 @@ Material:
     - _OffsetUnits: 0
     - _PackingMode: 0
     - _Parallax: 0.02
+    - _ParallaxIterations: 1
+    - _ParallaxOffset: 0
     - _SmoothnessTextureChannel: 0
     - _SpecMod: 1
     - _SpecularHighlights: 1

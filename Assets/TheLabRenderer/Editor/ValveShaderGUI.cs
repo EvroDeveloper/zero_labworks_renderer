@@ -93,14 +93,14 @@ internal class ValveShaderGUI : ShaderGUI
 		public static GUIContent occlusionStrengthIndirectDiffuseText = new GUIContent( "Indirect Diffuse", "" );
 		public static GUIContent occlusionStrengthIndirectSpecularText = new GUIContent( "Indirect Specular", "" );
 		public static GUIContent emissionText = new GUIContent( "Emission", "Emission (RGB)" );
-        public static GUIContent emissionFalloffText = new GUIContent("Emission Falloff", "Emission Falloff");
+        public static GUIContent emissionFalloffText = new GUIContent("Falloff", "Emission Falloff");
 		public static GUIContent detailMaskText = new GUIContent("Detail Mask", "Mask for Secondary Maps (A)");
 		public static GUIContent detailAlbedoText = new GUIContent("Detail Albedo", "Detail Albedo (RGB) multiplied by 2");
 		public static GUIContent detailNormalMapText = new GUIContent("Detail Normal", "Detail Normal Map");
         public static GUIContent castShadowsText = new GUIContent("Cast shadows", "");
 		public static GUIContent receiveShadowsText = new GUIContent( "Receive Shadows", "" );
 		public static GUIContent renderBackfacesText = new GUIContent( "Render Backfaces", "" );
-        public static GUIContent emissiveMode = new GUIContent("Emissive Multiply", "Multiply with albedo");
+        public static GUIContent emissiveMode = new GUIContent("Multiply Albedo", "Multiply emissive color with albedo");
 		public static GUIContent overrideLightmapText = new GUIContent( "Override Lightmap", "Requires ValveOverrideLightmap.cs scrip on object" );
 		public static GUIContent worldAlignedTextureText = new GUIContent( "World Aligned Texture", "" );
 		public static GUIContent worldAlignedTextureSizeText = new GUIContent( "Size", "" );
@@ -112,7 +112,7 @@ internal class ValveShaderGUI : ShaderGUI
 		public static string secondaryMapsText = "Secondary Maps";
         public static string OverridesMapsText = "Override Settings";
 		public static string renderingMode = "Rendering Mode";
-		public static string specularModeText = "Specular Mode";
+		public static string specularModeText = "Specular Workflow";
         public static string VertexModeText = "Vertex Mode";
         public static string PackingModeText = "Packing Mode";
         public static string DetailModeText = "Detail Blend Mode";
@@ -714,6 +714,9 @@ internal class ValveShaderGUI : ShaderGUI
 	{
             GUIContent MetallicDis;
 
+            SpecularMode specularMode = (SpecularMode)material.GetInt("_SpecularMode");
+
+
             if ((TexturePackingMode)material.GetInt("_PackingMode") == TexturePackingMode.None)
             {
                 MetallicDis = Styles.metallicMapText;
@@ -739,7 +742,7 @@ internal class ValveShaderGUI : ShaderGUI
 
 
 
-            SpecularMode specularMode = ( SpecularMode )material.GetInt( "_SpecularMode" );
+          
 		if ( specularMode == SpecularMode.BlinnPhong )
 		{
 			if (specularMap.textureValue == null)
@@ -763,7 +766,9 @@ internal class ValveShaderGUI : ShaderGUI
 
         else if (specularMode == SpecularMode.Anisotropic)
         {
-            if (metallicMap.textureValue == null)
+                MetallicDis = new GUIContent("Anisotropic Metallic", "Metallic (R), Rotation (G), Ratio(B), Gloss (A) ");
+
+                if (metallicMap.textureValue == null)
             {
                 m_MaterialEditor.TexturePropertyTwoLines(MetallicDis, metallicMap, metallic, Styles.smoothnessText, smoothness);
 
@@ -810,6 +815,8 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword("_ALPHATEST_ON");
 				material.DisableKeyword("_ALPHABLEND_ON");
 				material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMOD2X_ON");
 				material.renderQueue = -1;
                 material.SetInt("_Test", 0);
 				break;
@@ -822,6 +829,8 @@ internal class ValveShaderGUI : ShaderGUI
 				material.EnableKeyword("_ALPHATEST_ON");
 				material.DisableKeyword("_ALPHABLEND_ON");
 				material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMOD2X_ON");
 				material.renderQueue = 2450;
                 material.SetInt("_Test", 1);
 
@@ -835,6 +844,8 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword("_ALPHATEST_ON");
 				material.EnableKeyword("_ALPHABLEND_ON");
 				material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMOD2X_ON");
 				material.renderQueue = 3000;
                 material.SetInt("_Test", 0);
 
@@ -848,9 +859,18 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword("_ALPHATEST_ON");
 				material.DisableKeyword("_ALPHABLEND_ON");
 				material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMOD2X_ON");
+                material.SetFloat("_ColorMultiplier", 0);
 				material.renderQueue = 3000;
                 material.SetInt("_Test", 0);
-				break;
+                if (material.GetInt("g_bUnlit") == 1)
+                {
+                   material.SetInt("g_bUnlit", 0);
+                   Debug.Log("Disabling Unlit option on glass " + material + ". Unsupported");
+                } 
+
+                break;
 			case BlendMode.Additive:
 				material.SetOverrideTag( "RenderType", "ValveTransparent" );
 				material.SetInt( "_SrcBlend", ( int )UnityEngine.Rendering.BlendMode.One );
@@ -860,6 +880,8 @@ internal class ValveShaderGUI : ShaderGUI
 				material.DisableKeyword( "_ALPHATEST_ON" );
 				material.DisableKeyword( "_ALPHABLEND_ON" );
 				material.DisableKeyword( "_ALPHAPREMULTIPLY_ON" );
+                material.DisableKeyword("_ALPHAMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMOD2X_ON");
 				material.renderQueue = 3000;
                 material.SetInt("_Test", 0);
 				break;
@@ -872,6 +894,9 @@ internal class ValveShaderGUI : ShaderGUI
                 material.DisableKeyword("_ALPHATEST_ON");
                 material.EnableKeyword("_ALPHABLEND_ON");
                 material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMULTIPLY_ON");
+                material.EnableKeyword("_ALPHAMOD2X_ON");
+                material.SetFloat("_ColorMultiplier",  0.5f );
                 material.renderQueue = 3000;
                 material.SetInt("_Test", 0);
 
@@ -886,6 +911,9 @@ internal class ValveShaderGUI : ShaderGUI
                 material.DisableKeyword("_ALPHATEST_ON");
                 material.DisableKeyword("_ALPHABLEND_ON");
                 material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.EnableKeyword("_ALPHAMULTIPLY_ON");
+                material.DisableKeyword("_ALPHAMOD2X_ON");
+                material.SetFloat("_ColorMultiplier", 1);
                 material.renderQueue = 3000;
                 material.SetInt("_Test", 0);
                 break;

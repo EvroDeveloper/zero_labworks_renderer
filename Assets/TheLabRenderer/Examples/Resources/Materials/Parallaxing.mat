@@ -80,6 +80,7 @@ Material:
     - _AnisotropicRatio: 0.5
     - _AnisotropicRotation: 0.5
     - _BumpScale: 1
+    - _ColorMultiplier: 0
     - _Cull: 2
     - _Cutoff: 0
     - _DetailMode: 2
@@ -103,8 +104,8 @@ Material:
     - _OffsetFactor: 0
     - _OffsetUnits: 0
     - _PackingMode: 0
-    - _Parallax: -0.06
-    - _ParallaxIterations: 9
+    - _Parallax: -0.03
+    - _ParallaxIterations: 22
     - _ParallaxOffset: 0
     - _SmoothnessTextureChannel: 0
     - _SpecMod: 1

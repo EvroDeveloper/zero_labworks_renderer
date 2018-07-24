@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+﻿// Upgrade NOTE: replaced 'UNITY_INSTANCE_ID' with 'UNITY_VERTEX_INPUT_INSTANCE_ID'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
 // Copyright (c) Valve Corporation, All rights reserved. ======================================================================================================
 
@@ -27,16 +29,20 @@ Shader "Valve/Internal/vr_quality_vis"
 				{
 					float4 vPositionOs : POSITION;
 					float2 vTexCoord : TEXCOORD0;
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 				};
 
 				struct PS_INPUT
 				{
 					float4 vPositionPs : SV_Position;
 					sample float2 vTexCoord : TEXCOORD0;
+					UNITY_VERTEX_INPUT_INSTANCE_ID
+    				UNITY_VERTEX_OUTPUT_STEREO
 				};
 
 				struct PS_OUTPUT
 				{
+					
 					float4 vColor : SV_Target0;
 					float flDepth : SV_Depth;
 				};
@@ -44,6 +50,11 @@ Shader "Valve/Internal/vr_quality_vis"
 				PS_INPUT MainVs( VS_INPUT i )
 				{
 					PS_INPUT o;
+
+					UNITY_SETUP_INSTANCE_ID(i);
+					UNITY_TRANSFER_INSTANCE_ID(i, o);
+					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
 					o.vPositionPs.xyzw = UnityObjectToClipPos( i.vPositionOs.xyzw );
 					o.vTexCoord.xy = float2( i.vTexCoord.x, 1.0 - i.vTexCoord.y );
 					return o;
@@ -57,6 +68,7 @@ Shader "Valve/Internal/vr_quality_vis"
 				PS_OUTPUT MainPs( PS_INPUT i )
 				{
 					PS_OUTPUT o;
+					UNITY_SETUP_INSTANCE_ID(i);
 					o.vColor.rgba = float4( 0.0, 0.0, 0.0, 1.0 );
 
 					uint nBin = i.vTexCoord.x * g_nNumBins;

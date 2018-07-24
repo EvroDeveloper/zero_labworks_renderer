@@ -81,6 +81,7 @@ Material:
     - _AnisotropicRatio: 0
     - _AnisotropicRotation: 0.4
     - _BumpScale: 1
+    - _ColorMultiplier: 0
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailMode: 0
