@@ -75,9 +75,9 @@ public class TheLabRenderer_Settings : EditorWindow
             (!EditorPrefs.HasKey(ignore + buildTarget) &&
                 EditorUserBuildSettings.activeBuildTarget != recommended_BuildTarget) ||
             (!EditorPrefs.HasKey(ignore + showUnitySplashScreen) &&
-                PlayerSettings.showUnitySplashScreen != recommended_ShowUnitySplashScreen) ||
-            (!EditorPrefs.HasKey(ignore + defaultIsFullScreen) &&
-                PlayerSettings.defaultIsFullScreen != recommended_DefaultIsFullScreen) ||
+                PlayerSettings.SplashScreen.show != recommended_ShowUnitySplashScreen) ||
+            //(!EditorPrefs.HasKey(ignore + defaultIsFullScreen) &&
+            //    PlayerSettings.defaultIsFullScreen != recommended_DefaultIsFullScreen) ||
             (!EditorPrefs.HasKey(ignore + defaultScreenSize) &&
                 (PlayerSettings.defaultScreenWidth != recommended_DefaultScreenWidth ||
                 PlayerSettings.defaultScreenHeight != recommended_DefaultScreenHeight)) ||
@@ -87,8 +87,8 @@ public class TheLabRenderer_Settings : EditorWindow
                 PlayerSettings.displayResolutionDialog != recommended_DisplayResolutionDialog) ||
             (!EditorPrefs.HasKey(ignore + resizableWindow) &&
                 PlayerSettings.resizableWindow != recommended_ResizableWindow) ||
-            (!EditorPrefs.HasKey(ignore + fullscreenMode) &&
-                PlayerSettings.d3d11FullscreenMode != recommended_FullscreenMode) ||
+            //(!EditorPrefs.HasKey(ignore + fullscreenMode) &&
+            //    PlayerSettings.d3d11FullscreenMode != recommended_FullscreenMode) ||
             (!EditorPrefs.HasKey(ignore + visibleInBackground) &&
                 PlayerSettings.visibleInBackground != recommended_VisibleInBackground) ||
             (!EditorPrefs.HasKey(ignore + renderingPath) &&
@@ -233,7 +233,7 @@ public class TheLabRenderer_Settings : EditorWindow
         }
 
         if (!EditorPrefs.HasKey(ignore + showUnitySplashScreen) &&
-            PlayerSettings.showUnitySplashScreen != recommended_ShowUnitySplashScreen)
+            PlayerSettings.SplashScreen.show != recommended_ShowUnitySplashScreen)
         {
             ++numItems;
 
@@ -243,7 +243,7 @@ public class TheLabRenderer_Settings : EditorWindow
 
             if (GUILayout.Button(string.Format(useRecommended, recommended_ShowUnitySplashScreen)))
             {
-                PlayerSettings.showUnitySplashScreen = recommended_ShowUnitySplashScreen;
+                PlayerSettings.SplashScreen.show = recommended_ShowUnitySplashScreen;
             }
 
             GUILayout.FlexibleSpace();

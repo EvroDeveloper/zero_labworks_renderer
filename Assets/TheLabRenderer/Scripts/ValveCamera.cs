@@ -179,9 +179,15 @@ public class ValveCamera : MonoBehaviour
 	//---------------------------------------------------------------------------------------------------------------------------------------------------
 	void OnEnable()
 	{
-       var vrcam = FindObjectsOfType<ValveCamera>();
-
-        if (vrcam.Length > 1) Debug.LogError(vrcam.Length + " Valve Camera's found. Only use one.");
+        //Send an error if more than one ValveCamera is found
+                               
+        var vrcams = FindObjectsOfType<ValveCamera>();
+        int activeVRcams = 0;
+        foreach (ValveCamera vrcam in vrcams)
+        {
+            if (vrcam.isActiveAndEnabled)  activeVRcams++;              
+        }    
+        if (activeVRcams > 1) Debug.LogError(activeVRcams + " Active Valve Camera's found. Only use one.");
 
 
 
@@ -307,7 +313,7 @@ public class ValveCamera : MonoBehaviour
 				m_shadowDepthTexture = null;
 			}
 
-			m_shadowDepthTexture = new RenderTexture( m_valveShadowTextureWidth, m_valveShadowTextureHeight, 24, RenderTextureFormat.Shadowmap, RenderTextureReadWrite.Linear );
+			m_shadowDepthTexture = new RenderTexture( m_valveShadowTextureWidth, m_valveShadowTextureHeight, 32, RenderTextureFormat.Shadowmap, RenderTextureReadWrite.Linear );
 			if ( m_shadowDepthTexture )
 			{
 				m_shadowDepthTexture.name = "m_shadowDepthTexture";
@@ -394,7 +400,9 @@ public class ValveCamera : MonoBehaviour
 		goCamera.backgroundColor = Color.white;
 		goCamera.orthographic = false;
 		goCamera.hideFlags = HideFlags.HideAndDontSave;
-		go.SetActive( false );
+        
+
+        go.SetActive( false );
 		return goCamera;
 	}
 
@@ -952,6 +960,7 @@ public class ValveCamera : MonoBehaviour
 			ValveRealtimeLight vl = ValveRealtimeLight.s_allLights[ nLight ];
 			//Light l = vl.m_cachedLight;
 
+
 			vl.m_bRenderShadowsThisFrame = false;
 
 			if ( !vl.IsEnabled() )
@@ -1257,9 +1266,10 @@ public class ValveCamera : MonoBehaviour
 			m_shadowCamera.transform.rotation = l.transform.rotation;
 			m_shadowCamera.cullingMask = vl.m_shadowCastLayerMask;
 			m_shadowCamera.useOcclusionCulling = vl.m_useOcclusionCullingForShadows;
+            
 
-			// Override some values for directional lights
-			if ( l.type == LightType.Directional )
+            // Override some values for directional lights
+            if ( l.type == LightType.Directional )
 			{
 				m_shadowCamera.nearClipPlane = DIRECTIONAL_LIGHT_PULLBACK_DISTANCE;
 				m_shadowCamera.farClipPlane = m_shadowCamera.nearClipPlane + vl.m_directionalLightShadowRange;
@@ -1308,12 +1318,17 @@ public class ValveCamera : MonoBehaviour
 
 			// Set shader constants
 			Shader.SetGlobalVector( "g_vLightDirWs", new Vector4( l.transform.forward.normalized.x, l.transform.forward.normalized.y, l.transform.forward.normalized.z ) );
-           
-			// Render
-			m_shadowCamera.RenderWithShader( m_shaderCastShadows, "RenderType" );
 
-			// Point lights require 6 fake spotlights for now
-			if ( l.type == LightType.Point )
+
+            //Stop render here to optimize
+
+            // Shadow Render
+
+            m_shadowCamera.RenderWithShader( m_shaderCastShadows, "RenderType" );
+           // m_shadowCamera.Render();
+
+            // Point lights require 6 fake spotlights for now
+            if ( l.type == LightType.Point )
 			{
 				// Reset rotation
 				l.transform.rotation = originalRotate;

@@ -140,4 +140,18 @@ public class ValveRealtimeLight : MonoBehaviour
 
 		return false;
 	}
+
+
+    void OnDrawGizmosSelected()
+    {
+        if (m_cachedLight != null)
+        {
+            if (m_cachedLight.type == LightType.Directional)
+            {
+                Gizmos.color = new Color(1f, 1f, 0.597f);
+                Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, new Vector3(1.0f, 1.0f, m_directionalLightShadowRange / m_directionalLightShadowRadius));
+                Gizmos.DrawFrustum(Vector3.zero, m_directionalLightShadowRadius * 4, m_directionalLightShadowRadius, m_directionalLightShadowRadius, 1.0f);
+            }
+        }
+    }
 }

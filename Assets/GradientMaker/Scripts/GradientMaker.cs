@@ -1,9 +1,11 @@
 ﻿// This is a legacy class from v1.0 of gradient maker and will soon be gone for good //
-#if UNITY_EDITOR
+
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
 using System.IO;
 using System.Collections;
+#endif
 
 [ExecuteInEditMode]
 
@@ -14,8 +16,8 @@ public enum GradType{
 };
 
 public class GradientMaker : MonoBehaviour {
-
-	public Gradient Grad;
+#if UNITY_EDITOR
+    public Gradient Grad;
 	[HideInInspector] public Gradient LastGrad;
 	[HideInInspector] public bool _invertGradient = false;
 	[HideInInspector] public GradType gradType = GradType.Horizontal; 
@@ -30,9 +32,9 @@ public class GradientMaker : MonoBehaviour {
     [SerializeField]  private TextureWrapMode WrapMode = TextureWrapMode.Clamp;
     [SerializeField]  private TextureImporterAlphaSource AlphaMode = TextureImporterAlphaSource.None;
 	
-	void Start (){
-        CreateGradTexture ();
-	}
+	//void Start (){
+ //       CreateGradTexture ();
+	//}
 
 	public void CreateGradTexture(){
 		// Create gradient object and assign generic starting colours
@@ -194,6 +196,5 @@ public class GradientMaker : MonoBehaviour {
 		
 		return false;
 	}
-	
-}
 #endif
+}

@@ -2,6 +2,7 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class ValveFog : MonoBehaviour
@@ -11,7 +12,8 @@ public class ValveFog : MonoBehaviour
 	public Gradient gradient = new Gradient();
 	public float startDistance = 0.0f;
 	public float endDistance = 100.0f;
-	public int textureWidth = 32;
+   
+	int textureWidth = 32;
 
 	[Header( "Height Fog")]
 
@@ -20,11 +22,20 @@ public class ValveFog : MonoBehaviour
 	public float heightFogFalloff = 0.1f;
 	public float heightFogBaseHeight = -40.0f;
 
-	// Textures
-    
-	private Texture2D gradientFogTexture;
+    // Textures
 
-	void Start()
+    private void OnValidate()
+    {
+        if (FindObjectsOfType<ValveFog>().Length > 1)
+        {
+            Debug.LogError("Found another instance of Fog in scene");
+            return;
+        }
+    }
+
+    //private Texture2D gradientFogTexture;
+
+    void Start()
 	{
 		UpdateConstants();
     }
@@ -49,11 +60,30 @@ public class ValveFog : MonoBehaviour
 	}
 #endif
 
-	private void UpdateConstants()
+
+    public void UpdateConstants(Color HColor, Gradient Grad, float endDist, float startDist)
+    {
+       // if (gradientFogTexture == null)
+        {
+            GenerateArray(Grad);
+        }
+
+        float scale = 1.0f / (endDist - startDist);
+        float add = -startDist / (endDist - startDist);
+        Shader.SetGlobalVector("gradientFogScaleAdd", new Vector4(scale, add, 0.0f, 0.0f));
+        Shader.SetGlobalColor("gradientFogLimitColor", Grad.Evaluate(1.0f).linear);
+        Shader.SetGlobalVector("heightFogParams", new Vector4(heightFogThickness, heightFogFalloff, heightFogBaseHeight, 0.0f));
+        Shader.SetGlobalColor("heightFogColor", HColor.linear);
+        
+    }
+
+
+
+        private void UpdateConstants()
 	{
-		if ( gradientFogTexture == null )
+		//if ( gradientFogTexture == null )
 		{
-			GenerateTexture();
+			GenerateArray();
 		}
 
 		float scale = 1.0f / ( endDistance - startDistance );
@@ -64,23 +94,121 @@ public class ValveFog : MonoBehaviour
 		Shader.SetGlobalColor( "heightFogColor", heightFogColor.linear );
 	}
 
-	public void GenerateTexture()
+
+    //Switching from texture to 1D vector4 array
+    public void GenerateArray(Gradient grad)
+    {
+        // gradientFogTexture = new Texture2D(textureWidth, 1, TextureFormat.ARGB32, false);
+        // gradientFogTexture.wrapMode = TextureWrapMode.Clamp;
+
+        List<Vector4> gradientFogArray = new List<Vector4>();
+
+        float ds = 1.0f / (textureWidth - 1);
+        float s = 0.0f;
+        for (int i = 0; i < textureWidth; i++)
+        {
+            // gradientFogTexture.SetPixel(i, 0, grad.Evaluate(s));
+            gradientFogArray.Add(grad.Evaluate(s));
+            s += ds;
+        }
+       //gradientFogTexture.Apply();
+       //Shader.SetGlobalTexture("gradientFogTexture", gradientFogTexture);
+        Shader.SetGlobalVectorArray("gradientFogArray", gradientFogArray);
+
+    }
+
+
+    public void GenerateArray()
 	{
-		gradientFogTexture = new Texture2D( textureWidth, 1, TextureFormat.ARGB32, false );
+        GenerateArray(gradient);
+    }
 
-		gradientFogTexture.wrapMode = TextureWrapMode.Clamp;
+    public void FadeFogToDefault(float TimeToFade)
+    {
+        StopAllCoroutines();
+        StartCoroutine(FadeFogArrayCo(gradient, TimeToFade));
 
-		float ds = 1.0f / ( textureWidth - 1 );
-		float s = 0.0f;
-		for ( int i = 0; i < textureWidth; i++ )
-		{
-			gradientFogTexture.SetPixel( i, 0, gradient.Evaluate( s ) );
-			s += ds;
-		}
-		gradientFogTexture.Apply();
+    }
 
-		Shader.SetGlobalTexture( "gradientFogTexture", gradientFogTexture );
-	}
+
+    public void FadeFogArray(Gradient TargetGradient, float TimeToFade)
+    {
+        StopAllCoroutines();
+        StartCoroutine(FadeFogArrayCo(TargetGradient, TimeToFade));
+
+    }
+
+
+     IEnumerator FadeFogArrayCo(Gradient TargetGradient, float TimeToFade)
+    {
+        //float start = fadeType == Fade.In ? 0f : 1f;
+        Vector4[] startColors = Shader.GetGlobalVectorArray("gradientFogArray"); 
+       // Gradient end = fadeType == Fade.In ? 1f : 0f;
+
+        float Timer = 0.0f;
+        float step = 1.0f / TimeToFade;
+
+        while (Timer <= 1.0f)
+        {
+            Timer += (Time.deltaTime * step) / Time.timeScale;
+
+            List<Vector4> gradientFogArray = new List<Vector4>();
+
+            float ds = 1.0f / (textureWidth - 1);
+            float s = 0.0f;
+            for (int i = 0; i < textureWidth; i++)
+            {
+                Vector4 ColorLerp = Vector4.Lerp(startColors[i], TargetGradient.Evaluate(s), Timer);
+              
+                gradientFogArray.Add(ColorLerp);
+                s += ds;
+            }
+
+            Shader.SetGlobalVectorArray("gradientFogArray", gradientFogArray);
+
+            yield return null;
+        }
+        yield break;
+    }
+
+
+
+    //public void FadeIn()
+    //{
+    //    StopAllCoroutines();
+    //    StartCoroutine(Fader(Fade.In));
+    //}
+
+    //public void FadeOut()
+    //{
+    //    StopAllCoroutines();
+    //    StartCoroutine(Fader(Fade.Out));
+    //}
+
+    //enum Fade { In, Out };
+
+    //private IEnumerator Fader(Fade fadeType)
+    //{
+    //    //float start = fadeType == Fade.In ? 0f : 1f;
+    //    Gradient start = currentAlpha;
+    //    Gradient end = fadeType == Fade.In ? 1f : 0f;
+
+    //    float Timer = 0.0f;
+    //    float step = 1.0f / TimeToFullyFade;
+
+    //    while (Timer <= 1.0f)
+    //    {
+    //        Timer += (Time.deltaTime * step) / Time.timeScale;
+    //        currentAlpha = Mathf.Lerp(start, end, Timer);
+
+    //        for (int i = 0; i < MaterialsToFade.Length; i++)
+    //        {
+    //            MaterialsToFade[i].material.SetFloat(TargetVariable, currentAlpha);
+    //        }
+    //        yield return null;
+    //    }
+    //    yield return null;
+    //}
 }
 
 #if UNITY_EDITOR
@@ -94,7 +222,7 @@ public class ValveGradientFogEditor : UnityEditor.Editor
 
 		ValveFog gradientFog = ( ValveFog )target;
 
-		gradientFog.GenerateTexture();
+		gradientFog.GenerateArray();
 	}
 }
 #endif

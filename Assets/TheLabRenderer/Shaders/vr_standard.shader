@@ -54,7 +54,7 @@ Shader "Valve/vr_standard"
 		[HideInInspector] _OcclusionStrengthIndirectDiffuse( "StrengthIndirectDiffuse", Range( 0.0, 1.0 ) ) = 1.0
 		[HideInInspector] _OcclusionStrengthIndirectSpecular( "StrengthIndirectSpecular", Range( 0.0, 1.0 ) ) = 1.0
 
-		[HideInInspector] g_flFresnelFalloff ("Fresnel Falloff Scalar" , Range(0.0 , 1.0 ) ) = 1.0
+		[HideInInspector] g_flFresnelFalloff ("Fresnel Falloff Scalar" , Range(0.0 , 2.0 ) ) = 1.0
 		[HideInInspector] g_flFresnelExponent ( "Fresnel Exponent", Range( 0.5, 10.0 ) ) = 5.0
 		[HideInInspector] g_flCubeMapScalar( "Cube Map Scalar", Range( 0.0, 2.0 ) ) = 1.0
 
@@ -142,42 +142,53 @@ Shader "Valve/vr_standard"
 				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON 
 				#pragma shader_feature _ALPHAMULTIPLY_ON
 				#pragma shader_feature _ALPHAMOD2X_ON
-				#pragma shader_feature _NORMALMAP
-				#pragma shader_feature _METALLICGLOSSMAP
-				#pragma shader_feature _SPECGLOSSMAP
+
 				#pragma shader_feature _EMISSION
-				#pragma shader_feature _DETAIL_MULX2   
+				#pragma shader_feature _DETAIL_MULX2
 				#pragma shader_feature _DETAIL_MUL
 				#pragma shader_feature _DETAIL_ADD
 				#pragma shader_feature _DETAIL_LERP
 				#pragma shader_feature _PARALLAXMAP
-				#pragma shader_feature _FLUORESCENCEMAP				
 				#pragma shader_feature _COLORSHIFT
-				#pragma shader_feature _BRDFMAP
-
-
-				#pragma shader_feature S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
-				#pragma shader_feature S_UNLIT
-				#pragma shader_feature S_OVERRIDE_LIGHTMAP
-				#pragma shader_feature S_WORLD_ALIGNED_TEXTURE
-				#pragma shader_feature S_RECEIVE_SHADOWS
+				
 				#pragma shader_feature D_CASTSHADOW
-				#pragma shader_feature S_OCCLUSION
+
+				#pragma shader_feature S_WORLD_ALIGNED_TEXTURE
 				#pragma shader_feature S_RENDER_BACKFACES
-				#pragma shader_feature S_EMISSIVE_MULTI
+				#pragma shader_feature S_EMISSIVE_MULTI				
+
+				#pragma shader_feature S_UNLIT
+
+		//Skip unused variants in precompute to reduce compile time
+		#if ( S_UNLIT ) 
+		#else  
+				#pragma shader_feature _NORMALMAP
+				#pragma shader_feature _METALLICGLOSSMAP
+				#pragma shader_feature _SPECGLOSSMAP
+				#pragma shader_feature _FLUORESCENCEMAP		
+				#pragma shader_feature S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
+				#pragma shader_feature S_OCCLUSION
+				#pragma shader_feature S_OVERRIDE_LIGHTMAP
 				#pragma shader_feature S_PACKING_RMA 
 				#pragma shader_feature S_PACKING_MAES
 				#pragma shader_feature S_PACKING_MAS
+				#pragma shader_feature _BRDFMAP
+				#pragma shader_feature S_RECEIVE_SHADOWS
 
 				#pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
 				#pragma multi_compile DIRLIGHTMAP_OFF DIRLIGHTMAP_COMBINED DIRLIGHTMAP_SEPARATE
 				#pragma multi_compile DYNAMICLIGHTMAP_OFF DYNAMICLIGHTMAP_ON
+
+				#pragma multi_compile _ D_VALVE_SHADOWING_POINT_LIGHTS
+				#pragma multi_compile _ Z_SHAPEAO
+		#endif
+
+
 				#pragma multi_compile_instancing
 
 				#pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
 				#pragma multi_compile _ D_VALVE_FOG
-				#pragma multi_compile _ D_VALVE_SHADOWING_POINT_LIGHTS
-				#pragma multi_compile _ Z_SHAPEAO
+
 				
 				
 
@@ -942,7 +953,7 @@ Shader "Valve/vr_standard"
 
 
 					//Shape Occlusion
-					#if (Z_SHAPEAO)
+					#if (Z_SHAPEAO && !S_UNLIT )
 					{
 					float vAO = CalculateShapeAO( i.vPositionWs.xyz, vNormalWs.xyz);
 					
@@ -976,6 +987,7 @@ Shader "Valve/vr_standard"
 						#endif
 					}
 					#endif
+
 
 					// Dither to fix banding artifacts
 					o.vColor.rgba += ScreenSpaceDither( i.vPositionPs.xy );

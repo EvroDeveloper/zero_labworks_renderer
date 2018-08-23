@@ -1,4 +1,6 @@
 // Copyright (c) Valve Corporation, All rights reserved. ======================================================================================================
+// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
+#pragma exclude_renderers d3d11 gles
 
 #ifndef VR_FOG_INCLUDED
 #define VR_FOG_INCLUDED
@@ -7,8 +9,9 @@ uniform half2 gradientFogScaleAdd;
 uniform half3 gradientFogLimitColor;
 uniform half3 heightFogParams;
 uniform half3 heightFogColor;
+uniform half4 gradientFogArray[(int)32.0];
 
-uniform sampler2D gradientFogTexture;
+//uniform sampler2D gradientFogTexture;
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 half2 CalculateFogCoords( float3 posWs )
@@ -31,11 +34,21 @@ half2 CalculateFogCoords( float3 posWs )
 	return saturate( results.xy );
 }
 
+half4 FogLinearInterpolation(half ramp)
+{				
+	half refactoredramp = clamp(ramp * 32, 0, 31) ;	
+	half4 interpolated =  lerp(gradientFogArray[refactoredramp],gradientFogArray[refactoredramp+1], frac(refactoredramp) ) ;
+	return interpolated;
+}
+
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 half3 ApplyFog( half3 c, half2 fogCoord, float fogMultiplier )
 {
 	// Apply gradient fog
-	half4 f = tex2D( gradientFogTexture, half2( fogCoord.x, 0.0f ) ).rgba;
+	//half4 f = tex2D( gradientFogTexture, half2( fogCoord.x, 0.0f ) ).rgba;
+	//half4 f = gradientFogArray[ clamp(fogCoord.x * 32 , 0, 31) ].rgba;
+	half4 f = FogLinearInterpolation(fogCoord.x);
+
 	c.rgb = lerp( c.rgb, f.rgb * fogMultiplier, f.a );
 
 	// Apply height fog
@@ -48,7 +61,9 @@ half3 ApplyFog( half3 c, half2 fogCoord, float fogMultiplier )
 half4 ApplyFog( half4 c, half2 fogCoord, float fogMultiplier, float ColorMultiplier )
 {
 	// Apply gradient fog
-	half4 f = tex2D( gradientFogTexture, half2( fogCoord.x, 0.0f ) ).rgba;
+	//half4 f = tex2D( gradientFogTexture, half2( fogCoord.x, 0.0f ) ).rgba;
+	half4 f = FogLinearInterpolation(fogCoord.x);
+
 	c.rgb = lerp( c.rgb, f.rgb * fogMultiplier, f.a );
 	
 	// Apply height fog
@@ -64,5 +79,8 @@ half3 ApplyFog( half3 c, half2 fogCoord )
 {
 	return ApplyFog( c.rgb, fogCoord.xy, 1.0 );
 }
+
+
+
 
 #endif // VR_FOG_INCLUDED

@@ -4,14 +4,17 @@ Shader "SLZ/VR_Triplanar"
 {
 	Properties
 	{
-		g_flCubeMapScalar("Cubemap Scalar", Range( 0 , 2)) = 1
 		_Albedo("Albedo", 2D) = "white" {}
+		g_flFresnelFalloff("Fresnel Falloff Scaler", Range( 0 , 2)) = 1
+		[HideInInspector]g_flCubeMapScalar("Cubemap Scalar", Range( 0 , 2)) = 1
 		_Normal("Normal", 2D) = "bump" {}
 		_NormalScale("Normal Scale", Float) = 0
 		_WorldScale("World Scale", Float) = 1
 		_Blend("Blend", Range( 0 , 0.98)) = 0.5
 		_Roughness("Roughness", Range( 0 , 1)) = 0
 		_Metallic("Metallic", Range( 0 , 1)) = 0
+		_Color("Color", Color) = (1,1,1,1)
+		[Toggle(S_RECEIVE_SHADOWS)] _Keyword0("Receive Shadows", Float) = 1
 	}
 	
 	SubShader
@@ -47,6 +50,7 @@ Shader "SLZ/VR_Triplanar"
 			#pragma shader_feature S_RECEIVE_SHADOWS
 			#include "vr_matrix_palette_skinning.cginc"
 			#pragma multi_compile_fwdbase
+			#pragma multi_compile _ D_VALVE_FOG
 			#include "vr_zAO.cginc"
 			#pragma multi_compile _ Z_SHAPEAO
 
@@ -58,6 +62,7 @@ Shader "SLZ/VR_Triplanar"
 				float3 ase_normal : NORMAL;
 				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord1 : TEXCOORD1;
+				float4 ase_texcoord2 : TEXCOORD2;
 			};
 			
 			struct v2f
@@ -104,7 +109,7 @@ Shader "SLZ/VR_Triplanar"
 				return normalize( xNorm.xyz * projNormal.x + yNorm.xyz * projNormal.y + zNorm.xyz * projNormal.z );
 			}
 			
-			float4x4 ZeroLighting( float3 vPositionWs , float3 vNormalWs , float3 vTangentUWs , float3 vTangentVWs , float3 vRoughness , float3 vReflectance , float g_flFresnelExponent , float4 vLightmapUV , float Dotfresnel , float CubeMapScalar )
+			float4x4 ZeroLighting( float3 vPositionWs , float3 vNormalWs , float3 vTangentUWs , float3 vTangentVWs , float3 vRoughness , float3 vReflectance , float g_flFresnelExponent , float4 vLightmapUV , float Dotfresnel , float CubeMapScalar , float g_flFresnelFalloff )
 			{
 				float4x4 packlighting;
 				LightingTerms_t o;
@@ -123,6 +128,16 @@ Shader "SLZ/VR_Triplanar"
 				return CalculateShapeAO(posWs,vNormalWs);
 			}
 			
+			float3 MyCustomExpression1_g246( float3 RGBin , float FogMultiplier , float3 PositionWs )
+			{
+				#if ( D_VALVE_FOG )
+				float2 vFogCoords = CalculateFogCoords( PositionWs );
+				return ApplyFog( RGBin, vFogCoords.xy, FogMultiplier );
+				#else
+				return RGBin;
+				#endif
+			}
+			
 			
 			v2f vert ( appdata v )
 			{
@@ -139,7 +154,8 @@ Shader "SLZ/VR_Triplanar"
 				float3 ase_worldBitangent = cross( ase_worldNormal, ase_worldTangent ) * ase_vertexTangentSign;
 				o.ase_texcoord3.xyz = ase_worldBitangent;
 				
-				o.ase_texcoord4 = v.ase_texcoord1;
+				o.ase_texcoord4.xy = v.ase_texcoord1.xy;
+				o.ase_texcoord4.zw = v.ase_texcoord2.xy;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord.w = 0;
@@ -160,51 +176,62 @@ Shader "SLZ/VR_Triplanar"
 				float3 ase_worldPos = i.ase_texcoord.xyz;
 				float3 ase_worldNormal = i.ase_texcoord1.xyz;
 				float4 triplanar71 = TriplanarSamplingSF( _Albedo, ase_worldPos, ase_worldNormal, temp_output_84_0, temp_output_80_0, 1.0, 0 );
-				float3 vPositionWs13_g139 = ase_worldPos;
+				float3 vPositionWs13_g247 = ase_worldPos;
 				float3 ase_worldTangent = i.ase_texcoord2.xyz;
 				float3 ase_worldBitangent = i.ase_texcoord3.xyz;
 				float3x3 ase_worldToTangent = float3x3( ase_worldTangent, ase_worldBitangent, ase_worldNormal );
 				float3 triplanar74 = TriplanarSamplingSNF( _Normal, ase_worldPos, ase_worldNormal, temp_output_84_0, temp_output_80_0, _NormalScale, 0 );
 				float3 tanTriplanarNormal74 = mul( ase_worldToTangent, triplanar74 );
-				float3 temp_output_15_0_g139 = tanTriplanarNormal74;
+				float3 temp_output_15_0_g247 = tanTriplanarNormal74;
 				float3 tanToWorld0 = float3( ase_worldTangent.x, ase_worldBitangent.x, ase_worldNormal.x );
 				float3 tanToWorld1 = float3( ase_worldTangent.y, ase_worldBitangent.y, ase_worldNormal.y );
 				float3 tanToWorld2 = float3( ase_worldTangent.z, ase_worldBitangent.z, ase_worldNormal.z );
-				float3 tanNormal11_g139 = temp_output_15_0_g139;
-				float3 worldNormal11_g139 = normalize( float3(dot(tanToWorld0,tanNormal11_g139), dot(tanToWorld1,tanNormal11_g139), dot(tanToWorld2,tanNormal11_g139)) );
-				float3 vNormalWs13_g139 = worldNormal11_g139;
-				float3 vTangentUWs13_g139 = ase_worldTangent;
-				float3 vTangentVWs13_g139 = ase_worldBitangent;
-				float3 appendResult27_g139 = (float3(_Roughness , 0.0 , 0.0));
-				float3 vRoughness13_g139 = appendResult27_g139;
-				float3 temp_cast_0 = (_Metallic).xxx;
-				float3 vReflectance13_g139 = temp_cast_0;
-				float g_flFresnelExponent13_g139 = 5.0;
-				float4 uv8_g139 = i.ase_texcoord4;
-				uv8_g139.xy = i.ase_texcoord4.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 appendResult55_g139 = (float4(( ( (uv8_g139).xy * (unity_LightmapST).xy ) + (unity_LightmapST).zw ) , ( ( (uv8_g139).zw * (unity_DynamicLightmapST).xy ) + (unity_DynamicLightmapST).zw )));
-				float4 vLightmapUV13_g139 = appendResult55_g139;
+				float3 tanNormal11_g247 = temp_output_15_0_g247;
+				float3 worldNormal11_g247 = normalize( float3(dot(tanToWorld0,tanNormal11_g247), dot(tanToWorld1,tanNormal11_g247), dot(tanToWorld2,tanNormal11_g247)) );
+				float3 vNormalWs13_g247 = worldNormal11_g247;
+				float3 vTangentUWs13_g247 = ase_worldTangent;
+				float3 vTangentVWs13_g247 = ase_worldBitangent;
+				float3 appendResult27_g247 = (float3(_Roughness , 0.0 , 0.0));
+				float3 vRoughness13_g247 = appendResult27_g247;
+				float3 temp_cast_1 = (_Metallic).xxx;
+				float3 vReflectance13_g247 = temp_cast_1;
+				float g_flFresnelExponent13_g247 = 5.0;
+				float2 uv8_g247 = i.ase_texcoord4.xy * float2( 1,1 ) + float2( 0,0 );
+				float2 uv78_g247 = i.ase_texcoord4.zw * float2( 1,1 ) + float2( 0,0 );
+				float4 appendResult55_g247 = (float4(( ( uv8_g247 * (unity_LightmapST).xy ) + (unity_LightmapST).zw ) , ( ( uv78_g247 * (unity_DynamicLightmapST).xy ) + (unity_DynamicLightmapST).zw )));
+				float4 vLightmapUV13_g247 = appendResult55_g247;
 				float3 ase_worldViewDir = UnityWorldSpaceViewDir(ase_worldPos);
 				ase_worldViewDir = normalize(ase_worldViewDir);
-				float dotResult57_g139 = dot( worldNormal11_g139 , ase_worldViewDir );
-				float Dotfresnel13_g139 = dotResult57_g139;
-				float CubeMapScalar13_g139 = g_flCubeMapScalar;
-				float4x4 localZeroLighting13_g139 = ZeroLighting( vPositionWs13_g139 , vNormalWs13_g139 , vTangentUWs13_g139 , vTangentVWs13_g139 , vRoughness13_g139 , vReflectance13_g139 , g_flFresnelExponent13_g139 , vLightmapUV13_g139 , Dotfresnel13_g139 , CubeMapScalar13_g139 );
-				float4x4 break19_g139 = localZeroLighting13_g139;
-				float3 appendResult21_g139 = (float3(break19_g139[ 0 ][ 0 ] , break19_g139[ 0 ][ 1 ] , break19_g139[ 0 ][ 2 ]));
-				float3 appendResult22_g139 = (float3(break19_g139[ 1 ][ 0 ] , break19_g139[ 1 ][ 1 ] , break19_g139[ 1 ][ 2 ]));
-				float3 appendResult23_g139 = (float3(break19_g139[ 1 ][ 3 ] , break19_g139[ 2 ][ 0 ] , break19_g139[ 2 ][ 1 ]));
-				float3 appendResult24_g139 = (float3(break19_g139[ 2 ][ 2 ] , break19_g139[ 2 ][ 3 ] , break19_g139[ 3 ][ 0 ]));
-				float3 appendResult25_g139 = (float3(break19_g139[ 3 ][ 1 ] , break19_g139[ 3 ][ 2 ] , break19_g139[ 3 ][ 3 ]));
-				float3 posWs1_g140 = ase_worldPos;
-				float3 tanNormal3_g140 = temp_output_15_0_g139;
-				float3 worldNormal3_g140 = float3(dot(tanToWorld0,tanNormal3_g140), dot(tanToWorld1,tanNormal3_g140), dot(tanToWorld2,tanNormal3_g140));
-				float3 vNormalWs1_g140 = worldNormal3_g140;
-				float localAO1_g140 = AO( posWs1_g140 , vNormalWs1_g140 );
-				float4 appendResult148 = (float4(( (triplanar71).xyz * ( ( appendResult21_g139 + appendResult22_g139 + max( appendResult23_g139 , float3( 0,0,0 ) ) + max( appendResult24_g139 , float3( 0,0,0 ) ) + max( appendResult25_g139 , float3( 0,0,0 ) ) ) * localAO1_g140 ) ) , 1.0));
+				float dotResult57_g247 = dot( worldNormal11_g247 , ase_worldViewDir );
+				float Dotfresnel13_g247 = dotResult57_g247;
+				float CubeMapScalar13_g247 = g_flCubeMapScalar;
+				float g_flFresnelFalloff13_g247 = g_flFresnelFalloff;
+				float4x4 localZeroLighting13_g247 = ZeroLighting( vPositionWs13_g247 , vNormalWs13_g247 , vTangentUWs13_g247 , vTangentVWs13_g247 , vRoughness13_g247 , vReflectance13_g247 , g_flFresnelExponent13_g247 , vLightmapUV13_g247 , Dotfresnel13_g247 , CubeMapScalar13_g247 , g_flFresnelFalloff13_g247 );
+				float4x4 break19_g247 = localZeroLighting13_g247;
+				float3 appendResult21_g247 = (float3(break19_g247[ 0 ][ 0 ] , break19_g247[ 0 ][ 1 ] , break19_g247[ 0 ][ 2 ]));
+				float3 appendResult22_g247 = (float3(break19_g247[ 1 ][ 0 ] , break19_g247[ 1 ][ 1 ] , break19_g247[ 1 ][ 2 ]));
+				float3 appendResult23_g247 = (float3(break19_g247[ 1 ][ 3 ] , break19_g247[ 2 ][ 0 ] , break19_g247[ 2 ][ 1 ]));
+				float3 appendResult24_g247 = (float3(break19_g247[ 2 ][ 2 ] , break19_g247[ 2 ][ 3 ] , break19_g247[ 3 ][ 0 ]));
+				float3 appendResult25_g247 = (float3(break19_g247[ 3 ][ 1 ] , break19_g247[ 3 ][ 2 ] , break19_g247[ 3 ][ 3 ]));
+				float3 temp_output_26_0_g247 = ( appendResult21_g247 + appendResult22_g247 + max( appendResult23_g247 , float3( 0,0,0 ) ) + max( appendResult24_g247 , float3( 0,0,0 ) ) + max( appendResult25_g247 , float3( 0,0,0 ) ) );
+				float3 posWs1_g248 = ase_worldPos;
+				float3 tanNormal3_g248 = temp_output_15_0_g247;
+				float3 worldNormal3_g248 = float3(dot(tanToWorld0,tanNormal3_g248), dot(tanToWorld1,tanNormal3_g248), dot(tanToWorld2,tanNormal3_g248));
+				float3 vNormalWs1_g248 = worldNormal3_g248;
+				float localAO1_g248 = AO( posWs1_g248 , vNormalWs1_g248 );
+				#ifdef S_RECEIVE_SHADOWS
+				float3 staticSwitch81_g247 = ( temp_output_26_0_g247 * localAO1_g248 );
+				#else
+				float3 staticSwitch81_g247 = temp_output_26_0_g247;
+				#endif
+				float3 RGBin1_g246 = ( (( _Color * triplanar71 )).rgb * staticSwitch81_g247 );
+				float FogMultiplier1_g246 = 1.0;
+				float3 PositionWs1_g246 = ase_worldPos;
+				float3 localMyCustomExpression1_g246 = MyCustomExpression1_g246( RGBin1_g246 , FogMultiplier1_g246 , PositionWs1_g246 );
+				float4 appendResult203 = (float4(localMyCustomExpression1_g246 , 1.0));
 				
 				
-				finalColor = appendResult148;
+				finalColor = appendResult203;
 				return finalColor;
 			}
 			ENDCG
@@ -216,30 +243,34 @@ Shader "SLZ/VR_Triplanar"
 }
 /*ASEBEGIN
 Version=15406
-205;141;1609;751;1196.73;231.9553;1.3;True;False
-Node;AmplifyShaderEditor.RangedFloatNode;81;-1567.14,496.7822;Float;False;Property;_Blend;Blend;5;0;Create;True;0;0;False;0;0.5;0.365;0;0.98;0;1;FLOAT;0
+581;183;1207;656;332.0088;89.7869;1;True;False
+Node;AmplifyShaderEditor.RangedFloatNode;81;-1567.14,496.7822;Float;False;Property;_Blend;Blend;5;0;Create;True;0;0;False;0;0.5;0.625;0;0.98;0;1;FLOAT;0
 Node;AmplifyShaderEditor.PowerNode;85;-1254.681,502.3393;Float;False;2;0;FLOAT;0;False;1;FLOAT;0.2;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;83;-1064.12,503.1776;Float;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;79;-1016.889,180.709;Float;False;Property;_WorldScale;World Scale;4;0;Create;True;0;0;False;0;1;1;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;84;-882.1165,503.6458;Float;False;2;2;0;FLOAT;0;False;1;FLOAT;100;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TexturePropertyNode;72;-1206.367,-21.41104;Float;True;Property;_Albedo;Albedo;0;0;Create;True;0;0;False;0;None;9abd4e3401bd3384ebeb5e6fc23cd83e;False;white;Auto;Texture2D;0;1;SAMPLER2D;0
-Node;AmplifyShaderEditor.TexturePropertyNode;73;-1249.58,261.9078;Float;True;Property;_Normal;Normal;2;0;Create;True;0;0;False;0;None;8f57c003a40aa234d976f44be0cb79ec;True;bump;Auto;Texture2D;0;1;SAMPLER2D;0
-Node;AmplifyShaderEditor.RangedFloatNode;76;-885.8028,330.2464;Float;False;Property;_NormalScale;Normal Scale;3;0;Create;True;0;0;False;0;0;3.36;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.OneMinusNode;83;-1064.12,503.1776;Float;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleDivideOpNode;80;-820.8889,162.709;Float;False;2;0;FLOAT;1;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;107;-414.5548,456.3875;Float;False;Property;_Metallic;Metallic;7;0;Fetch;True;0;0;False;0;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;84;-882.1165,503.6458;Float;False;2;2;0;FLOAT;0;False;1;FLOAT;100;False;1;FLOAT;0
+Node;AmplifyShaderEditor.TexturePropertyNode;72;-1206.367,-21.41104;Float;True;Property;_Albedo;Albedo;0;0;Create;True;0;0;False;0;None;a9f953c7353804247b8c3ed6e1c46a2e;False;white;Auto;Texture2D;0;1;SAMPLER2D;0
 Node;AmplifyShaderEditor.TriplanarNode;71;-492.2122,-15.36322;Float;True;Spherical;World;False;Top Texture 0;_TopTexture0;white;-1;None;Mid Texture 0;_MidTexture0;white;-1;None;Bot Texture 0;_BotTexture0;white;-1;None;Triplanar Sampler;False;9;0;SAMPLER2D;;False;5;FLOAT;1;False;1;SAMPLER2D;;False;6;FLOAT;0;False;2;SAMPLER2D;;False;7;FLOAT;0;False;8;FLOAT;1;False;3;FLOAT;1;False;4;FLOAT;1;False;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.ColorNode;205;-377.7298,-183.8554;Float;False;Property;_Color;Color;8;0;Fetch;True;0;0;False;0;1,1,1,1;1,1,1,1;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode;76;-885.8028,330.2464;Float;False;Property;_NormalScale;Normal Scale;3;0;Create;True;0;0;False;0;0;2.8;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TexturePropertyNode;73;-1249.58,261.9078;Float;True;Property;_Normal;Normal;2;0;Create;True;0;0;False;0;None;8f57c003a40aa234d976f44be0cb79ec;True;bump;Auto;Texture2D;0;1;SAMPLER2D;0
 Node;AmplifyShaderEditor.TriplanarNode;74;-479.2117,266.9075;Float;True;Spherical;World;True;Top Texture 1;_TopTexture1;white;-1;None;Mid Texture 1;_MidTexture1;white;-1;None;Bot Texture 1;_BotTexture1;white;-1;None;Triplanar Sampler;False;9;0;SAMPLER2D;;False;5;FLOAT;1;False;1;SAMPLER2D;;False;6;FLOAT;0;False;2;SAMPLER2D;;False;7;FLOAT;0;False;8;FLOAT;1;False;3;FLOAT;1;False;4;FLOAT;1;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;96;-439.9411,181.0934;Float;False;Property;_Roughness;Roughness;6;0;Create;True;0;0;False;0;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;197;-34.03172,221.85;Float;False;VRStandardLighting;1;;139;50d6ab72cc2255a42a87b96dcb19e402;0;4;16;FLOAT;0.5;False;17;FLOAT3;0,0,0;False;15;FLOAT3;0,0,0;False;29;FLOAT;5;False;1;FLOAT3;20
-Node;AmplifyShaderEditor.SwizzleNode;150;44.414,47.22449;Float;False;FLOAT3;0;1;2;3;1;0;FLOAT4;0,0,0,0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.RangedFloatNode;107;-414.5548,456.3875;Float;False;Property;_Metallic;Metallic;7;0;Fetch;True;0;0;False;0;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;206;-70.92983,-27.85542;Float;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT4;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.RangedFloatNode;96;-439.9411,181.0934;Float;False;Property;_Roughness;Roughness;6;0;Create;True;0;0;False;0;0;0.822;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;250;-34.03172,223.1592;Float;False;VRStandardLighting;1;;247;50d6ab72cc2255a42a87b96dcb19e402;0;4;16;FLOAT;0.5;False;17;FLOAT3;0,0,0;False;15;FLOAT3;0,0,1;False;29;FLOAT;5;False;2;FLOAT3;20;FLOAT;79
+Node;AmplifyShaderEditor.SwizzleNode;150;95.11405,55.02449;Float;False;FLOAT3;0;1;2;3;1;0;COLOR;0,0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;45;325.3791,132.8012;Float;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT3;1,0,0;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.RangedFloatNode;183;355.891,284.3031;Float;False;Constant;_Float0;Float 0;8;0;Create;True;0;0;False;0;1;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.DynamicAppendNode;148;531.5403,132.611;Float;False;FLOAT4;4;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;1;False;1;FLOAT4;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;187;845.4681,251.0328;Float;False;True;2;Float;ASEMaterialInspector;0;1;SLZ/VR_Triplanar;0770190933193b94aaa3065e307002fa;0;0;Unlit;2;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;True;0;False;-1;True;True;True;True;True;0;False;-1;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;2;RenderType=Opaque;LightMode=ForwardBase;True;3;0;False;False;False;False;False;False;False;False;False;False;0;;0;0;2;0;FLOAT4;0,0,0,0;False;1;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.RangedFloatNode;183;654.8911,234.9032;Float;False;Constant;_Float0;Float 0;8;0;Create;True;0;0;False;0;1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;202;497.0604,152.9919;Float;False;VRFog;-1;;246;0f36de526ee9ad84d846f9bb0b9b14fe;0;1;3;FLOAT3;0,0,0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.CustomExpressionNode;221;-794.253,-88.4523;Float;False;_MainTex@;1;True;0;My Custom Expression;False;False;0;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.DynamicAppendNode;203;815.67,133.3447;Float;False;FLOAT4;4;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT4;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;187;1040.468,135.3327;Float;False;True;2;Float;ASEMaterialInspector;0;1;SLZ/VR_Triplanar;0770190933193b94aaa3065e307002fa;0;0;Unlit;2;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;True;0;False;-1;True;True;True;True;True;0;False;-1;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;2;RenderType=Opaque;LightMode=ForwardBase;True;3;0;False;False;False;False;False;False;False;False;False;False;0;;0;0;2;0;FLOAT4;0,0,0,0;False;1;FLOAT3;0,0,0;False;0
 WireConnection;85;0;81;0
 WireConnection;83;0;85;0
-WireConnection;84;0;83;0
 WireConnection;80;1;79;0
+WireConnection;84;0;83;0
 WireConnection;71;0;72;0
 WireConnection;71;3;80;0
 WireConnection;71;4;84;0
@@ -247,14 +278,17 @@ WireConnection;74;0;73;0
 WireConnection;74;8;76;0
 WireConnection;74;3;80;0
 WireConnection;74;4;84;0
-WireConnection;197;16;96;0
-WireConnection;197;17;107;0
-WireConnection;197;15;74;0
-WireConnection;150;0;71;0
+WireConnection;206;0;205;0
+WireConnection;206;1;71;0
+WireConnection;250;16;96;0
+WireConnection;250;17;107;0
+WireConnection;250;15;74;0
+WireConnection;150;0;206;0
 WireConnection;45;0;150;0
-WireConnection;45;1;197;20
-WireConnection;148;0;45;0
-WireConnection;148;3;183;0
-WireConnection;187;0;148;0
+WireConnection;45;1;250;20
+WireConnection;202;3;45;0
+WireConnection;203;0;202;0
+WireConnection;203;3;183;0
+WireConnection;187;0;203;0
 ASEEND*/
-//CHKSM=CEC3A16E3A63474A67721DC2D267FFA384A7FFBB
+//CHKSM=D72419459FB421279F929E421992FE025878EC9B

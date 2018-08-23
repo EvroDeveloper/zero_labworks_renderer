@@ -43,18 +43,23 @@ CBUFFER_START( ValveVrLighting )
 
 CBUFFER_END
 
+#if (S_OVERRIDE_LIGHTMAP)
 // Override lightmap
 sampler2D g_tOverrideLightmap;
+#endif
+#if ( _BRDFMAP)
 sampler2D g_tBRDFMap;
+#endif
 uniform UNITY_DECLARE_TEX2DARRAY( g_tVrLightCookieTexture);
 uniform float3 g_vOverrideLightmapScale;
 
 float g_flCubeMapScalar  = 1.0;
 float g_flFresnelFalloff = 1.0;
 
-
+#if (S_SPECULAR_BLINNPHONG)
 float g_flReflectanceMin = 0.0;
 float g_flReflectanceMax = 1.0;
+#endif
 
 #if ( S_ANISOTROPIC_GLOSS )
 float3 RotatedTangent;
@@ -428,9 +433,11 @@ float ComputeShadow_PCF_3x3_Gaussian( float3 vPositionWs, float4x4 matWorldToSha
 		}
 
 	}
+#if S_OVERRIDE_LIGHTMAP	
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 float3 ComputeOverrideLightmap( float2 vLightmapUV )
 {
+	
 	float4 vLightmapTexel = tex2D( g_tOverrideLightmap, vLightmapUV.xy );
 
 	// This path looks over-saturated
@@ -438,7 +445,9 @@ float3 ComputeOverrideLightmap( float2 vLightmapUV )
 
 	// This path looks less broken
 	return g_vOverrideLightmapScale * ( unity_Lightmap_HDR.x * vLightmapTexel.a ) * sqrt( vLightmapTexel.rgb );
+
 }
+#endif
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vTangentUWs, float3 vTangentVWs, float3 vRoughness,
@@ -484,7 +493,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		#if ( _BRDFMAP || S_ANISOTROPIC_GLOSS )	
 
 		#else					
-		if ( g_vLightFalloffParams[i].w > .99) { 	// Check if lambert wrap is less than 1 //MOVE TO PRECOMPUTE
+		if ( g_vLightFalloffParams[i].w > .99) { 	// Check if lambert wrap is less than 1 
 				if ( dot( vNormalWs.xyz, vPositionToLightRayWs.xyz ) <= 0.0 )
 				{
 				// Backface cull pixel to this light
@@ -530,7 +539,7 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		float flLightFalloff = DistanceFalloff( flDistToLightSq, g_vLightPosition_flInvRadius[ i ].w, g_vLightFalloffParams[ i ].xy );
 
 		float flShadowScalar = 1.0;
-		#if ( S_RECEIVE_SHADOWS )
+		#if S_RECEIVE_SHADOWS
 		{
 			if ( g_vLightShadowIndex_vLightParams[ i ].x != 0.0 ) // If light casts shadows
 			{
@@ -570,7 +579,9 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 
 		#if ( _BRDFMAP)
 		{
-		float3 remapped = tex2D(g_tBRDFMap, float2(vLightingTerms.x, flNDotV ) );
+	//	float3 remapped = tex2D(g_tBRDFMap, float2(vLightingTerms.x * (flShadowScalar * 0.5  + 0.5), flNDotV ) );
+    	float3 remapped = tex2D(g_tBRDFMap, float2(vLightingTerms.x, flNDotV ) );
+
 		o.vDiffuse.rgba += remapped.rgbb * vLightMask.rgba ;
 		}
 		#else
@@ -631,7 +642,6 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 			else
 				{
 				o.vIndirectDiffuse.rgb += ClampToPositive(ShadeSH9( float4( vNormalWs.xyz, 1.0 ) ));  // Simple Light probe
-				//o.vIndirectDiffuse.rgb = float3(1,0,0);
 				}
 				#endif
 		}
@@ -733,11 +743,13 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 		#if ( DIRLIGHTMAP_OFF )
 		{
 			o.vIndirectDiffuse.rgb += realtimeColor.rgb;
+
 		}
 		#elif ( DIRLIGHTMAP_COMBINED )
 		{
 			float4 realtimeDirTex = Tex2DLevelFromSampler( unity_DynamicDirectionality, unity_DynamicLightmap, vLightmapUV.zw, 0.0 );
 			o.vIndirectDiffuse.rgb += DecodeDirectionalLightmap( realtimeColor, realtimeDirTex, vNormalWs );
+			
 		}
 		#elif ( DIRLIGHTMAP_SEPARATE )
 		{
@@ -853,9 +865,14 @@ LightingTerms_t ComputeLighting( float3 vPositionWs, float3 vNormalWs, float3 vT
 	
 
 	// Apply fresnel to indirect specular
-	float flVDotN = saturate( dot( vPositionToCameraDirWs.xyz, vNormalWs.xyz ) );
+	//float flVDotN = saturate( dot( vPositionToCameraDirWs.xyz, vNormalWs.xyz ) );
+	#if S_SPECULAR_BLINNPHONG
 	float3 vMaVReflectance = ( ( vReflectance.rgb + 0.001 ) / Luminance( vReflectance.rgb + 0.001 ) ) * g_flReflectanceMax;
-	float3 vFresnel = lerp( vReflectance.rgb, vMaVReflectance.rgb * g_flFresnelFalloff, pow( 1.0 - flVDotN, flFresnelExponent ) );
+	#else
+	float3 vMaVReflectance = ( ( vReflectance.rgb + 0.001 ) / Luminance( vReflectance.rgb + 0.001 ) );
+	#endif
+	
+	float3 vFresnel = lerp( vReflectance.rgb, vMaVReflectance.rgb * g_flFresnelFalloff, pow( 1.0 - flNDotV, flFresnelExponent ) );
 
 	o.vIndirectSpecular.rgb *= vFresnel.rgb;
 	o.vIndirectSpecular.rgb *= g_flCubeMapScalar;

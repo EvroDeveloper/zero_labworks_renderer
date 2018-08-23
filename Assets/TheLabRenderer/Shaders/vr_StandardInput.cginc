@@ -1,5 +1,9 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
+//Modified to allow instancing of properties. Go to the link for more info on how to make more properties instanceable.
+//Might toy with using texture arrays for GPU instancing.
+//https://catlikecoding.com/unity/tutorials/rendering/part-19/
+
 #ifndef UNITY_STANDARD_INPUT_INCLUDED
 #define UNITY_STANDARD_INPUT_INCLUDED
 

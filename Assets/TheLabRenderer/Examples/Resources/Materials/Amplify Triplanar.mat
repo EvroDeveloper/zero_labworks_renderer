@@ -21,7 +21,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Albedo:
-        m_Texture: {fileID: 2800000, guid: 9abd4e3401bd3384ebeb5e6fc23cd83e, type: 3}
+        m_Texture: {fileID: 2800000, guid: a9f953c7353804247b8c3ed6e1c46a2e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -53,7 +53,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a9f953c7353804247b8c3ed6e1c46a2e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex1:
+        m_Texture: {fileID: 2800000, guid: a9f953c7353804247b8c3ed6e1c46a2e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -87,7 +91,7 @@ Material:
     m_Floats:
     - _AnisotropicRatio: 0.5
     - _AnisotropicRotation: 0.5
-    - _Blend: 0.365
+    - _Blend: 0.625
     - _BumpScale: 1
     - _ColorMultiplier: 0
     - _Cull: 2
@@ -102,11 +106,12 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
+    - _Keyword0: 1
     - _Metallic: 0
     - _Metallic1: 0.145
     - _Metallicz: 0.145
     - _Mode: 0
-    - _NormalScale: 3.36
+    - _NormalScale: 2.8
     - _NormalToOcclusion: 1
     - _OcclusionStrength: 1
     - _OcclusionStrengthDirectDiffuse: 1
@@ -119,7 +124,7 @@ Material:
     - _Parallax: 0.02
     - _ParallaxIterations: 1
     - _ParallaxOffset: 0
-    - _Roughness: 0
+    - _Roughness: 0.822
     - _SmoothnessTextureChannel: 0
     - _SpecMod: 1
     - _SpecularHighlights: 0
@@ -136,9 +141,9 @@ Material:
     - g_bRenderBackfaces: 0
     - g_bUnlit: 0
     - g_bWorldAlignedTexture: 0
-    - g_flCubeMapScalar: 0
+    - g_flCubeMapScalar: 1
     - g_flFresnelExponent: 5
-    - g_flFresnelFalloff: 1
+    - g_flFresnelFalloff: 0.63
     - g_flReflectanceBias: 0
     - g_flReflectanceMax: 1
     - g_flReflectanceMin: 0
