@@ -108,7 +108,7 @@ public class ValveFog : MonoBehaviour
         for (int i = 0; i < textureWidth; i++)
         {
             // gradientFogTexture.SetPixel(i, 0, grad.Evaluate(s));
-            gradientFogArray.Add(grad.Evaluate(s));
+            gradientFogArray.Add(grad.Evaluate(s).linear);
             s += ds;
         }
        //gradientFogTexture.Apply();
@@ -158,7 +158,7 @@ public class ValveFog : MonoBehaviour
             float s = 0.0f;
             for (int i = 0; i < textureWidth; i++)
             {
-                Vector4 ColorLerp = Vector4.Lerp(startColors[i], TargetGradient.Evaluate(s), Timer);
+                Vector4 ColorLerp = Vector4.Lerp(startColors[i], TargetGradient.Evaluate(s).linear, Timer);
               
                 gradientFogArray.Add(ColorLerp);
                 s += ds;
