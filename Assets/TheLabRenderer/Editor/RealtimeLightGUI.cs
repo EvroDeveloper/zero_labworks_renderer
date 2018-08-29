@@ -18,7 +18,7 @@ public class RealtimeLightGUI : Editor {
         base.OnInspectorGUI();
 
          VRTL = (ValveRealtimeLight)target;
-        if (VRTL != null) return;            
+        if (VRTL == null) return;            
 
          if (VRTL.m_cachedLight.type == LightType.Directional)
          {
