@@ -9,13 +9,15 @@ public class ZRealtimeAO : MonoBehaviour
 
     [NonSerialized] [HideInInspector]  public static List<ZRealtimeAO> s_allAOSpheres = new List<ZRealtimeAO>();
     [NonSerialized] [HideInInspector]  public static List<ZRealtimeAO> s_allAOPoints = new List<ZRealtimeAO>();
-    [HideInInspector] public float SphereRadius;
+   // [HideInInspector]  public  float SphereRadius;
+    [HideInInspector]  public Vector3 SphereScale;
     public enum AOShape { Point, Sphere };
 
     public AOShape TypeOfShape = AOShape.Point;
 
    [SerializeField] private bool AccountForScale = true;
-   [SerializeField] private float TargetRadius = 1;
+   [SerializeField] private float TargetRadius = 0.5f;
+
 
 
 #if UNITY_EDITOR
@@ -33,14 +35,20 @@ public class ZRealtimeAO : MonoBehaviour
             {
 
                 Gizmos.color = Color.grey;
-                Gizmos.DrawWireSphere(transform.position, SphereRadius);
-               // Gizmos.DrawIcon(transform.position, "pointshadow", true); 
+                Gizmos.DrawWireSphere(transform.position, SphereScale.z);
+
+         
             }
 
             if (TypeOfShape == AOShape.Sphere)
             {
                 Gizmos.color = Color.black;
-                Gizmos.DrawWireSphere(transform.position, SphereRadius);
+               // Gizmos.DrawWireSphere(transform.position, SphereRadius);
+                Gizmos.DrawLine(transform.position + transform.up * transform.lossyScale.y * 0.5f , transform.position  - transform.up * transform.lossyScale.y * 0.5f );
+                Gizmos.DrawLine(transform.position + transform.forward * transform.lossyScale.z * 0.5f , transform.position - transform.forward * transform.lossyScale.z * 0.5f );
+                Gizmos.DrawLine(transform.position + transform.right * transform.lossyScale.x * 0.5f , transform.position - transform.right * transform.lossyScale.x * 0.5f );           
+
+
             }
 
         }
@@ -74,11 +82,11 @@ public class ZRealtimeAO : MonoBehaviour
 
         if (AccountForScale == true)
         {
-            SphereRadius = TargetRadius * transform.lossyScale.x;
+            SphereScale = new Vector3(1 / transform.lossyScale.x , 1 / transform.lossyScale.y , 1 / transform.lossyScale.z ) / TargetRadius;
         }
         else
         {
-            SphereRadius = TargetRadius;
+            SphereScale = new Vector3(1 / transform.lossyScale.x , 1 / transform.lossyScale.y, 1 / transform.lossyScale.z ) * transform.lossyScale.magnitude / TargetRadius;
         }
 
 

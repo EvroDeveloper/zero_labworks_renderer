@@ -1363,8 +1363,8 @@ public class ValveCamera : MonoBehaviour
 	[NonSerialized] private Matrix4x4[] g_matWorldToLightCookie = new Matrix4x4[ MAX_LIGHTS ];
     [NonSerialized] private Matrix4x4[] g_matWorldToPoint = new Matrix4x4[ MAX_LIGHTS ];
 
-    [NonSerialized] private Vector4[] g_zAOSphere = new Vector4[MAX_AO];
-    [NonSerialized] private Vector4[] g_zAOPoint = new Vector4[MAX_AO];
+    [NonSerialized] private Matrix4x4[] g_zAOSphere = new Matrix4x4[MAX_AO];
+    [NonSerialized] private Matrix4x4[] g_zAOPoint = new Matrix4x4[MAX_AO];
 
 
     void UpdateAOConstants()
@@ -1374,21 +1374,36 @@ public class ValveCamera : MonoBehaviour
         for (int nAO = 0; nAO < ZRealtimeAO.s_allAOSpheres.Count; nAO++)
         {
             ZRealtimeAO zAO = ZRealtimeAO.s_allAOSpheres[nAO];
-            g_zAOSphere[nAO] = new Vector4(zAO.transform.position.x, zAO.transform.position.y, zAO.transform.position.z, zAO.SphereRadius);
+
+            g_zAOSphere[nAO] = Matrix4x4.TRS(zAO.transform.position, zAO.transform.rotation, zAO.SphereScale);
+            g_zAOSphere[nAO] *= Matrix4x4.TRS(zAO.transform.position, Quaternion.identity, Vector3.one);
+            g_zAOSphere[nAO].m30 = zAO.transform.position.x;
+            g_zAOSphere[nAO].m31 = zAO.transform.position.y;
+            g_zAOSphere[nAO].m32 = zAO.transform.position.z;
+          //  g_zAOSphere[nAO].m33 = 0.5f;
+            //new Vector4(zAO.transform.position.x, zAO.transform.position.y, zAO.transform.position.z, zAO.SphereRadius);
         }
 
 
         for (int nAO = 0; nAO < ZRealtimeAO.s_allAOPoints.Count; nAO++)
         {
+            //    ZRealtimeAO zAO = ZRealtimeAO.s_allAOPoints[nAO];
+            //    g_zAOPoint[nAO] = new Vector4(zAO.transform.position.x, zAO.transform.position.y, zAO.transform.position.z, zAO.SphereScale.z);
+
             ZRealtimeAO zAO = ZRealtimeAO.s_allAOPoints[nAO];
-            g_zAOPoint[nAO] = new Vector4(zAO.transform.position.x, zAO.transform.position.y, zAO.transform.position.z, zAO.SphereRadius);
+
+            g_zAOPoint[nAO] = Matrix4x4.TRS(zAO.transform.position, zAO.transform.rotation, zAO.SphereScale);
+            g_zAOPoint[nAO] *= Matrix4x4.TRS(zAO.transform.position, Quaternion.identity, Vector3.one);
+            g_zAOPoint[nAO].m30 = zAO.transform.position.x;
+            g_zAOPoint[nAO].m31 = zAO.transform.position.y;
+            g_zAOPoint[nAO].m32 = zAO.transform.position.z;
         }
 
-        Shader.SetGlobalVectorArray("g_zAOSphere", g_zAOSphere);
+        Shader.SetGlobalMatrixArray("g_zAOSphere", g_zAOSphere);
         Shader.SetGlobalInt("g_nNumAOSpheres", ZRealtimeAO.s_allAOSpheres.Count);
 
 
-        Shader.SetGlobalVectorArray("g_zAOPoint", g_zAOPoint);
+        Shader.SetGlobalMatrixArray("g_zAOPoint", g_zAOPoint);
         Shader.SetGlobalInt("g_nNumAOPoints", ZRealtimeAO.s_allAOPoints.Count);
     }
 
@@ -1685,21 +1700,21 @@ public class ValveCamera : MonoBehaviour
         if (m_shadowDepthTexture)
         {
 
-            int ShadowType2int = 0;
+            int ShadowType2int = 2;
 
-            switch (ShadowType)
-            {
-                case Shadows.Simple: { ShadowType2int = 1; }
-                    break;
-                case Shadows.PCF: { ShadowType2int = 2; }
-                    break;
-                case Shadows.PCSS: { ShadowType2int = 3; }
-                    break;
+            //switch (ShadowType)
+            //{
+            //    case Shadows.Simple: { ShadowType2int = 1; Shader.DisableKeyword("SHADOW_PCSS"); }
+            //        break;
+            //    case Shadows.PCF: { ShadowType2int = 2; Shader.DisableKeyword("SHADOW_PCSS"); }
+            //        break;
+            //    case Shadows.PCSS: { ShadowType2int = 3; Shader.EnableKeyword("SHADOW_PCSS"); print("PCSS"); }
+            //        break;
 
-            }
+            //}
 
             // Shared PCF & PCSS terms
-            if (ShadowType2int != 0)
+          //  if (ShadowType2int != 0)
             {
                 float flTexelEpsilonX = 1.0f / m_shadowDepthTexture.width;
                 float flTexelEpsilonY = 1.0f / m_shadowDepthTexture.height;
@@ -1708,7 +1723,7 @@ public class ValveCamera : MonoBehaviour
                 Shader.SetGlobalVector("g_vShadowUniTerms", new Vector4(ShadowType2int, PenumbraSize, ShadowSamples, 0)); /// x = Shadow type, y = PenumbraSize , z = shadow samples;
 
                 // PCF 3x3 Shadows
-                if (ShadowType2int == 2)
+            //    if (ShadowType2int == 2)
                 {
 
                     Vector4 g_vShadow3x3PCFTerms0 = new Vector4(20.0f / 267.0f, 33.0f / 267.0f, 55.0f / 267.0f, 0.0f);

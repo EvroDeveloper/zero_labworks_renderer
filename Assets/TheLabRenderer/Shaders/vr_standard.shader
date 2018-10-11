@@ -139,15 +139,16 @@ Shader "Valve/vr_standard"
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 				#pragma shader_feature	_VERTEXTINT
-				#pragma shader_feature  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON 
-				#pragma shader_feature _ALPHAMULTIPLY_ON
-				#pragma shader_feature _ALPHAMOD2X_ON
+				#pragma multi_compile  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON _ALPHAMULTIPLY_ON _ALPHAMOD2X_ON
 
 				#pragma shader_feature _EMISSION
-				#pragma shader_feature _DETAIL_MULX2
-				#pragma shader_feature _DETAIL_MUL
-				#pragma shader_feature _DETAIL_ADD
-				#pragma shader_feature _DETAIL_LERP
+			#if defined (_EMISSION)
+				#pragma shader_feature S_EMISSIVE_MULTI		
+			#endif
+			#if defined (_DETAIL)
+				#pragma multi_compile _DETAIL_MULX2 _DETAIL_MUL _DETAIL_ADD _DETAIL_LERP
+			#endif
+
 				#pragma shader_feature _PARALLAXMAP
 				#pragma shader_feature _COLORSHIFT
 				
@@ -155,23 +156,28 @@ Shader "Valve/vr_standard"
 
 				#pragma shader_feature S_WORLD_ALIGNED_TEXTURE
 				#pragma shader_feature S_RENDER_BACKFACES
-				#pragma shader_feature S_EMISSIVE_MULTI				
+						
 
 				#pragma shader_feature S_UNLIT
 
 		//Skip unused variants in precompute to reduce compile time
-		#if ( S_UNLIT ) 
+		#if defined( S_UNLIT ) 
 		#else  
 				#pragma shader_feature _NORMALMAP
-				#pragma shader_feature _METALLICGLOSSMAP
-				#pragma shader_feature _SPECGLOSSMAP
 				#pragma shader_feature _FLUORESCENCEMAP		
-				#pragma shader_feature S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
+				#pragma multi_compile S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
+			#if defined(S_SPECULAR_METALLIC) || (S_RETROREFLECTIVE) || (S_ANISOTROPIC_GLOSS )
+				#pragma shader_feature _METALLICGLOSSMAP 
+				#if defined(S_SPECULAR_METALLIC)
+				#pragma multi_compile __ S_PACKING_RMA S_PACKING_MAES S_PACKING_MAS
+				#endif
+			#elif defined(S_SPECULAR_BLINNPHONG)
+				#pragma shader_feature _SPECGLOSSMAP
+			#endif
+
 				#pragma shader_feature S_OCCLUSION
 				#pragma shader_feature S_OVERRIDE_LIGHTMAP
-				#pragma shader_feature S_PACKING_RMA 
-				#pragma shader_feature S_PACKING_MAES
-				#pragma shader_feature S_PACKING_MAS
+
 				#pragma shader_feature _BRDFMAP
 				#pragma shader_feature S_RECEIVE_SHADOWS
 
@@ -188,9 +194,6 @@ Shader "Valve/vr_standard"
 
 				#pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
 				#pragma multi_compile _ D_VALVE_FOG
-
-				
-				
 
 				#pragma skip_variants SHADOWS_SOFT
 
