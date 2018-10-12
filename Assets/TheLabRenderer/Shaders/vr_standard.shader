@@ -639,7 +639,7 @@ Shader "Valve/vr_standard"
 									
 					//float4 vAlbedoTexel = tex2D( g_tColor, tempParallax  ) * g_vColorTint.rgba;
 				//	float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * UNITY_ACCESS_INSTANCED_PROP(_Color).rgba;
-					float4 vAlbedoTexel = tex2D( g_tColor,  zTextureCoords   ) * UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color).rgba;
+					float4 vAlbedoTexel = tex2D( g_tColor,  zTextureCoords   ) * UNITY_ACCESS_INSTANCED_PROP( _Color).rgba;
 
 			//float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * (_Color).rgba;
 
