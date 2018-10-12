@@ -9,7 +9,7 @@ Material:
   m_Name: Anisotropic
   m_Shader: {fileID: 4800000, guid: 908b379d4818cd64184b95a21123d909, type: 3}
   m_ShaderKeywords: D_CASTSHADOW S_ANISOTROPIC_GLOSS S_OCCLUSION S_RECEIVE_SHADOWS
-    _DETAIL_MUL _METALLICGLOSSMAP _NORMALMAP
+    _DETAIL_MUL _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

@@ -139,15 +139,23 @@ Shader "Valve/vr_standard"
 
 				//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 				#pragma shader_feature	_VERTEXTINT
-				#pragma multi_compile  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON _ALPHAMULTIPLY_ON _ALPHAMOD2X_ON
+	//			#pragma multi_compile  _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON _ALPHAMULTIPLY_ON _ALPHAMOD2X_ON
+				#pragma shader_feature _ALPHATEST_ON
+				#pragma shader_feature _ALPHABLEND_ON
+				#pragma shader_feature _ALPHAPREMULTIPLY_ON
+				#pragma shader_feature _ALPHAMULTIPLY_ON
+				#pragma shader_feature _ALPHAMOD2X_ON
 
 				#pragma shader_feature _EMISSION
 			#if defined (_EMISSION)
 				#pragma shader_feature S_EMISSIVE_MULTI		
 			#endif
-			#if defined (_DETAIL)
-				#pragma multi_compile _DETAIL_MULX2 _DETAIL_MUL _DETAIL_ADD _DETAIL_LERP
-			#endif
+			 #if defined (_DETAIL)
+			 	#pragma shader_feature _DETAIL_MULX2 
+				#pragma shader_feature _DETAIL_MUL  
+				#pragma shader_feature	_DETAIL_ADD
+				#pragma shader_feature	_DETAIL_LERP
+			 #endif
 
 				#pragma shader_feature _PARALLAXMAP
 				#pragma shader_feature _COLORSHIFT
@@ -165,11 +173,17 @@ Shader "Valve/vr_standard"
 		#else  
 				#pragma shader_feature _NORMALMAP
 				#pragma shader_feature _FLUORESCENCEMAP		
-				#pragma multi_compile S_SPECULAR_NONE S_SPECULAR_BLINNPHONG S_SPECULAR_METALLIC S_ANISOTROPIC_GLOSS S_RETROREFLECTIVE
+				#pragma shader_feature S_SPECULAR_NONE
+				#pragma shader_feature	S_SPECULAR_BLINNPHONG
+				#pragma shader_feature	S_SPECULAR_METALLIC
+				#pragma shader_feature	S_ANISOTROPIC_GLOSS
+				#pragma shader_feature	S_RETROREFLECTIVE
 			#if defined(S_SPECULAR_METALLIC) || (S_RETROREFLECTIVE) || (S_ANISOTROPIC_GLOSS )
 				#pragma shader_feature _METALLICGLOSSMAP 
 				#if defined(S_SPECULAR_METALLIC)
-				#pragma multi_compile __ S_PACKING_RMA S_PACKING_MAES S_PACKING_MAS
+				#pragma shader_feature  S_PACKING_RMA 
+				#pragma shader_feature	S_PACKING_MAES
+				#pragma shader_feature S_PACKING_MAS
 				#endif
 			#elif defined(S_SPECULAR_BLINNPHONG)
 				#pragma shader_feature _SPECGLOSSMAP
@@ -182,18 +196,19 @@ Shader "Valve/vr_standard"
 				#pragma shader_feature S_RECEIVE_SHADOWS
 
 				#pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
+				
 				#pragma multi_compile DIRLIGHTMAP_OFF DIRLIGHTMAP_COMBINED DIRLIGHTMAP_SEPARATE
 				#pragma multi_compile DYNAMICLIGHTMAP_OFF DYNAMICLIGHTMAP_ON
 
-				#pragma multi_compile _ D_VALVE_SHADOWING_POINT_LIGHTS
-				#pragma multi_compile _ Z_SHAPEAO
+				#pragma shader_feature  D_VALVE_SHADOWING_POINT_LIGHTS
+				#pragma shader_feature  Z_SHAPEAO
 		#endif
 
 
 				#pragma multi_compile_instancing
 
-				#pragma multi_compile _ MATRIX_PALETTE_SKINNING_1BONE
-				#pragma multi_compile _ D_VALVE_FOG
+				#pragma shader_feature  MATRIX_PALETTE_SKINNING_1BONE
+				#pragma shader_feature  D_VALVE_FOG
 
 				#pragma skip_variants SHADOWS_SOFT
 
@@ -624,7 +639,7 @@ Shader "Valve/vr_standard"
 									
 					//float4 vAlbedoTexel = tex2D( g_tColor, tempParallax  ) * g_vColorTint.rgba;
 				//	float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * UNITY_ACCESS_INSTANCED_PROP(_Color).rgba;
-					float4 vAlbedoTexel = tex2D( g_tColor,  zTextureCoords   ) * UNITY_ACCESS_INSTANCED_PROP(_Color).rgba;
+					float4 vAlbedoTexel = tex2D( g_tColor,  zTextureCoords   ) * UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color).rgba;
 
 			//float4 vAlbedoTexel = tex2D( g_tColor, i.vTextureCoords.xy  ) * (_Color).rgba;
 
@@ -717,6 +732,9 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
+					#if S_EMISSIVE_MULTI
+					float3 AlbedoPreMetal = vAlbedo.rgb;
+					#endif
 
 					//-----------//
 					// Roughness //
@@ -968,7 +986,7 @@ Shader "Valve/vr_standard"
 
 
 					#if (S_EMISSIVE_MULTI)
-					o.vColor.rgb += vEmission.rgb * vAlbedo.rgb;	
+					o.vColor.rgb += vEmission.rgb * AlbedoPreMetal.rgb;	
 					#else
 					o.vColor.rgb += vEmission.rgb;
 					#endif
