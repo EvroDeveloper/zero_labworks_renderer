@@ -1,7 +1,10 @@
 
-Modified Lab Renderer --- Recommended Unity 2017.2.0 or above.
- 
+# Extra Modified Lab Renderer for LabWorks --- Recommended Unity 2017.2.0 or above.
 
+Goal of porting everything from Zero Lab Renderer to URP for use in BoneLab.
+Progress: 0%
+
+## Old Readme:
 Added new methods of light transport to help add to realism.
 
 Some new features:
