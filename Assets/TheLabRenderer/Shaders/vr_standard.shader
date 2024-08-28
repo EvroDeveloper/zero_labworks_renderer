@@ -132,7 +132,7 @@ Shader "Valve/vr_standard"
 			AlphaToMask [_Test]
 
 
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma target 5.0
 			//	#pragma only_renderers d3d11
 			//	#pragma exclude_renderers gles
@@ -232,16 +232,17 @@ Shader "Valve/vr_standard"
 				#endif
 
 				// Includes -------------------------------------------------------------------------------------------------------------------------------------------------
-				#include "UnityCG.cginc"
-				#include "UnityLightingCommon.cginc"
-				#include "UnityStandardUtils.cginc"
-				#include "vr_StandardInput.cginc"
-				#include "vr_utils.cginc"
-				#include "vr_lighting.cginc"
-				#include "vr_matrix_palette_skinning.cginc"
-				#include "vr_fog.cginc"
+				//#include "UnityCG.cginc"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+				//#include "UnityLightingCommon.cginc"
+				//include "UnityStandardUtils.cginc"
+				#include "vr_StandardInput.hlsl"
+				#include "vr_utils.hlsl"
+				#include "vr_lighting.hlsl"
+				#include "vr_matrix_palette_skinning.hlsl"
+				#include "vr_fog.hlsl"
 
-				#include "vr_zAO.cginc"
+				#include "vr_zAO.hlsl"
 
 
 
@@ -1015,7 +1016,7 @@ Shader "Valve/vr_standard"
 
 					return o;
 				}
-			ENDCG
+			ENDHLSL
 		}
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1028,7 +1029,7 @@ Shader "Valve/vr_standard"
 		//	
 		//	ZWrite On ZTest LEqual
 		//
-		//	CGPROGRAM
+		//	HLSLPROGRAM
 		//		#pragma target 5.0
 		//		// TEMPORARY: GLES2.0 temporarily disabled to prevent errors spam on devices without textureCubeLodEXT
 		//		#pragma exclude_renderers gles
@@ -1041,7 +1042,7 @@ Shader "Valve/vr_standard"
 		//		#pragma fragment fragShadowCaster
 		//
 		//		#include "UnityStandardShadow.cginc"
-		//	ENDCG
+		//	ENDHLSL
 		//}
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1054,7 +1055,7 @@ Shader "Valve/vr_standard"
 			Tags { "LightMode"="Meta" }
 		
 			Cull Off
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma only_renderers d3d11
 
 				#pragma vertex vert_meta
@@ -1065,7 +1066,7 @@ Shader "Valve/vr_standard"
 				#pragma shader_feature ___ _DETAIL_MULX2
 		
 				#include "UnityStandardMeta.cginc"
-			ENDCG
+			ENDHLSL
 		}
 	}
 

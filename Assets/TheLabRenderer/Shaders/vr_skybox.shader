@@ -28,7 +28,7 @@ Shader "Valve/vr_skybox"
 		Cull Off
 		ZWrite Off
 	
-		CGINCLUDE
+		HLSLINCLUDE
 			#pragma target 5.0
 			#pragma only_renderers d3d11
 			#pragma exclude_renderers gles
@@ -100,69 +100,69 @@ Shader "Valve/vr_skybox"
 				return o;
 			}
 
-		ENDCG
+		ENDHLSL
 
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma vertex SkyboxVs
 				#pragma fragment MainPs
 				sampler2D _FrontTex;
 				float4 _FrontTex_HDR;
 				PS_OUTPUT MainPs( PS_INPUT i ) { return SkyboxPs( i, _FrontTex, _FrontTex_HDR ); }
-			ENDCG 
+			ENDHLSL 
 		}
 
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma vertex SkyboxVs
 				#pragma fragment MainPs
 				sampler2D _BackTex;
 				float4 _BackTex_HDR;
 				PS_OUTPUT MainPs( PS_INPUT i ) { return SkyboxPs( i, _BackTex, _BackTex_HDR ); }
-			ENDCG 
+			ENDHLSL 
 		}
 
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma vertex SkyboxVs
 				#pragma fragment MainPs
 				sampler2D _LeftTex;
 				float4 _LeftTex_HDR;
 				PS_OUTPUT MainPs( PS_INPUT i ) { return SkyboxPs( i, _LeftTex, _LeftTex_HDR ); }
-			ENDCG
+			ENDHLSL
 		}
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma vertex SkyboxVs
 				#pragma fragment MainPs
 				sampler2D _RightTex;
 				float4 _RightTex_HDR;
 				PS_OUTPUT MainPs( PS_INPUT i ) { return SkyboxPs( i, _RightTex, _RightTex_HDR ); }
-			ENDCG
+			ENDHLSL
 		}	
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma vertex SkyboxVs
 				#pragma fragment MainPs
 				sampler2D _UpTex;
 				float4 _UpTex_HDR;
 				PS_OUTPUT MainPs( PS_INPUT i ) { return SkyboxPs( i, _UpTex, _UpTex_HDR ); }
-			ENDCG
+			ENDHLSL
 		}	
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma vertex SkyboxVs
 				#pragma fragment MainPs
 				sampler2D _DownTex;
 				float4 _DownTex_HDR;
 				PS_OUTPUT MainPs( PS_INPUT i ) { return SkyboxPs( i, _DownTex, _DownTex_HDR ); }
-			ENDCG
+			ENDHLSL
 		}
 	}
 }

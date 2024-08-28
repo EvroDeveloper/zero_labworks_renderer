@@ -37,7 +37,7 @@ MonoBehaviour:
     m_nativeDirectivesFoldout: 0
     m_directivesSaveItems:
     - LineType: 0
-      LineValue: vr_zAO.cginc
+      LineValue: vr_zAO.hlsl
     - LineType: 2
       LineValue: multi_compile _ Z_SHAPEAO
   m_nodeCategory: 5

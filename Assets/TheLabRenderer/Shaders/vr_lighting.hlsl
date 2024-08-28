@@ -5,9 +5,9 @@
 
 
 
-#include "UnityCG.cginc"
-#include "UnityStandardBRDF.cginc"
-#include "vr_PCSS.cginc"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+//#include "UnityStandardBRDF.hlsl"
+#include "vr_PCSS.hlsl"
 
 
 

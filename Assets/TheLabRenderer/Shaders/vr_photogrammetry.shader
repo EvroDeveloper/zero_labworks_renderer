@@ -29,7 +29,7 @@ Shader "Valve/vr_photogrammetry"
 			Blend SrcAlpha OneMinusSrcAlpha
 			//ZWrite [_ZWrite]
 
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma target 5.0
 				//#pragma only_renderers d3d11
 				//#pragma exclude_renderers gles
@@ -156,7 +156,7 @@ Shader "Valve/vr_photogrammetry"
 
 					return o;
 				}
-			ENDCG
+			ENDHLSL
 		}
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ Shader "Valve/vr_photogrammetry"
 		//	
 		//	ZWrite On ZTest LEqual
 		//
-		//	CGPROGRAM
+		//	HLSLPROGRAM
 		//		#pragma target 5.0
 		//		// TEMPORARY: GLES2.0 temporarily disabled to prevent errors spam on devices without textureCubeLodEXT
 		//		#pragma exclude_renderers gles
@@ -182,7 +182,7 @@ Shader "Valve/vr_photogrammetry"
 		//		#pragma fragment fragShadowCaster
 		//
 		//		#include "UnityStandardShadow.cginc"
-		//	ENDCG
+		//	ENDHLSL
 		//}
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ Shader "Valve/vr_photogrammetry"
 		
 			Cull Off
 		
-			CGPROGRAM
+			HLSLPROGRAM
 				#pragma only_renderers d3d11
 
 				#pragma vertex vert_meta
@@ -207,7 +207,7 @@ Shader "Valve/vr_photogrammetry"
 				#pragma shader_feature ___ _DETAIL_MULX2
 		
 				#include "UnityStandardMeta.cginc"
-			ENDCG
+			ENDHLSL
 		}
 	}
 }

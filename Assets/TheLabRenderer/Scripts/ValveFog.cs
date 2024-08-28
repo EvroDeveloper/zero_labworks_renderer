@@ -94,6 +94,34 @@ public class ValveFog : MonoBehaviour
 		Shader.SetGlobalColor( "heightFogColor", heightFogColor.linear );
 	}
 
+    [ContextMenu("Helper Values for UltEvent")]
+    private void DebugUltLogger(){
+
+        List<Vector4> gradientFogArray = new List<Vector4>();
+
+        float ds = 1.0f / (textureWidth - 1);
+        float s = 0.0f;
+        for (int i = 0; i < textureWidth; i++)
+        {
+            // gradientFogTexture.SetPixel(i, 0, grad.Evaluate(s));
+            gradientFogArray.Add(gradient.Evaluate(s).linear);
+            s += ds;
+        }
+       //gradientFogTexture.Apply();
+       //Shader.SetGlobalTexture("gradientFogTexture", gradientFogTexture);
+        Debug.Log("SetGlobalVectorArray: \"gradientFogArray\" - " + gradientFogArray);
+        
+
+        float scale = 1.0f / ( endDistance - startDistance );
+		float add = -startDistance / ( endDistance - startDistance );
+
+		Debug.Log("SetGlobalVector: \"gradientFogScaleAdd\" - " + new Vector4( scale, add, 0.0f, 0.0f ));
+        Debug.Log("SetGlobalColor: \"gradientFogLimitColor\" - " + gradient.Evaluate( 1.0f ).linear);
+        Debug.Log("SetGlobalVector: \"heightFogParams\" - " + new Vector4( heightFogThickness, heightFogFalloff, heightFogBaseHeight, 0.0f ));
+        Debug.Log("SetGlobalColor: \"heightFogColor\" - " + heightFogColor.linear);
+        
+    }
+
 
     //Switching from texture to 1D vector4 array
     public void GenerateArray(Gradient grad)

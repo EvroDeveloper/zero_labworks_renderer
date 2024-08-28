@@ -7,7 +7,7 @@
 #ifndef UNITY_STANDARD_INPUT_INCLUDED
 #define UNITY_STANDARD_INPUT_INCLUDED
 
-#include "UnityCG.cginc"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "UnityStandardConfig.cginc"
 #include "UnityPBSLighting.cginc" // TBD: remove
 #include "UnityStandardUtils.cginc"
