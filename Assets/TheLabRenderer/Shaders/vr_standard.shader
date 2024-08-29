@@ -235,7 +235,7 @@ Shader "Valve/vr_standard"
 
 				// Includes -------------------------------------------------------------------------------------------------------------------------------------------------
 				
-				// EVRONOTE: Put all the litmas includes here, hopefully this is enough
+				// EVRONOTE: I put all the litmas includes here, hopefully this is enough
 				
 				//#include "UnityCG.cginc"
 				#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
@@ -859,13 +859,18 @@ Shader "Valve/vr_standard"
 					//----------//
 					// Lighting //
 					//----------//
+
+					// EVRONOTE: wagghhhhh i dont understand surface data i wanna kms w this lighting stuff
+					// Could maybe just inject SLZ lighting into the vr_lighting.cginc/hlsl
+					//SLZSurfData surfData = SLZGetSurfDataMetallicGloss(vAlbedo.rgb, saturate(vMetallicGloss), saturate(), ao, emission.rgb, albedo.a);
 					
 					LightingTerms_t lightingTerms;
-					lightingTerms.vDiffuse.rgba = float4( 1.0, 1.0, 1.0 , 1.0);
-					lightingTerms.vSpecular.rgb = float3( 0.0, 0.0, 0.0 );
-					lightingTerms.vIndirectDiffuse.rgb = float3( 0.0, 0.0, 0.0 );
-					lightingTerms.vIndirectSpecular.rgb = float3( 0.0, 0.0, 0.0 );
-					lightingTerms.vTransmissiveSunlight.rgb = float3( 0.0, 0.0, 0.0 );
+					// EVRONOTE: Unneeded?
+					//lightingTerms.vDiffuse.rgba = float4( 1.0, 1.0, 1.0 , 1.0);
+					//lightingTerms.vSpecular.rgb = float3( 0.0, 0.0, 0.0 );
+					//lightingTerms.vIndirectDiffuse.rgb = float3( 0.0, 0.0, 0.0 );
+					//lightingTerms.vIndirectSpecular.rgb = float3( 0.0, 0.0, 0.0 );
+					//lightingTerms.vTransmissiveSunlight.rgb = float3( 0.0, 0.0, 0.0 );
 
 					//float flFresnelExponent = 5.0;
 					float flMetalness = 0.0f;
