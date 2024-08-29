@@ -2,6 +2,8 @@
 
 // Copyright (c) Valve Corporation, All rights reserved. ======================================================================================================
 
+// Reminder for evro: Search for EVRONOTE to find notes that arent original commetns
+
 Shader "Valve/vr_standard"
 {
 	Properties
@@ -201,7 +203,7 @@ Shader "Valve/vr_standard"
 				#pragma multi_compile DYNAMICLIGHTMAP_OFF DYNAMICLIGHTMAP_ON
 
 				#pragma shader_feature  D_VALVE_SHADOWING_POINT_LIGHTS
-				#pragma shader_feature  Z_SHAPEAO
+				//#pragma shader_feature  Z_SHAPEAO EVROREMOVED
 		#endif
 
 
@@ -232,8 +234,26 @@ Shader "Valve/vr_standard"
 				#endif
 
 				// Includes -------------------------------------------------------------------------------------------------------------------------------------------------
+				
+				// EVRONOTE: Put all the litmas includes here, hopefully this is enough
+				
 				//#include "UnityCG.cginc"
+				#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+				#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+				#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
+				#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SLZLighting.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SLZBlueNoise.hlsl"
+
+				#if !defined(SHADER_API_MOBILE)
+					#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SLZLightingSSR.hlsl"
+				#endif
 				//#include "UnityLightingCommon.cginc"
 				//include "UnityStandardUtils.cginc"
 				#include "vr_StandardInput.hlsl"
@@ -268,7 +288,7 @@ Shader "Valve/vr_standard"
 
 
 				// Structs --------------------------------------------------------------------------------------------------------------------------------------------------
-				struct VS_INPUT
+				struct VertIn
 				{
 					UNITY_VERTEX_INPUT_INSTANCE_ID
 					float4 vPositionOs : POSITION;
@@ -291,7 +311,7 @@ Shader "Valve/vr_standard"
 					#endif
 				};
 
-				struct PS_INPUT
+				struct VertOut
 				{
 					UNITY_VERTEX_INPUT_INSTANCE_ID
 					UNITY_VERTEX_OUTPUT_STEREO
@@ -342,12 +362,12 @@ Shader "Valve/vr_standard"
 
 
 				// MainVs ---------------------------------------------------------------------------------------------------------------------------------------------------
-				PS_INPUT MainVs( VS_INPUT i )
+				VertOut MainVs( VertIn i )
 				{
-					PS_INPUT o = ( PS_INPUT )0;
+					VertOut o = ( VertOut )0;
 
 					//Instancing
-					UNITY_INITIALIZE_OUTPUT(PS_INPUT, o);
+					UNITY_INITIALIZE_OUTPUT(VertOut, o);
 					UNITY_SETUP_INSTANCE_ID(i);
 					UNITY_TRANSFER_INSTANCE_ID(i,o);
 					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
@@ -491,20 +511,13 @@ Shader "Valve/vr_standard"
 
 				float _FogMultiplier = 1.0;
 
-
-
-				struct PS_OUTPUT
-				{
-					float4 vColor : SV_Target0;
-				};
-
-				PS_OUTPUT MainPs( PS_INPUT i
+				float4 MainPs( VertOut i
 					#if ( S_RENDER_BACKFACES )
 						, bool bIsFrontFace : SV_IsFrontFace
 					#endif
-					)
+					) : SV_Target0
 				{
-					PS_OUTPUT o = ( PS_OUTPUT )0;
+					float4 outputColor = float4 (1, 1, 1, 1);
 
 					UNITY_SETUP_INSTANCE_ID(i);
 
@@ -693,8 +706,8 @@ Shader "Valve/vr_standard"
 					//#if ( _ALPHATEST_ON )
 					//{
 					//	//clip( vAlbedoTexel.a - _Cutoff );
-					//	o.vColor.a = vAlbedoTexel.a;
-					//	//o.vColor.a = (o.vColor.a - _Cutoff) / max(fwidth(o.vColor.a), 0.0001) + 0.5;
+					//	outputColor.a = vAlbedoTexel.a;
+					//	//outputColor.a = (outputColor.a - _Cutoff) / max(fwidth(outputColor.a), 0.0001) + 0.5;
 					//}
 					//#endif
 
@@ -710,26 +723,26 @@ Shader "Valve/vr_standard"
 						#if ( !S_UNLIT && !_ALPHATEST_ON)
 						
 						float normalBlend = 1 - saturate( Dotfresnel );
-						o.vColor.a = saturate(vAlbedoTexel.a + lerp(0 , 1 * _Cutoff , normalBlend ));
+						outputColor.a = saturate(vAlbedoTexel.a + lerp(0 , 1 * _Cutoff , normalBlend ));
 
 						#else
-						o.vColor.a = vAlbedoTexel.a;
+						outputColor.a = vAlbedoTexel.a;
 						#endif
 
 						#if ( _VERTEXTINT )
-						o.vColor.a *= i.vertexColor.w;
+						outputColor.a *= i.vertexColor.w;
 						#endif
 
 						#if ( _ALPHATEST_ON )
 
 						//Magic AlphaToCoverage sharpening. Thanks Ben Golus! https://medium.com/@bgolus/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f
-						o.vColor.a = (o.vColor.a - _Cutoff) / max(fwidth(o.vColor.a), 0.0001) + 0.5;
+						outputColor.a = (outputColor.a - _Cutoff) / max(fwidth(outputColor.a), 0.0001) + 0.5;
 						#endif
 
 					}
 					#else
 					{
-						o.vColor.a = 1.0;
+						outputColor.a = 1.0;
 					}
 					#endif
 
@@ -842,9 +855,11 @@ Shader "Valve/vr_standard"
 					}
 					#endif
 
+					// EVRONOTE: Yeahhhhh lighting will be tricky, its controlled entirely by Valve Camera i think.
 					//----------//
 					// Lighting //
 					//----------//
+					
 					LightingTerms_t lightingTerms;
 					lightingTerms.vDiffuse.rgba = float4( 1.0, 1.0, 1.0 , 1.0);
 					lightingTerms.vSpecular.rgb = float3( 0.0, 0.0, 0.0 );
@@ -855,6 +870,7 @@ Shader "Valve/vr_standard"
 					//float flFresnelExponent = 5.0;
 					float flMetalness = 0.0f;
 
+					// EVRONOTE: Originally "( !S_UNLIT )" but can be switched to false for testing as unlit until i can get lighting working
 					#if ( !S_UNLIT )
 					{
 						float4 vLightmapUV = float4( 0.0, 0.0, 0.0, 0.0 );
@@ -906,14 +922,14 @@ Shader "Valve/vr_standard"
 					//#if ( _BRDFMAP )
 					//{
 					//float3 brdfmap = tex2D( g_tBRDFMap, i.vTextureCoords.xy ).rgb;
-				//	o.vColor.rgb = BRDFRemapping( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb , g_tBRDFMap) * vAlbedo.rgb;
-					//o.vColor.rgb = ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb );
+				//	outputColor.rgb = BRDFRemapping( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb , g_tBRDFMap) * vAlbedo.rgb;
+					//outputColor.rgb = ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb );
 
 					//}
 				//	#else
 					//{
 					// Diffuse
-					o.vColor.rgb = ClampToPositive( ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb ) * vAlbedo.rgb);
+					outputColor.rgb = ClampToPositive( ( lightingTerms.vDiffuse.rgb + lightingTerms.vIndirectDiffuse.rgb ) * vAlbedo.rgb);
 				//	}
 				//	#endif
 
@@ -923,7 +939,7 @@ Shader "Valve/vr_standard"
 					{
 						float3 ColorMaskTex = 1 - tex2D(_ColorMask, zTextureCoords.xy ).rgb ;
 						float3 ColorShifter = max(g_vColorShift1.rgb, ColorMaskTex.rrr) * max(g_vColorShift2.rgb, ColorMaskTex.ggg) * max(g_vColorShift3.rgb, ColorMaskTex.bbb);
-						o.vColor.rgb *= ColorShifter;
+						outputColor.rgb *= ColorShifter;
 					}
 					#endif
 
@@ -936,7 +952,7 @@ Shader "Valve/vr_standard"
 					// 					/*BLUE*/	max(lightingTerms.vDiffuse.b + lightingTerms.vIndirectDiffuse.b , lightingTerms.vDiffuse.a)
 					// 								) 
 					// 								* vFluorescence.rgb ;
-					// o.vColor.rgb = max(o.vColor.rgb, LitFluorescence.rgb);
+					// outputColor.rgb = max(outputColor.rgb, LitFluorescence.rgb);
 
 					float4 FluorescenceAbsorb = (lightingTerms.vDiffuse + float4( lightingTerms.vIndirectDiffuse.rgb , 0.0 ) ) * g_vAbsorbance;					
 
@@ -945,7 +961,7 @@ Shader "Valve/vr_standard"
 					float Absorbed_R = Absorbed_G + FluorescenceAbsorb.r;
 
 					float3 LitFluorescence =  float3(Absorbed_R, Absorbed_G, Absorbed_B) * vFluorescence.rgb ;
-					o.vColor.rgb = max(o.vColor.rgb, LitFluorescence.rgb);					
+					outputColor.rgb = max(outputColor.rgb, LitFluorescence.rgb);					
 
 					#endif
 					//)
@@ -954,17 +970,17 @@ Shader "Valve/vr_standard"
 					#ifdef S_PACKING_MAES
 					float3 vEmission = unPackedTexture.a * _EmissionColor ;
 					#else
-					float3 vEmission = Emission( zTextureCoords.xy );
+					float3 vEmission = /*vr_StandardInput*/Emission( zTextureCoords.xy );
 					#endif
 					
 
 					// Specular
 					#if ( !S_SPECULAR_NONE )
 					{
-						o.vColor.rgb += lightingTerms.vSpecular.rgb;
+						outputColor.rgb += lightingTerms.vSpecular.rgb;
 					}
 					#endif
-					o.vColor.rgb += lightingTerms.vIndirectSpecular.rgb; // Indirect specular applies its own fresnel in the forward lighting header file
+					outputColor.rgb += lightingTerms.vIndirectSpecular.rgb; // Indirect specular applies its own fresnel in the forward lighting header file
 					// Emission - Unity just adds the emissive term at the end instead of adding it to the diffuse lighting term. Artists may want both options.
 
 					
@@ -975,25 +991,31 @@ Shader "Valve/vr_standard"
 
 
 					//Shape Occlusion
+
+					// EVRONOTE: Shape Occlusion is put in by using specific gameobjects with spheres.
+					// Should be able to put the spheres using ultevents
+					// On second thought, i actually dont know... setting matrices with ultevents might not be possible
+					// At the worst it can just be a vestigial codepiece if i ever decide to use a codemod
+
 					#if (Z_SHAPEAO && !S_UNLIT )
 					{
-					float vAO = CalculateShapeAO( i.vPositionWs.xyz, vNormalWs.xyz);
+						float vAO = CalculateShapeAO( i.vPositionWs.xyz, vNormalWs.xyz);
 					
-					o.vColor.rgb *= vAO;
+						outputColor.rgb *= vAO;
 					}
 					#endif
 
 					#endif
 
-
+					// EVRONOTE: this might be my favorite bit in the whole shader, mult by albedo my beloved
 					#if (S_EMISSIVE_MULTI)
-					o.vColor.rgb += vEmission.rgb * AlbedoPreMetal.rgb;	
+					outputColor.rgb += vEmission.rgb * AlbedoPreMetal.rgb;	
 					#else
-					o.vColor.rgb += vEmission.rgb;
+					outputColor.rgb += vEmission.rgb;
 					#endif
 
 					#if ( _VERTEXTINT )
-					o.vColor.rgb *= i.vertexColor.xyz;
+					outputColor.rgb *= i.vertexColor.xyz;
 					#endif
 
 					
@@ -1003,18 +1025,18 @@ Shader "Valve/vr_standard"
 					{				
 						
 						#if (_ALPHAPREMULTIPLY_ON || _ALPHAMULTIPLY_ON || _ALPHAMOD2X_ON)
-						o.vColor.rgba = ApplyFog( o.vColor.rgba, i.vFogCoords.xy, _FogMultiplier, _ColorMultiplier );
+						outputColor.rgba = ApplyFog( outputColor.rgba, i.vFogCoords.xy, _FogMultiplier, _ColorMultiplier );
 						#else
-						o.vColor.rgb = ApplyFog( o.vColor.rgb, i.vFogCoords.xy, _FogMultiplier );
+						outputColor.rgb = ApplyFog( outputColor.rgb, i.vFogCoords.xy, _FogMultiplier );
 						#endif
 					}
 					#endif
 
 
 					// Dither to fix banding artifacts
-					o.vColor.rgba += ScreenSpaceDither( i.vPositionPs.xy );
+					outputColor.rgba += ScreenSpaceDither( i.vPositionPs.xy );
 
-					return o;
+					return outputColor;
 				}
 			ENDHLSL
 		}
