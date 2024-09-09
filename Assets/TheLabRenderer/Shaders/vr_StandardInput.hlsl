@@ -8,9 +8,9 @@
 #define UNITY_STANDARD_INPUT_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-#include "UnityStandardConfig.cginc"
-#include "UnityPBSLighting.cginc" // TBD: remove
-#include "UnityStandardUtils.cginc"
+//#include "UnityStandardConfig.cginc"
+//#include "UnityPBSLighting.cginc" // TBD: remove
+//#include "UnityStandardUtils.cginc"
 
 //---------------------------------------
 // Directional lightmaps & Parallax require tangent space too
@@ -245,4 +245,4 @@ float4 Parallax (float4 texcoords, half3 viewDir)
 
 }
 
-#endif // UNITY_STANDARD_INPUT_INCLUDED
+#endif // UNITY_STANDARD_INPUT_INCLUDED 
